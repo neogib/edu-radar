@@ -1,6 +1,6 @@
 from sqlmodel import Session, SQLModel, create_engine
 
-from .config import Settings
+from src.app.core.config import Settings
 
 # DATABASE_URI is of type PostgresDsn, that's why we need get_connection_string method
 settings = Settings()  # pyright: ignore[reportCallIssue]
