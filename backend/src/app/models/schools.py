@@ -142,7 +142,7 @@ class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
 class SzkolaAllData(SzkolaExtendedData):
     geolokalizacja_latitude: float
     geolokalizacja_longitude: float
-    score: float = Field(default=0.0)
+    score: float | None = Field(default=None, ge=0.0, le=100.0, index=True)
     # Foreign keys
     typ_id: int | None = Field(index=True, default=None, foreign_key="typ_szkoly.id")
     status_publicznoprawny_id: int | None = Field(
@@ -188,7 +188,7 @@ class SzkolaPublicShort(SzkolaBase):
     id: int
     geolokalizacja_latitude: float
     geolokalizacja_longitude: float
-    score: float
+    score: float | None
     typ: TypSzkolyPublic
     status_publicznoprawny: StatusPublicznoprawnyPublic
 
