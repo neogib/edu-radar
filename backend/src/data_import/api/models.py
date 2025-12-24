@@ -3,15 +3,15 @@ from typing import cast
 from pydantic import ConfigDict, model_validator
 from sqlmodel import SQLModel
 
-from app.models.schools import (
+from src.app.models.schools import (
     EtapEdukacjiBase,
     KategoriaUczniowBase,
     StatusPublicznoprawnyBase,
     SzkolaExtendedData,
     TypSzkolyBase,
 )
-from data_import.api.types import SchoolDict
-from data_import.utils.convert_to_camel import custom_camel
+from src.data_import.api.types import SchoolDict
+from src.data_import.utils.convert_to_camel import custom_camel
 
 
 class GeolocationAPIResponse(SQLModel):
