@@ -15,4 +15,10 @@
             "path": "./.nuxt/tsconfig.node.json"
         }
     ]
+    "compilerOptions": {
+        // setup for openapi typescript
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "noUncheckedIndexedAccess": true
+    }
 }
