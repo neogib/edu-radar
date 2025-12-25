@@ -3,10 +3,12 @@ import time
 from typing import cast
 
 import requests
+from urllib3.util import url
 
 from src.data_import.api.exceptions import APIRequestError, SchoolsDataError
 from src.data_import.api.types import APIResponse, SchoolDict
 from src.data_import.core.config import TIMEOUT, APISettings, RetrySettings
+from src.data_import.utils.requests import api_request
 
 logger = logging.getLogger(__name__)
 
@@ -38,36 +40,6 @@ class SchoolsAPIFetcher:
         self.base_url: str = base_url
         self.headers: dict[str, str] = headers
 
-    def api_request(self, params: dict[str, int]) -> APIResponse:
-        """
-        Helper to make API requests
-        """
-        delay = RetrySettings.INITIAL_DELAY
-        max_retries = RetrySettings.MAX_RETRIES
-        for attempt in range(max_retries):
-            try:
-                response = requests.get(
-                    self.base_url,
-                    headers=self.headers,
-                    params=params,
-                    timeout=(TIMEOUT.CONNECT, TIMEOUT.READ),
-                )
-                response.raise_for_status()  # Raises HTTPError for bad status codes
-                return cast(APIResponse, response.json())
-            except requests.exceptions.RequestException as err:
-                logger.error(
-                    f"❌ API Request failed (attempt {attempt + 1}/{max_retries}): {err}"
-                )
-                if (attempt + 1) < max_retries:
-                    logger.info(f"⏱️ Retrying in {delay} seconds...")
-                    time.sleep(delay)
-                    delay = min(
-                        delay * 2, RetrySettings.MAX_DELAY
-                    )  # exponential backoff
-        raise APIRequestError(
-            "API Request failed after all retries", attempts=max_retries
-        )  # Raise custom exception after all retries
-
     def fetch_schools_page(self, page: int = 1) -> HydraResponse:
         """
         Fetch schools data from one page
@@ -75,7 +47,10 @@ class SchoolsAPIFetcher:
         params = {"page": page}
 
         try:
-            data = self.api_request(params)
+            data = cast(
+                APIResponse,
+                api_request(url=self.base_url, params=params, headers=self.headers),
+            )
             hydra_response = HydraResponse(data)
             return hydra_response
         except APIRequestError as err:
@@ -86,8 +61,10 @@ class SchoolsAPIFetcher:
         self, start_page: int, max_schools: int = APISettings.MAX_SCHOOLS_SEGMENT
     ) -> tuple[list[SchoolDict], int | None]:
         """
-        Fetch a segment of schools data, up to max_schools
-        Returns tuple of (schools_list, next_page_number)
+        Fetch a segment of schools data, up to max_schools.
+
+        Returns:
+            Tuple of (schools_list, next_page_number)
         """
         schools: list[SchoolDict] = []
         current_page = start_page
