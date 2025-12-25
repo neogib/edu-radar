@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.app.routers import school_types, schools
+
 app = FastAPI()
+
 
 origins = [
     # default port for Nuxt.js
@@ -16,6 +19,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(schools.router)
+app.include_router(school_types.router)
 
 
 @app.get("/test")
