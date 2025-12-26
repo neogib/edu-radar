@@ -26,6 +26,8 @@ class TIMEOUT:
 class GeocodingSettings:
     UUG_URL: str = "https://services.gugik.gov.pl/uug/"
     ULDK_URL: str = "https://uldk.gugik.gov.pl"
+    SRID_POL: int = 2180  # EPSG code for Poland CS92 coordinate system
+    SRID_WGS84: int = 4326  # EPSG code for WGS84 coordinate system
 
 
 @final
