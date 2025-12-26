@@ -54,7 +54,6 @@ def api_request(
                 timeout=timeout,
             )
             response.raise_for_status()
-            return response.json()  # pyright: ignore[reportAny]
         except requests.exceptions.RequestException as err:
             logger.error(
                 f"❌ API Request failed (attempt {attempt + 1}/{max_retries}): {err}"
@@ -63,6 +62,11 @@ def api_request(
                 logger.info(f"⏱️ Retrying in {delay} seconds...")
                 time.sleep(delay)
                 delay = min(delay * 2, max_delay)
+            continue
+        try:
+            return response.json()  # pyright: ignore[reportAny]
+        except requests.exceptions.JSONDecodeError:  # api doesn't reponse with json
+            return response.text
 
     raise APIRequestError(
         f"API Request to {url} failed after all retries",
