@@ -23,6 +23,11 @@ class TIMEOUT:
     READ: int = 60
 
 
+class GeocodingSettings:
+    UUG_URL: str = "https://services.gugik.gov.pl/uug/"
+    ULDK_URL: str = "https://uldk.gugik.gov.pl"
+
+
 @final
 class ExamType(Enum):
     "Directories for E8 and EM data and their headers"
