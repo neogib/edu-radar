@@ -10,7 +10,7 @@ from src.data_import.utils.db.session import DatabaseManagerBase
 logger = logging.getLogger(__name__)
 
 
-class AddressExport(DatabaseManagerBase):
+class SchoolAddressExporter(DatabaseManagerBase):
     """
     Export addresses from the database for external processing.
 
