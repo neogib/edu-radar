@@ -2,8 +2,10 @@ import csv
 import logging
 from typing import cast
 
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
+from src.app.models.locations import Gmina, Miejscowosc, Powiat
 from src.app.models.schools import Szkola
 from src.data_import.utils.db.session import DatabaseManagerBase
 
@@ -109,5 +111,11 @@ class SchoolAddressExporter(DatabaseManagerBase):
             .where(cast(int, Szkola.id) > last_id)
             .order_by(Szkola.id)  # pyright: ignore[reportArgumentType]
             .limit(batch_size)
+            .options(
+                selectinload(Szkola.miejscowosc)  # pyright: ignore[reportArgumentType]
+                .selectinload(Miejscowosc.gmina)  # pyright: ignore[reportArgumentType]
+                .selectinload(Gmina.powiat)  # pyright: ignore[reportArgumentType]
+                .selectinload(Powiat.wojewodztwo),  # pyright: ignore[reportArgumentType]
+            )
         ).all()
         return schools
