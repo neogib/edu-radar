@@ -116,6 +116,7 @@ class SchoolAddressExporter(DatabaseManagerBase):
                 .selectinload(Miejscowosc.gmina)  # pyright: ignore[reportArgumentType]
                 .selectinload(Gmina.powiat)  # pyright: ignore[reportArgumentType]
                 .selectinload(Powiat.wojewodztwo),  # pyright: ignore[reportArgumentType]
+                selectinload(Szkola.ulica),  # pyright: ignore[reportArgumentType]
             )
         ).all()
         return schools
