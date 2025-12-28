@@ -7,7 +7,8 @@ from src.data_import.api.fetcher import SchoolsAPIFetcher
 from src.data_import.core.config import APISettings, ExamType, ScoreType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
-from src.data_import.geo.geocoder import GeoCoder
+from src.data_import.geo.exporter import SchoolAddressExporter
+from src.data_import.geo.importer import SchoolCoordinatesImporter
 from src.data_import.score.scorer import Scorer
 
 logger = logging.getLogger(__name__)
@@ -112,13 +113,20 @@ def update_scoring():
     logger.info("🎉 Score calculation completed")
 
 
-def update_coordinates():
-    logger.info("📍 Updating school coordinates...")
+def update_coordinates(export: bool = True):
+    if export:
+        logger.info("📍 Exporting school addresses...")
+        with (
+            SchoolAddressExporter() as address_exporter
+        ):  # first export addresses to process csv with capap geocoding service
+            address_exporter.export_school_addresses()
+        logger.info("✅ School addresses exported successfully")
 
-    with GeoCoder() as geocoder:
-        geocoder.update_school_coordinates()
-
-    logger.info("✅ School coordinates updated successfully")
+    # logger.info("🌍 Starting importing converted coordinates...")
+    # with SchoolCoordinatesImporter() as geoupdater:
+    #     geoupdater.update_school_coordinates()
+    #
+    # logger.info("✅ School coordinates updated successfully")
 
 
 def main():
@@ -126,13 +134,13 @@ def main():
     logger.info("🛠️ Creating database and tables...")
     create_db_and_tables()
 
-    logger.info("📥 Starting segmented schools data import...")
-    api_importer()
-    excel_importer()
-
-    logger.info("📊 Starting score calculation...")
-    update_scoring()
-
+    # logger.info("📥 Starting segmented schools data import...")
+    # api_importer()
+    # excel_importer()
+    #
+    # logger.info("📊 Starting score calculation...")
+    # update_scoring()
+    #
     logger.info("📍 Starting geocoding update...")
     update_coordinates()
 
