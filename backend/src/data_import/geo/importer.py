@@ -1,16 +1,20 @@
 import csv
 import logging
+from pathlib import Path
 
 from src.app.models.schools import Szkola
+from src.data_import.core.config import CSV_DIR
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 logger = logging.getLogger(__name__)
 
 
 class SchoolCoordinatesImporter(DatabaseManagerBase):
-    def __init__(self, converted_file: str = "converted_addresses.csv"):
+    def __init__(
+        self, converted_file: str | Path = CSV_DIR / "converted_addresses.csv"
+    ):
         super().__init__()
-        self.converted_file: str = converted_file
+        self.converted_file: str | Path = converted_file
 
     def update_school_coordinates(self) -> None:
         """

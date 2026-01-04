@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 from typing import ClassVar, final
 
 from src.app.models.exam_results import WynikE8, WynikEM
@@ -75,3 +76,9 @@ class ScoreType(Enum):
     ):
         self.subject_weights_map = subject_weights_map
         self.table_type = table_type
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = BASE_DIR / "storage"
+CSV_DIR = DATA_DIR / "csv"
+LOGS_DIR = DATA_DIR / "logs"

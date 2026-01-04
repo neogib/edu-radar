@@ -1,5 +1,6 @@
 import csv
 import logging
+from pathlib import Path
 from typing import cast
 
 from sqlalchemy.orm import selectinload
@@ -7,6 +8,7 @@ from sqlmodel import Session, select
 
 from src.app.models.locations import Gmina, Miejscowosc, Powiat
 from src.app.models.schools import Szkola
+from src.data_import.core.config import CSV_DIR
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 logger = logging.getLogger(__name__)
@@ -19,9 +21,9 @@ class SchoolAddressExporter(DatabaseManagerBase):
     Iterates over schools in the database and exports their addresses to a CSV file.
     """
 
-    def __init__(self, export_file: str = "school_addresses.csv"):
+    def __init__(self, export_file: str | Path = CSV_DIR / "school_addresses.csv"):
         super().__init__()
-        self.export_file: str = export_file
+        self.export_file: str | Path = export_file
 
     def export_school_addresses(self, batch_size: int = 1000) -> None:
         """

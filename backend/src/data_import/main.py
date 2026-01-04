@@ -4,7 +4,7 @@ from src.app.core.database import create_db_and_tables
 from src.data_import.api.db.decomposer import Decomposer
 from src.data_import.api.exceptions import SchoolsDataError
 from src.data_import.api.fetcher import SchoolsAPIFetcher
-from src.data_import.core.config import APISettings, ExamType, ScoreType
+from src.data_import.core.config import LOGS_DIR, APISettings, ExamType, ScoreType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
 from src.data_import.geo.exporter import SchoolAddressExporter
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def configure_logging():
-    file_handler = logging.FileHandler("data_import.log")
+    file_handler = logging.FileHandler(LOGS_DIR / "data_import.log")
     stream_handler = logging.StreamHandler()
     logging.basicConfig(
         level=logging.INFO,
