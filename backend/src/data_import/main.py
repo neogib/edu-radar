@@ -1,6 +1,5 @@
 import logging
 
-from src.app.core.database import create_db_and_tables
 from src.data_import.api.db.decomposer import Decomposer
 from src.data_import.api.exceptions import SchoolsDataError
 from src.data_import.api.fetcher import SchoolsAPIFetcher
@@ -113,34 +112,15 @@ def update_scoring():
     logger.info("🎉 Score calculation completed")
 
 
-def update_coordinates(export: bool = True):
-    if export:
-        logger.info("📍 Exporting school addresses...")
-        with (
-            SchoolAddressExporter() as address_exporter
-        ):  # first export addresses to process csv with capap geocoding service
-            address_exporter.export_school_addresses()
-        logger.info("✅ School addresses exported successfully")
-
-    # logger.info("🌍 Starting importing converted coordinates...")
-    # with SchoolCoordinatesImporter() as geoupdater:
-    #     geoupdater.update_school_coordinates()
-    #
-    # logger.info("✅ School coordinates updated successfully")
-
-
 def main():
     configure_logging()
 
-    # logger.info("📥 Starting segmented schools data import...")
-    # api_importer()
-    # excel_importer()
-    #
-    # logger.info("📊 Starting score calculation...")
-    # update_scoring()
-    #
-    logger.info("📍 Starting geocoding update...")
-    update_coordinates()
+    logger.info("📥 Starting segmented schools data import...")
+    api_importer()
+    excel_importer()
+
+    logger.info("📊 Starting score calculation...")
+    update_scoring()
 
 
 if __name__ == "__main__":
