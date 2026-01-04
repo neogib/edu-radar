@@ -131,8 +131,6 @@ def update_coordinates(export: bool = True):
 
 def main():
     configure_logging()
-    logger.info("🛠️ Creating database and tables...")
-    create_db_and_tables()
 
     # logger.info("📥 Starting segmented schools data import...")
     # api_importer()
