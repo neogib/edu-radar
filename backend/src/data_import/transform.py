@@ -4,6 +4,7 @@ import sys
 
 from src.data_import.geo.exporter import SchoolAddressExporter
 from src.data_import.geo.importer import SchoolCoordinatesImporter
+from src.data_import.geo.location_shifter import SchoolLocationShifter
 from src.data_import.main import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -25,10 +26,12 @@ def import_coordinates():
     logger.info("✅ School coordinates updated successfully")
 
 
-def move_data():
+def shift_school_locations():
     """Move data functionality - to be implemented later."""
-    logger.warning("⚠️ Move functionality is not yet implemented")
-    logger.info("🚧 This feature will be added in a future update")
+    logger.warning("Starting to shift school locations...")
+    with SchoolLocationShifter() as location_shifter:
+        schools_shifted = location_shifter.shift_school_locations()
+    logger.info(f"✅ Shifted locations for {schools_shifted} schools successfully")
 
 
 class TransformOptions:
@@ -62,7 +65,7 @@ def main():
         elif args.option == "import":
             import_coordinates()
         elif args.option == "move":
-            move_data()
+            shift_school_locations()
     except Exception as e:
         logger.error(f"❌ Error executing {args.option} operation: {e}")
         sys.exit(1)
