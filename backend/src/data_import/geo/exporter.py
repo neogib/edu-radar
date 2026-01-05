@@ -34,9 +34,10 @@ class SchoolAddressExporter(DatabaseManagerBase):
         - wojewodztwo: Voivodeship name
         - powiat: County name
         - gmina: Municipality name
+        - gmina_teryt: Municipality TERYT code
         - miejscowosc: Locality name
         - ulica: Street name (optional)
-        - numer_budynku: Building number (optional)
+        - numer_domu: Building number (optional)
         - kod_pocztowy: Postal code
         """
         session = self._ensure_session()
@@ -67,9 +68,10 @@ class SchoolAddressExporter(DatabaseManagerBase):
                             "wojewodztwo",
                             "powiat",
                             "gmina",
+                            "gmina_teryt",
                             "miejscowosc",
                             "ulica",
-                            "numer_budynku",
+                            "numer_domu",
                             "kod_pocztowy",
                         ]
                     )
@@ -98,6 +100,7 @@ class SchoolAddressExporter(DatabaseManagerBase):
             wojewodztwo.nazwa,
             powiat.nazwa,
             gmina.nazwa,
+            gmina.teryt,
             miejscowosc.nazwa,
             school.ulica.nazwa if school.ulica else "",
             school.numer_budynku or "",
