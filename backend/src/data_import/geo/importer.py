@@ -22,6 +22,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         """
         session = self._ensure_session()
         total_processed = 0
+        total_skipped = 0
 
         # Define required columns
         col_id = "id"
@@ -51,6 +52,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                     raw_lon = row.get(col_lon, "").strip()
 
                     if not raw_id or not raw_lat or not raw_lon:
+                        total_skipped += 1
                         logger.warning(
                             f"Skipping row with missing data: ID={raw_id},  Lat={raw_lat}, Lon={raw_lon}"
                         )
@@ -87,6 +89,9 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                 session.commit()
                 logger.info(
                     f"Successfully updated coordinates for {total_processed} schools."
+                )
+                logger.info(
+                    f"Skipped {total_skipped} rows due to missing or invalid data."
                 )
 
         except FileNotFoundError:
