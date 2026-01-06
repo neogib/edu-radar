@@ -1,0 +1,16 @@
+# Git
+.git
+.gitignore
+
+# python
+__pycache__
+.pytest_cache
+*.pyc
+*.pyo
+.venv
+venv
+env
+
+# env files
+.env*
+

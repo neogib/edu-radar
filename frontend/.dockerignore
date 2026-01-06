@@ -1,0 +1,16 @@
+# Git
+.git
+.gitignore
+
+# dependencies
+node_modules
+.pnpm-store
+
+# Build output
+.nuxt
+.output
+dist
+
+# env files
+.env*
+
