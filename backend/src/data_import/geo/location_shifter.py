@@ -3,6 +3,7 @@ import math
 from sqlmodel import Numeric, cast, func, select, tuple_
 
 from src.app.models.schools import Szkola
+from src.data_import.core.config import ShifterSettings
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 
@@ -14,7 +15,7 @@ class SchoolLocationShifter(DatabaseManagerBase):
     of schools stored in the database by a given value within a specified radius.
     """
 
-    def __init__(self, shift_value: float = 0.0001):
+    def __init__(self, shift_value: float = ShifterSettings.SHIFT_VALUE):
         """
         Args:
             shift_value (float): The value by which to shift the coordinates in degrees.
@@ -161,12 +162,14 @@ class SchoolLocationShifter(DatabaseManagerBase):
         # Circle 3: 18 points (indices 19-36)
         # Pattern: circle n has 6*n points
 
-        points_in_circle = 4
         circle_level = 1
         total_points_so_far = 0  # Center point
 
-        while total_points_so_far + (points_in_circle * circle_level) < index:
-            total_points_so_far += points_in_circle * circle_level
+        while (
+            total_points_so_far + (ShifterSettings.POINTS_PER_CIRCLE * circle_level)
+            < index
+        ):
+            total_points_so_far += ShifterSettings.POINTS_PER_CIRCLE * circle_level
             circle_level += 1
 
         # Position within the current circle
@@ -176,7 +179,9 @@ class SchoolLocationShifter(DatabaseManagerBase):
         circle_radius = self.shift_value * circle_level
 
         # Angle for this position (evenly distributed around the circle)
-        angle = (position_in_circle * 2 * math.pi) / (points_in_circle * circle_level)
+        angle = (position_in_circle * 2 * math.pi) / (
+            ShifterSettings.POINTS_PER_CIRCLE * circle_level
+        )
 
         # Convert polar coordinates to Cartesian offsets
         lat_offset = circle_radius * math.cos(angle)
