@@ -6,8 +6,9 @@ export default defineNuxtConfig({
     modules: ["@nuxt/eslint", "@nuxt/ui", "nuxt-maplibre"],
     // Runtime environment configuration
     runtimeConfig: {
+        proxyURL: "http://localhost:8000",
         public: {
-            apiBase: "http://localhost:8000",
+            apiBase: "/api",
         },
     },
     css: ["./app/assets/css/main.css"],
