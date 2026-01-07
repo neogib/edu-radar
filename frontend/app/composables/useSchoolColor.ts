@@ -1,5 +1,8 @@
 export const useScoreColor = () => {
-    const getColor = (score: number) => {
+    const getColor = (score: number | null) => {
+        if (score === null) {
+            return "#87CEFA" // Light Blue for null scores
+        }
         if (score <= 50) {
             // Red to Yellow (0-50)
             const ratio = score / 50
