@@ -3,10 +3,7 @@ definePageMeta({
     colorMode: "light",
 })
 import { ref } from "vue"
-import HeaderBar from "~/components/nav/HeaderBar.vue"
 import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
-
-const isMobileMenuOpen = ref(false)
 
 const selectedVoivodeship = ref<string>("")
 

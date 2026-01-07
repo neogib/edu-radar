@@ -4,7 +4,6 @@ import type {
     SzkolaPublicShort,
 } from "~/types/schools"
 import { MAP_CONFIG } from "~/constants/mapConfig"
-import HeaderBar from "~/components/nav/HeaderBar.vue"
 
 const route = useRoute()
 // Create a computed property for query parameters to refetch data after changing them
