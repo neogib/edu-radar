@@ -92,7 +92,9 @@ const scoreColor = computed(() => {
                 </div>
 
                 <!-- Score Display -->
-                <div class="bg-white rounded-xl p-4 shadow-sm">
+                <div
+                    class="bg-white rounded-xl p-4 shadow-sm"
+                    v-if="selectedPoint.score !== null">
                     <div class="flex items-center justify-between">
                         <div>
                             <p
