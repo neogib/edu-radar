@@ -1,0 +1,39 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file: ./backend/src/.env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - UV_NO_DEV=0
+    develop:
+      watch:
+        # Sync the backend directory with the `/app/backend` directory in the container
+        - action: sync
+          path: ./backend
+          target: /app/backend
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+        # Rebuild the image if dependencies change by checking uv.lock
+        - action: rebuild
+          path: ./backend/uv.lock
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    env_file: ./frontend/.env
+    environment:
+      - NUXT_PROXY_URL=http://backend:8000
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app/frontend
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./frontend/package.json
