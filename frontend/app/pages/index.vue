@@ -1,5 +1,9 @@
 <script setup lang="ts">
+definePageMeta({
+    colorMode: "light",
+})
 import { ref } from "vue"
+import HeaderBar from "~/components/nav/HeaderBar.vue"
 import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 
 const isMobileMenuOpen = ref(false)
@@ -37,7 +41,7 @@ const handleSearchSubmit = async (searchParams: {
     <div
         class="min-h-screen bg-linear-to-br from-blue-100 via-white to-indigo-200">
         <!-- Navigation Bar -->
-        <NavBar @toggle-menu="isMobileMenuOpen = !isMobileMenuOpen" />
+        <NavBar />
 
         <!-- Main Content -->
         <main class="max-w-7xl mx-auto px-2 sm:px-5 lg:px-8 py-8">

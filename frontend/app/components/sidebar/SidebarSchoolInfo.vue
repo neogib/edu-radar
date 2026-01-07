@@ -181,7 +181,7 @@ const formattedAddress = computed(() => formatAddress(props.selectedPoint))
     @apply flex items-start;
 }
 .info-item-icon {
-    @apply w-4 h-4 text-gray-400 mt-0.5 mr-3 flex-shrink-0;
+    @apply w-4 h-4 text-gray-400 mt-0.5 mr-3 shrink-0;
 }
 .info-item-label {
     @apply text-xs text-gray-500;
