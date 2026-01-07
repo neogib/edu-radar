@@ -11,7 +11,7 @@ export default defineNuxtConfig({
             apiBase: "/api",
         },
     },
-    css: ["./app/assets/css/main.css"],
+    css: ["~/assets/css/main.css"],
     vite: {
         plugins: [tailwindcss()],
     },
