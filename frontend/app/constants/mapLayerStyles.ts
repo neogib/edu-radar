@@ -9,7 +9,7 @@ export const POINT_LAYER_STYLE = {
         "icon-color": [
             "case",
             ["==", ["get", "score"], null],
-            "#4169E1", // blue for null scores
+            "#87CEFA", // blue for null scores
             [
                 "interpolate",
                 ["linear"],
@@ -46,20 +46,20 @@ export const POINT_LAYER_STYLE = {
 export const CLUSTER_LAYER_STYLE = {
     paint: {
         "circle-color": [
-            "interpolate",
-            ["linear"],
+            "case",
+            ["==", ["get", "nonNullCount"], 0],
+            "#87CEFA", // blue for null scores
             [
-                "case",
-                [">", ["get", "nonNullCount"], 0],
+                "interpolate",
+                ["linear"],
                 ["/", ["get", "sum"], ["get", "nonNullCount"]],
                 0,
+                "#FF0000", // red at 0
+                50,
+                "#FFFF00", // yellow at 50
+                100,
+                "#00FF00", // green at 100
             ],
-            0,
-            "#FF0000", // red at 0
-            50,
-            "#FFFF00", // yellow at 50
-            100,
-            "#00FF00", // green at 100
         ] as DataDrivenPropertyValueSpecification<string>,
         "circle-radius": [
             "step",
