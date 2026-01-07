@@ -9,6 +9,11 @@
 - **Testing:** Vitest, Playwright, and Pytest
 - **Containers:** Docker with Docker Compose Watch
 
+## 📦 Project structure
+
+- [`frontend/README.md`](frontend/README.md) – frontend setup, Nuxt specifics
+- [`backend/README.md`](backend/README.md) – backend setup, FastAPI & database details
+
 ## 🗄️ Database Configuration
 
 ### PostgreSQL Environment Variables
@@ -39,7 +44,7 @@ git clone https://github.com/neogib/edu-map-rankings.git
 cd edu-map-rankings
 ```
 
-### Running the project with docker (first time & development)
+### 3. Running the project with docker (first time & development)
 
 For the initial setup and the best development experience (automatic file sync and rebuilds), run:
 
@@ -125,20 +130,6 @@ fastapi dev backend/src/main.py
 
 ```bash
 uv run --project backend fastapi dev backend/src/main.py
-```
-
-**Or directly with Uvicorn:**
-
-- for pip users
-
-```bash
-uvicorn backend.src.main:app --reload
-```
-
-- for uv users
-
-```bash
-uv run --project backend uvicorn backend.src.main:app --reload
 ```
 
 #### Run frontend:

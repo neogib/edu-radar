@@ -1,75 +1,63 @@
-# Nuxt Minimal Starter
+# Frontend – EduMap Rankings
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 4 frontend for the EduMap Rankings project.
 
-## Setup
+---
 
-Make sure to install dependencies:
+## 🛠 Tech Stack
+
+- Nuxt 4
+- Vue 3
+- TypeScript
+- Tailwind CSS
+- MapLibre GL
+- pnpm
+
+---
+
+## 📦 Installation
 
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+or from the project root:
 
 ```bash
-# npm
-npm run dev
+pnpm --dir frontend install
+```
 
-# pnpm
+---
+
+## 🚀 Development Server
+
+```bash
 pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
+or:
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+pnpm --dir frontend dev
 ```
 
-Locally preview production build:
+The app will be available at:
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+```
+http://localhost:3000
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 🌍 Environment Variables
+
+Public runtime variables should be defined using:
+
+```env
+NUXT_PUBLIC_*
+```
+
+Example configuration in `frontend/.env`:
+
+```env
+NUXT_PUBLIC_API_BASE=/api
+NUXT_PROXY_URL=http://localhost:8000
+```
