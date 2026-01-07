@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { ref } from "vue"
+import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 definePageMeta({
     colorMode: "light",
 })
-import { ref } from "vue"
-import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 
 const selectedVoivodeship = ref<string>("")
 

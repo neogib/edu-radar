@@ -6,448 +6,448 @@
 export interface paths {
     "/schools/{school_id}": {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
         /** Read School */
-        get: operations["read_school_schools__school_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+        get: operations["read_school_schools__school_id__get"]
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     "/schools/": {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
         /** Read Schools */
-        get: operations["read_schools_schools__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+        get: operations["read_schools_schools__get"]
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     "/school_types/": {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
         /**
          * Read School Types
          * @description Fetch all available school types or just one type if type name is provided.
          */
-        get: operations["read_school_types_school_types__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+        get: operations["read_school_types_school_types__get"]
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     "/school_types/{school_type_id}": {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
         /** Read School Type By Id */
-        get: operations["read_school_type_by_id_school_types__school_type_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+        get: operations["read_school_type_by_id_school_types__school_type_id__get"]
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     "/test": {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
         /** Root */
-        get: operations["root_test_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
+        get: operations["root_test_get"]
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
 }
-export type webhooks = Record<string, never>;
+export type webhooks = Record<string, never>
 export interface components {
     schemas: {
         /** EtapEdukacjiPublic */
         EtapEdukacjiPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
+            detail?: components["schemas"]["ValidationError"][]
+        }
         /** KategoriaUczniowPublic */
         KategoriaUczniowPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** KsztalcenieZawodowePublic */
         KsztalcenieZawodowePublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** MiejscowoscPublic */
         MiejscowoscPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Teryt */
-            teryt: string;
+            teryt: string
             /** Gmina Id */
-            gmina_id?: number | null;
+            gmina_id?: number | null
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** PrzedmiotPublic */
         PrzedmiotPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** StatusPublicznoprawnyPublic */
         StatusPublicznoprawnyPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** SzkolaPublicShort */
         SzkolaPublicShort: {
             /** Numer Rspo */
-            numer_rspo: number;
+            numer_rspo: number
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
+            id: number
             /** Geolokalizacja Latitude */
-            geolokalizacja_latitude: number;
+            geolokalizacja_latitude: number
             /** Geolokalizacja Longitude */
-            geolokalizacja_longitude: number;
+            geolokalizacja_longitude: number
             /** Score */
-            score: number | null;
-            typ: components["schemas"]["TypSzkolyPublic"];
-            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
-        };
+            score: number | null
+            typ: components["schemas"]["TypSzkolyPublic"]
+            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"]
+        }
         /** SzkolaPublicWithRelations */
         SzkolaPublicWithRelations: {
             /** Numer Rspo */
-            numer_rspo: number;
+            numer_rspo: number
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Nip */
-            nip?: string | null;
+            nip?: string | null
             /** Regon */
-            regon: string;
+            regon: string
             /** Liczba Uczniow */
-            liczba_uczniow?: number | null;
+            liczba_uczniow?: number | null
             /** Dyrektor Imie */
-            dyrektor_imie?: string | null;
+            dyrektor_imie?: string | null
             /** Dyrektor Nazwisko */
-            dyrektor_nazwisko?: string | null;
+            dyrektor_nazwisko?: string | null
             /** Kod Pocztowy */
-            kod_pocztowy: string;
+            kod_pocztowy: string
             /** Numer Budynku */
-            numer_budynku?: string | null;
+            numer_budynku?: string | null
             /** Numer Lokalu */
-            numer_lokalu?: string | null;
+            numer_lokalu?: string | null
             /** Telefon */
-            telefon?: string | null;
+            telefon?: string | null
             /** Email */
-            email?: string | null;
+            email?: string | null
             /** Strona Internetowa */
-            strona_internetowa?: string | null;
+            strona_internetowa?: string | null
             /** Geolokalizacja Latitude */
-            geolokalizacja_latitude: number;
+            geolokalizacja_latitude: number
             /** Geolokalizacja Longitude */
-            geolokalizacja_longitude: number;
+            geolokalizacja_longitude: number
             /** Score */
-            score?: number | null;
+            score?: number | null
             /** Typ Id */
-            typ_id?: number | null;
+            typ_id?: number | null
             /** Status Publicznoprawny Id */
-            status_publicznoprawny_id?: number | null;
+            status_publicznoprawny_id?: number | null
             /** Kategoria Uczniow Id */
-            kategoria_uczniow_id?: number | null;
+            kategoria_uczniow_id?: number | null
             /** Miejscowosc Id */
-            miejscowosc_id?: number | null;
+            miejscowosc_id?: number | null
             /** Ulica Id */
-            ulica_id?: number | null;
+            ulica_id?: number | null
             /** Id */
-            id: number;
+            id: number
             /**
              * Etapy Edukacji
              * @default []
              */
-            etapy_edukacji: components["schemas"]["EtapEdukacjiPublic"][];
-            typ: components["schemas"]["TypSzkolyPublic"];
-            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
-            kategoria_uczniow: components["schemas"]["KategoriaUczniowPublic"];
-            miejscowosc: components["schemas"]["MiejscowoscPublic"];
-            ulica: components["schemas"]["UlicaPublic"] | null;
+            etapy_edukacji: components["schemas"]["EtapEdukacjiPublic"][]
+            typ: components["schemas"]["TypSzkolyPublic"]
+            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"]
+            kategoria_uczniow: components["schemas"]["KategoriaUczniowPublic"]
+            miejscowosc: components["schemas"]["MiejscowoscPublic"]
+            ulica: components["schemas"]["UlicaPublic"] | null
             /** Ksztalcenie Zawodowe */
-            ksztalcenie_zawodowe: components["schemas"]["KsztalcenieZawodowePublic"][];
+            ksztalcenie_zawodowe: components["schemas"]["KsztalcenieZawodowePublic"][]
             /** Wyniki E8 */
-            wyniki_e8: components["schemas"]["WynikE8PublicWithPrzedmiot"][];
+            wyniki_e8: components["schemas"]["WynikE8PublicWithPrzedmiot"][]
             /** Wyniki Em */
-            wyniki_em: components["schemas"]["WynikEMPublicWithPrzedmiot"][];
-        };
+            wyniki_em: components["schemas"]["WynikEMPublicWithPrzedmiot"][]
+        }
         /** TypSzkolyPublic */
         TypSzkolyPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** UlicaPublic */
         UlicaPublic: {
             /** Nazwa */
-            nazwa: string;
+            nazwa: string
             /** Teryt */
-            teryt: string;
+            teryt: string
             /** Id */
-            id: number;
-        };
+            id: number
+        }
         /** ValidationError */
         ValidationError: {
             /** Location */
-            loc: (string | number)[];
+            loc: (string | number)[]
             /** Message */
-            msg: string;
+            msg: string
             /** Error Type */
-            type: string;
-        };
+            type: string
+        }
         /** WynikE8PublicWithPrzedmiot */
         WynikE8PublicWithPrzedmiot: {
             /** Liczba Zdajacych */
-            liczba_zdajacych: number | null;
+            liczba_zdajacych: number | null
             /** Mediana */
-            mediana?: number | null;
+            mediana?: number | null
             /** Wynik Sredni */
-            wynik_sredni: number | null;
+            wynik_sredni: number | null
             /** Szkola Id */
-            szkola_id: number;
+            szkola_id: number
             /** Przedmiot Id */
-            przedmiot_id: number;
+            przedmiot_id: number
             /** Rok */
-            rok: number;
+            rok: number
             /** Id */
-            id: number;
-            przedmiot: components["schemas"]["PrzedmiotPublic"];
-        };
+            id: number
+            przedmiot: components["schemas"]["PrzedmiotPublic"]
+        }
         /** WynikEMPublicWithPrzedmiot */
         WynikEMPublicWithPrzedmiot: {
             /** Liczba Zdajacych */
-            liczba_zdajacych: number | null;
+            liczba_zdajacych: number | null
             /** Mediana */
-            mediana?: number | null;
+            mediana?: number | null
             /** Sredni Wynik */
-            sredni_wynik: number | null;
+            sredni_wynik: number | null
             /** Zdawalnosc */
-            zdawalnosc?: number | null;
+            zdawalnosc?: number | null
             /** Liczba Laureatow Finalistow */
-            liczba_laureatow_finalistow?: number | null;
+            liczba_laureatow_finalistow?: number | null
             /** Szkola Id */
-            szkola_id: number;
+            szkola_id: number
             /** Przedmiot Id */
-            przedmiot_id: number;
+            przedmiot_id: number
             /** Rok */
-            rok: number;
+            rok: number
             /** Id */
-            id: number;
-            przedmiot: components["schemas"]["PrzedmiotPublic"];
-        };
-    };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+            id: number
+            przedmiot: components["schemas"]["PrzedmiotPublic"]
+        }
+    }
+    responses: never
+    parameters: never
+    requestBodies: never
+    headers: never
+    pathItems: never
 }
-export type $defs = Record<string, never>;
+export type $defs = Record<string, never>
 export interface operations {
     read_school_schools__school_id__get: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: never
+            header?: never
             path: {
-                school_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
+                school_id: number
+            }
+            cookie?: never
+        }
+        requestBody?: never
         responses: {
             /** @description Successful Response */
             200: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["SzkolaPublicWithRelations"];
-                };
-            };
+                    "application/json": components["schemas"]["SzkolaPublicWithRelations"]
+                }
+            }
             /** @description Validation Error */
             422: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
+                    "application/json": components["schemas"]["HTTPValidationError"]
+                }
+            }
+        }
+    }
     read_schools_schools__get: {
         parameters: {
             query: {
-                type?: number | null;
+                type?: number | null
                 /**
                  * @description Bounding box: min_lng,min_lat,max_lng,max_lat
                  * @example 19.0,51.9,19.1,52.0
                  */
-                bbox: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
+                bbox: string
+            }
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody?: never
         responses: {
             /** @description Successful Response */
             200: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["SzkolaPublicShort"][];
-                };
-            };
+                    "application/json": components["schemas"]["SzkolaPublicShort"][]
+                }
+            }
             /** @description Validation Error */
             422: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
+                    "application/json": components["schemas"]["HTTPValidationError"]
+                }
+            }
+        }
+    }
     read_school_types_school_types__get: {
         parameters: {
             query?: {
-                name?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
+                name?: string | null
+            }
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody?: never
         responses: {
             /** @description Successful Response */
             200: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["TypSzkolyPublic"][];
-                };
-            };
+                    "application/json": components["schemas"]["TypSzkolyPublic"][]
+                }
+            }
             /** @description Validation Error */
             422: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
+                    "application/json": components["schemas"]["HTTPValidationError"]
+                }
+            }
+        }
+    }
     read_school_type_by_id_school_types__school_type_id__get: {
         parameters: {
-            query?: never;
-            header?: never;
+            query?: never
+            header?: never
             path: {
-                school_type_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
+                school_type_id: number
+            }
+            cookie?: never
+        }
+        requestBody?: never
         responses: {
             /** @description Successful Response */
             200: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["TypSzkolyPublic"];
-                };
-            };
+                    "application/json": components["schemas"]["TypSzkolyPublic"]
+                }
+            }
             /** @description Validation Error */
             422: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
+                    "application/json": components["schemas"]["HTTPValidationError"]
+                }
+            }
+        }
+    }
     root_test_get: {
         parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody?: never
         responses: {
             /** @description Successful Response */
             200: {
                 headers: {
-                    [name: string]: unknown;
-                };
+                    [name: string]: unknown
+                }
                 content: {
-                    "application/json": unknown;
-                };
-            };
-        };
-    };
+                    "application/json": unknown
+                }
+            }
+        }
+    }
 }
