@@ -5,6 +5,7 @@
 # pyright: reportUnknownArgumentType = false
 import logging
 from collections.abc import Hashable
+from typing import cast
 
 import pandas as pd
 from pydantic import ValidationError
@@ -125,7 +126,7 @@ class TableSplitter(DatabaseManagerBase):
         if pd.isna(rspo):
             self.skip_school(f"❓ RSPO number not found in row {index}")
             return None
-        return int(rspo)
+        return int(cast(str, rspo))
 
     def get_school(self, rspo: int) -> Szkola | None:
         school = self._select_where(Szkola, Szkola.numer_rspo == rspo)
@@ -191,9 +192,10 @@ class TableSplitter(DatabaseManagerBase):
         for subject_name in self.unique_subjects:
             subject = self.get_subject(clean_subjects_names(subject_name))
 
-            subject_exam_result: dict[str, int | float | None] = (
-                school_exam_data.loc[subject_name]
-            ).to_dict()
+            subject_exam_result: dict[str, int | float | None] = cast(
+                dict[str, int | float | None],
+                (school_exam_data.loc[subject_name]).to_dict(),  # pyright: ignore[reportAny]
+            )
             logger.info(
                 f"Processing exam result for subject '{subject.nazwa}' (School RSPO: {rspo}): {subject_exam_result}"
             )

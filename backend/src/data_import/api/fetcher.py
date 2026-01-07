@@ -1,13 +1,9 @@
 import logging
-import time
 from typing import cast
 
-import requests
-from urllib3.util import url
-
 from src.data_import.api.exceptions import APIRequestError, SchoolsDataError
-from src.data_import.api.types import APIResponse, SchoolDict
-from src.data_import.core.config import TIMEOUT, APISettings, RetrySettings
+from src.data_import.api.types import APIResponse, BasicValue, SchoolDict
+from src.data_import.core.config import APISettings
 from src.data_import.utils.requests import api_request
 
 logger = logging.getLogger(__name__)
@@ -49,7 +45,11 @@ class SchoolsAPIFetcher:
         try:
             data = cast(
                 APIResponse,
-                api_request(url=self.base_url, params=params, headers=self.headers),
+                api_request(
+                    url=self.base_url,
+                    params=cast(dict[str, BasicValue], params),
+                    headers=self.headers,
+                ),
             )
             hydra_response = HydraResponse(data)
             return hydra_response

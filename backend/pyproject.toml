@@ -25,6 +25,15 @@ dev = [
     "ruff>=0.14.10",
 ]
 
+[tool.ruff]
+exclude = [
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "venv/**",
+    ".venv/**",
+    "alembic/versions/**",
+]
+
 [tool.ruff.lint]
 select = [
     "E4",  # pycodestyle (specifically import conventions like E402)
@@ -42,6 +51,8 @@ select = [
 
 [tool.basedpyright]
 # using ruff for unused code (ARG rule)
+include = ["src"]
+exclude = ["**/__pychache__", "**/*.pyc", "venv", ".venv"]
 reportUnusedVariable = "none"
 reportUnusedImport = "none"
 reportUnusedFunction = "none"

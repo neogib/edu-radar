@@ -6,8 +6,6 @@ from src.data_import.api.fetcher import SchoolsAPIFetcher
 from src.data_import.core.config import LOGS_DIR, APISettings, ExamType, ScoreType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
-from src.data_import.geo.exporter import SchoolAddressExporter
-from src.data_import.geo.importer import SchoolCoordinatesImporter
 from src.data_import.score.scorer import Scorer
 
 logger = logging.getLogger(__name__)
