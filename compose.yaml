@@ -25,7 +25,6 @@ services:
     build: ./frontend
     ports:
       - "3000:3000"
-    env_file: ./frontend/.env
     environment:
       - NUXT_PROXY_URL=http://backend:8000
     develop:
