@@ -79,8 +79,3 @@ source .venv/bin/activate
 pip install .
 fastapi dev src/main.py
 ```
-
-## 📝 Notes
-
-- Database tables are created on startup if they do not exist
-- Sync SQLModel is used intentionally for simplicity
