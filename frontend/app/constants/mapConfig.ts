@@ -13,10 +13,12 @@ export const MAP_CONFIG = {
         [14.0, 49],
         [24.5, 55.2],
     ] as [[number, number], [number, number]],
-    warsawBounds: [
-        [20.7639, 52.1189],
-        [21.3901, 52.3473],
-    ] as [[number, number], [number, number]],
+    defaultBbox: {
+        minLon: 20.7639,
+        minLat: 52.1189,
+        maxLon: 21.3901,
+        maxLat: 52.3473,
+    },
 }
 
 export const SCHOOL_ICONS = {
