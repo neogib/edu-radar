@@ -1,20 +1,11 @@
 <script setup lang="ts">
 import type { LngLatBoundsLike } from "maplibre-gl"
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
-import type {
-    SzkolaPublicWithRelations,
-    SzkolaPublicShort,
-} from "~/types/schools"
-
-const props = defineProps<{
-    schools: SzkolaPublicShort[] | undefined
-}>()
+import type { SzkolaPublicWithRelations } from "~/types/schools"
 
 const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations]
 }>()
-
-const { geoJsonSource } = useSchoolGeoJson(toRef(props, "schools"))
 
 const { bbox, updateBbox } = useBoundingBox()
 const displayPopup = ref(false)
@@ -29,8 +20,8 @@ const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
 const bounds: LngLatBoundsLike | undefined = !bbox
     ? undefined
     : [
-          [bbox.min_lng, bbox.min_lat],
-          [bbox.max_lng, bbox.max_lat],
+          [bbox.value.minLon, bbox.value.minLat],
+          [bbox.value.maxLon, bbox.value.maxLat],
       ]
 
 const onMapLoaded = (event: { map: maplibregl.Map }) => {
@@ -63,7 +54,7 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
             :coordinates="popupCoordinates">
             <!-- Status Publicznoprawny - Top -->
             <div
-                class="bg-gradient-to-r rounded-lg from-blue-50 to-indigo-50 px-2 py-1 border-b border-gray-100">
+                class="bg-linear-to-r rounded-lg from-blue-50 to-indigo-50 px-2 py-1 border-b border-gray-100">
                 <span class="px-2 py-1 text-xs text-blue-800">
                     {{ JSON.parse(hoveredSchool.status_publicznoprawny).nazwa }}
                 </span>
@@ -86,6 +77,6 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
             </div>
         </MglPopup>
 
-        <MapSchoolLayers :source-data="geoJsonSource" />
+        <MapSchoolLayers />
     </MglMap>
 </template>

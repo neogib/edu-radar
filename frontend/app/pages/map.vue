@@ -1,37 +1,11 @@
 <script setup lang="ts">
-import type {
-    SzkolaPublicWithRelations,
-    SzkolaPublicShort,
-} from "~/types/schools"
-import { MAP_CONFIG } from "~/constants/mapConfig"
-
-const route = useRoute()
-// Create a computed property for query parameters to refetch data after changing them
-const queryParams = computed(() => {
-    const routeQuery = route.query
-
-    // Check if route.query is empty or missing bbox parameters
-    if (!routeQuery || Object.keys(routeQuery).length === 0) {
-        // Use default bbox from warsaw bounds
-        const [minLng, minLat] = MAP_CONFIG.warsawBounds[0]
-        const [maxLng, maxLat] = MAP_CONFIG.warsawBounds[1]
-        return {
-            bbox: `${minLng},${minLat},${maxLng},${maxLat}`,
-        }
-    }
-    return routeQuery
-})
-
-const { data, status } = useApi<SzkolaPublicShort[]>("/schools", {
-    // useFetch will automatically unwrap the .value of the computed property
-    // and re-run the fetch when the computed value changes.
-    query: queryParams,
-})
+import type { SzkolaPublicWithRelations } from "~/types/schools"
 
 // Reactive state for sidebar
 const isSidebarOpen = ref(false)
 const selectedSchool = ref<SzkolaPublicWithRelations | null>(null)
 
+// Handle data updates from map interactions
 const handlePointClick = (school: SzkolaPublicWithRelations) => {
     selectedSchool.value = school
     isSidebarOpen.value = true
@@ -52,17 +26,10 @@ const handleSidebarClose = () => {
             :is-open="isSidebarOpen"
             :selected-point="selectedSchool"
             @close="handleSidebarClose" />
-        <UserMessage
-            v-if="status === 'pending'"
-            message="Loading map data, please wait..." />
-        <UserMessage
-            v-if="status === 'error'"
-            type="error"
-            message="An error occurred while loading map data." />
 
         <!-- MapView taking full remaining space with dynamic margin for sidebar -->
         <div :class="['transition-all duration-300']">
-            <MapView :schools="data" @point-clicked="handlePointClick" />
+            <MapView @point-clicked="handlePointClick" />
         </div>
     </div>
 </template>

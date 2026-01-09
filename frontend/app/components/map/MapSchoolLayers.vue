@@ -1,20 +1,60 @@
 <script setup lang="ts">
-import type { FeatureCollection, Point } from "geojson"
 import {
     CLUSTER_LAYER_STYLE,
     POINT_LAYER_STYLE,
 } from "~/constants/mapLayerStyles"
+import type { BoundingBox } from "~/types/boundingBox"
 import type { SzkolaPublicShort } from "~/types/schools"
 
-defineProps<{
-    sourceData: FeatureCollection<Point, SzkolaPublicShort>
-}>()
+const route = useRoute()
+const mapCache = useMapCacheStore() // cache for schools points
+const { bbox } = useBoundingBox()
+
+const schools = ref<SzkolaPublicShort[]>([])
+const { geoJsonSource } = useSchoolGeoJson(schools)
+
+const handleQueryChange = async (newBbox: BoundingBox) => {
+    if (mapCache.isCovered(newBbox)) {
+        console.log(
+            "MapSchoolLayers.vue - Map cache already covers the bounding box. No data fetch needed.",
+        )
+        schools.value = mapCache.getCachedSchools(bbox.value)
+    } else {
+        console.log(
+            "MapSchoolLayers.vue - Map cache does not cover the bounding box. Fetching new data.",
+        )
+        const { data, status } = await useApi<SzkolaPublicShort[]>("/schools", {
+            query: {
+                ...route.query,
+                bbox: `${newBbox.minLon},${newBbox.minLat},${newBbox.maxLon},${newBbox.maxLat}`,
+            },
+        })
+
+        schools.value = data.value || []
+        // if (status.value === "success" && data.value) {
+        //     mapCache.addInstitutions(data.value)
+        //     mapCache.addFetchedArea(newBbox)
+        //     console.log(
+        //         "MapSchoolLayers.vue - Fetched new data and updated map cache.",
+        //     )
+        // }
+    }
+}
+watch(
+    bbox,
+    (newQuery) => {
+        // Logic to run when query changes
+        console.log("Query changed!")
+        handleQueryChange(newQuery)
+    },
+    { immediate: true },
+)
 </script>
 
 <template>
     <MglGeoJsonSource
         source-id="schools-source"
-        :data="sourceData"
+        :data="geoJsonSource"
         :cluster="true"
         :cluster-properties="{
             sum: [
