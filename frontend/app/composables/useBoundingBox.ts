@@ -6,7 +6,7 @@ export const useBoundingBox = () => {
 
     /**
      * Parse bbox string from URL parameter
-     * @param bboxString - Comma-separated string "min_lng,min_lat,max_lng,max_lat"
+     * @param bboxString - Comma-separated string "minLon,minLat,maxLon,maxLat"
      * @returns BoundingBox object or null if invalid
      */
     const parseBbox = (bboxString: string | null): BoundingBox | null => {
@@ -20,7 +20,7 @@ export const useBoundingBox = () => {
                 return null
             }
 
-            const [min_lng, min_lat, max_lng, max_lat] = coords as [
+            const [minLon, minLat, maxLon, maxLat] = coords as [
                 number,
                 number,
                 number,
@@ -29,34 +29,34 @@ export const useBoundingBox = () => {
 
             // Validate coordinate ranges
             if (
-                min_lng < -180 ||
-                min_lng > 180 ||
-                max_lng < -180 ||
-                max_lng > 180
+                minLon < -180 ||
+                minLon > 180 ||
+                maxLon < -180 ||
+                maxLon > 180
             ) {
                 console.error("Longitude values must be between -180 and 180")
                 return null
             }
 
-            if (
-                min_lat < -90 ||
-                min_lat > 90 ||
-                max_lat < -90 ||
-                max_lat > 90
-            ) {
+            if (minLat < -90 || minLat > 90 || maxLat < -90 || maxLat > 90) {
                 console.error("Latitude values must be between -90 and 90")
                 return null
             }
 
             // Validate ordering
-            if (min_lng >= max_lng || min_lat >= max_lat) {
+            if (minLon >= maxLon || minLat >= maxLat) {
                 console.error(
                     "Invalid bbox: min values must be less than max values",
                 )
                 return null
             }
 
-            return { min_lng, min_lat, max_lng, max_lat }
+            return {
+                minLon: minLon,
+                minLat: minLat,
+                maxLon: maxLon,
+                maxLat: maxLat,
+            }
         } catch (error) {
             console.error("Error parsing bbox:", error)
             return null

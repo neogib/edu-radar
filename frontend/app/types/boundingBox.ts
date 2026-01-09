@@ -1,6 +1,6 @@
 export interface BoundingBox {
-    min_lng: number
-    min_lat: number
-    max_lng: number
-    max_lat: number
+    minLon: number
+    minLat: number
+    maxLon: number
+    maxLat: number
 }
