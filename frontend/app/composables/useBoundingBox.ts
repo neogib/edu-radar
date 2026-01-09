@@ -1,4 +1,5 @@
 import type { LngLatBounds } from "maplibre-gl"
+import { MAP_CONFIG } from "~/constants/mapConfig"
 import type { BoundingBox } from "~/types/boundingBox"
 
 export const useBoundingBox = () => {
@@ -9,15 +10,15 @@ export const useBoundingBox = () => {
      * @param bboxString - Comma-separated string "minLon,minLat,maxLon,maxLat"
      * @returns BoundingBox object or null if invalid
      */
-    const parseBbox = (bboxString: string | null): BoundingBox | null => {
-        if (!bboxString) return null
+    const parseBbox = (bboxString: string | null): BoundingBox => {
+        if (!bboxString) return MAP_CONFIG.defaultBbox
 
         try {
             const coords = bboxString.split(",").map(Number)
 
             if (coords.length !== 4 || coords.some(isNaN)) {
                 console.error("Invalid bbox format: must have 4 numeric values")
-                return null
+                return MAP_CONFIG.defaultBbox
             }
 
             const [minLon, minLat, maxLon, maxLat] = coords as [
@@ -35,12 +36,12 @@ export const useBoundingBox = () => {
                 maxLon > 180
             ) {
                 console.error("Longitude values must be between -180 and 180")
-                return null
+                return MAP_CONFIG.defaultBbox
             }
 
             if (minLat < -90 || minLat > 90 || maxLat < -90 || maxLat > 90) {
                 console.error("Latitude values must be between -90 and 90")
-                return null
+                return MAP_CONFIG.defaultBbox
             }
 
             // Validate ordering
@@ -48,7 +49,7 @@ export const useBoundingBox = () => {
                 console.error(
                     "Invalid bbox: min values must be less than max values",
                 )
-                return null
+                return MAP_CONFIG.defaultBbox
             }
 
             return {
@@ -59,13 +60,16 @@ export const useBoundingBox = () => {
             }
         } catch (error) {
             console.error("Error parsing bbox:", error)
-            return null
+            return MAP_CONFIG.defaultBbox
         }
     }
 
-    // Get bbox from URL as parsed object
-    const bboxParam = route.query.bbox as string | undefined
-    const bbox: BoundingBox | null = parseBbox(bboxParam || null)
+    // Reactive bbox that automatically updates when URL changes
+    const bbox = computed(() => {
+        const bboxParam = route.query.bbox as string | undefined
+        console.log("Current bbox param:", bboxParam)
+        return parseBbox(bboxParam || null)
+    })
 
     // Update bbox in URL
     const updateQueryBboxParam = (bounds: LngLatBounds) => {
