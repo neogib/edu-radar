@@ -22,7 +22,7 @@ const handleSearchSubmit = async (searchParams: {
     }
 
     const coordinates = voivodeshipData.coordinates
-    const bbox = `${coordinates.min_lng},${coordinates.min_lat},${coordinates.max_lng},${coordinates.max_lat}`
+    const bbox = `${coordinates.minLon},${coordinates.minLat},${coordinates.maxLon},${coordinates.maxLat}`
 
     await navigateTo({
         path: "/map",
