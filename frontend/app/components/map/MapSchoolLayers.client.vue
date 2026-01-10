@@ -11,19 +11,35 @@ const mapCache = useMapCacheStore() // cache for schools points
 const { bbox } = useBoundingBox()
 const { $api } = useNuxtApp()
 
+// user messages using toast from nuxt-ui
+const toast = useToast()
+
 let schools = ref<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
 
 const handleQueryChange = async (newBbox: BoundingBox) => {
+    // no need to fetch data if cache already covers the bbox
     if (mapCache.isCovered(newBbox)) {
         console.log(
             "MapSchoolLayers.vue - Map cache already covers the bounding box. No data fetch needed.",
         )
         schools.value = mapCache.getCachedSchools(bbox.value)
-    } else {
-        console.log(
-            "MapSchoolLayers.vue - Map cache does not cover the bounding box. Fetching new data.",
-        )
+        return
+    }
+
+    toast.clear()
+    toast.add({
+        title: "Ładowanie danych",
+        description: "Pobieranie danych szkół na mapę...",
+        icon: "i-line-md-loading-loop",
+        color: "info",
+        id: "loading-schools-toast",
+    })
+
+    console.log(
+        "MapSchoolLayers.vue - Map cache does not cover the bounding box. Fetching new data.",
+    )
+    try {
         const data = await $api<SzkolaPublicShort[]>("/schools", {
             query: {
                 ...route.query,
@@ -36,9 +52,17 @@ const handleQueryChange = async (newBbox: BoundingBox) => {
         // Update Cache
         mapCache.addSchools(data)
         mapCache.addFetchedArea(newBbox)
-        console.log(
-            "MapSchoolLayers.vue - Fetched new data and updated map cache.",
-        )
+    } catch (err) {
+        toast.add({
+            title: "Błąd ładowania danych",
+            description:
+                "Wystąpił błąd podczas pobierania danych szkół na mapę.",
+            icon: "i-line-md-alert-circle",
+            color: "error",
+            id: "error-schools-toast",
+        })
+    } finally {
+        toast.remove("loading-schools-toast")
     }
 }
 watch(
