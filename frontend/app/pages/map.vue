@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import type { SzkolaPublicWithRelations } from "~/types/schools"
+definePageMeta({
+    colorMode: "light",
+})
 
 // Reactive state for sidebar
 const isSidebarOpen = ref(false)
