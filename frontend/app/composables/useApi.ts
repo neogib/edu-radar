@@ -1,17 +1,11 @@
-import { useRuntimeConfig } from "nuxt/app"
+import type { UseFetchOptions } from "nuxt/app"
 
-export function useApi<T>(endpoint: string, options = {}) {
-    const config = useRuntimeConfig()
-    return useFetch<T>(`${config.public.apiBase}${endpoint}`, {
+export function useApi<T>(
+    url: string | (() => string),
+    options?: UseFetchOptions<T>,
+) {
+    return useFetch<T>(url, {
         ...options,
-        onRequest({ request, options: _options }) {
-            console.log("Starting Request:", request)
-        },
-        onResponse({ request: _request, response, options: _options }) {
-            console.log("Response:", response._data)
-        },
-        onRequestError({ request: _request, error, options: _options }) {
-            console.log("Request Error:", error)
-        },
+        $fetch: useNuxtApp().$api as typeof $fetch,
     })
 }
