@@ -9,8 +9,9 @@ import type { SzkolaPublicShort } from "~/types/schools"
 const route = useRoute()
 const mapCache = useMapCacheStore() // cache for schools points
 const { bbox } = useBoundingBox()
+const { $api } = useNuxtApp()
 
-const schools = ref<SzkolaPublicShort[]>([])
+let schools = ref<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
 
 const handleQueryChange = async (newBbox: BoundingBox) => {
@@ -23,27 +24,26 @@ const handleQueryChange = async (newBbox: BoundingBox) => {
         console.log(
             "MapSchoolLayers.vue - Map cache does not cover the bounding box. Fetching new data.",
         )
-        const { data, status } = await useApi<SzkolaPublicShort[]>("/schools", {
+        const data = await $api<SzkolaPublicShort[]>("/schools", {
             query: {
                 ...route.query,
                 bbox: `${newBbox.minLon},${newBbox.minLat},${newBbox.maxLon},${newBbox.maxLat}`,
             },
         })
 
-        schools.value = data.value || []
-        // if (status.value === "success" && data.value) {
-        //     mapCache.addInstitutions(data.value)
-        //     mapCache.addFetchedArea(newBbox)
-        //     console.log(
-        //         "MapSchoolLayers.vue - Fetched new data and updated map cache.",
-        //     )
-        // }
+        schools.value = data
+
+        // Update Cache
+        mapCache.addSchools(data)
+        mapCache.addFetchedArea(newBbox)
+        console.log(
+            "MapSchoolLayers.vue - Fetched new data and updated map cache.",
+        )
     }
 }
 watch(
     bbox,
     (newQuery) => {
-        // Logic to run when query changes
         console.log("Query changed!")
         handleQueryChange(newQuery)
     },
