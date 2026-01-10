@@ -22,10 +22,10 @@ export const MAP_CONFIG = {
 }
 
 export const SCHOOL_ICONS = {
-    Technikum: "triangle_sdf",
+    Technikum: "hexagon_sdf",
     "Liceum ogólnokształcące": "diamond_sdf",
     "Szkoła podstawowa": "square_sdf",
-    Przedszkole: "hexagon_sdf",
+    Przedszkole: "triangle_sdf",
     default: "star_sdf",
 }
 

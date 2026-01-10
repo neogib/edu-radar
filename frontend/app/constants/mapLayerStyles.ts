@@ -6,6 +6,9 @@ import type {
 
 export const POINT_LAYER_STYLE = {
     paint: {
+        "icon-opacity": 0.75,
+        "icon-halo-color": "#000000", // black border
+        "icon-halo-width": 1, // szerokość w px
         "icon-color": [
             "case",
             ["==", ["get", "score"], null],
@@ -24,6 +27,7 @@ export const POINT_LAYER_STYLE = {
         ] as DataDrivenPropertyValueSpecification<string>,
     },
     layout: {
+        "icon-size": 0.5,
         "icon-image": [
             "case",
             ["==", ["get", "nazwa", ["get", "typ"]], "Technikum"],
@@ -45,6 +49,9 @@ export const POINT_LAYER_STYLE = {
 
 export const CLUSTER_LAYER_STYLE = {
     paint: {
+        "circle-opacity": 0.75,
+        "circle-stroke-width": 1,
+        "circle-stroke-opacity": 0.75,
         "circle-color": [
             "case",
             ["==", ["get", "nonNullCount"], 0],
