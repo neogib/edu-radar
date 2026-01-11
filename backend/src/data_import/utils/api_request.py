@@ -4,7 +4,6 @@ import time
 import requests
 
 from src.data_import.api.exceptions import APIRequestError
-from src.data_import.api.types import BasicValue
 from src.data_import.core.config import TIMEOUT, RetrySettings
 
 logger = logging.getLogger(__name__)
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def api_request(
     url: str,
-    params: dict[str, BasicValue] | None = None,
+    params: dict[str, object] | None = None,
     headers: dict[str, str] | None = None,
     timeout: tuple[float, float] | None = None,
     max_retries: int | None = None,
@@ -50,7 +49,7 @@ def api_request(
             response = requests.get(
                 url,
                 headers=headers,
-                params=params,
+                params=params,  # pyright: ignore[reportArgumentType]
                 timeout=timeout,
             )
             response.raise_for_status()

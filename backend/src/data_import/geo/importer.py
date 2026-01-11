@@ -9,11 +9,10 @@ from pyproj import Transformer
 
 from src.app.models.schools import Szkola
 from src.data_import.api.exceptions import APIRequestError
-from src.data_import.api.types import SimpleDict
 from src.data_import.core.config import CSV_DIR, GeocodingSettings
 from src.data_import.geo.exceptions import GeocodingError
+from src.data_import.utils.api_request import api_request
 from src.data_import.utils.db.session import DatabaseManagerBase
-from src.data_import.utils.requests import api_request
 
 logger = logging.getLogger(__name__)
 
@@ -197,13 +196,13 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         if building_number:
             full_address += f" {building_number}"
 
-        params: dict[str, str] = {
+        params: dict[str, object] = {
             "request": "GetAddress",
             "address": full_address,
         }
 
         try:
-            data = api_request(url=self.uug_url, params=params)
+            data = cast(dict[str, object], api_request(url=self.uug_url, params=params))
             result = self._extract_lat_lon_from_uug(data)
         except APIRequestError as err:
             logger.error(f"❌ Geocoding failed for: {full_address}: {err}")
@@ -233,7 +232,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         Returns:
             bool: True if point is within a building, False otherwise
         """
-        params = {
+        params: dict[str, object] = {
             "request": "GetBuildingByXY",
             "xy": f"{longitude},{latitude},{GeocodingSettings.SRID_WGS84}",
             "result": "id,function,parcel,region,commune,county,voivodeship,geom_wkt",
@@ -261,14 +260,17 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
             logger.warning("🚫 No results found in UUG response")
             return None
 
-        first_result = cast(SimpleDict, results.get("1"))
+        first_result = cast(dict[str, object], results.get("1"))
         transformer = Transformer.from_crs(
             GeocodingSettings.SRID_POL,  # PUWG 1992
             GeocodingSettings.SRID_WGS84,  # WGS84 (lon, lat)
             always_xy=True,
         )
         try:
-            x, y = float(first_result.get("x")), float(first_result.get("y"))
+            x, y = (
+                float(cast(str, first_result.get("x"))),
+                float(cast(str, first_result.get("y"))),
+            )
         except (TypeError, ValueError) as _:
             logger.error("❌ Invalid coordinate values in UUG response")
 
