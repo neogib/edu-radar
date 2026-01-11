@@ -6,9 +6,8 @@ from typing import cast
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
-from src.app.models.locations import Gmina, Miejscowosc, Powiat
 from src.app.models.schools import Szkola
-from src.data_import.core.config import CSV_DIR
+from src.data_import.core.config import CSV_DIR, WARSAW_DISTRICTS
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 logger = logging.getLogger(__name__)
@@ -64,9 +63,6 @@ class SchoolAddressExporter(DatabaseManagerBase):
                     writer.writerow(
                         [
                             "id",
-                            "wojewodztwo",
-                            "powiat",
-                            "gmina",
                             "miejscowosc",
                             "ulica",
                             "numer_budynku",
@@ -89,16 +85,12 @@ class SchoolAddressExporter(DatabaseManagerBase):
         """Write a single row to the CSV file"""
         # Get location hierarchy
         miejscowosc = school.miejscowosc
-        gmina = miejscowosc.gmina
-        powiat = gmina.powiat
-        wojewodztwo = powiat.wojewodztwo
 
         return [
             school.id,
-            wojewodztwo.nazwa,
-            powiat.nazwa,
-            gmina.nazwa,
-            miejscowosc.nazwa,
+            miejscowosc.nazwa
+            if miejscowosc.nazwa not in WARSAW_DISTRICTS
+            else "Warszawa",
             school.ulica.nazwa if school.ulica else "",
             school.numer_budynku or "",
             school.kod_pocztowy,
@@ -114,10 +106,7 @@ class SchoolAddressExporter(DatabaseManagerBase):
             .order_by(Szkola.id)  # pyright: ignore[reportArgumentType]
             .limit(batch_size)
             .options(
-                selectinload(Szkola.miejscowosc)  # pyright: ignore[reportArgumentType]
-                .selectinload(Miejscowosc.gmina)  # pyright: ignore[reportArgumentType]
-                .selectinload(Gmina.powiat)  # pyright: ignore[reportArgumentType]
-                .selectinload(Powiat.wojewodztwo),  # pyright: ignore[reportArgumentType]
+                selectinload(Szkola.miejscowosc),  # pyright: ignore[reportArgumentType]
                 selectinload(Szkola.ulica),  # pyright: ignore[reportArgumentType]
             )
         ).all()

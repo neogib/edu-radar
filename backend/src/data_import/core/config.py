@@ -80,3 +80,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = BASE_DIR / "storage"
 CSV_DIR = DATA_DIR / "csv"
 LOGS_DIR = DATA_DIR / "logs"
+
+# Geocoding - change Warsaw districts into "Warszawa"
+WARSAW_DISTRICTS = {
+    "Wola",
+    "Mokotów",
+    "Ochota",
+    "Praga-Północ",
+    "Praga-Południe",
+    "Żoliborz",
+    "Ursynów",
+    "Bemowo",
+    "Bielany",
+    "Białołęka",
+    "Targówek",
+    "Wawer",
+    "Wilanów",
+    "Śródmieście",
+    "Rembertów",
+    "Ursus",
+    "Włochy",
+}
