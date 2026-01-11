@@ -10,7 +10,6 @@ from src.app.models.schools import (
     SzkolaExtendedData,
     TypSzkolyBase,
 )
-from src.data_import.api.types import SchoolDict
 from src.data_import.utils.convert_to_camel import custom_camel
 
 
@@ -46,7 +45,7 @@ class SzkolaAPIResponse(SzkolaExtendedData):
             raise ValueError(f"Expected data to be a dictionary, but got {data}")
 
         # Convert empty strings to None for all fields
-        for field_name, field_value in list(cast(SchoolDict, data).items()):
+        for field_name, field_value in list(cast(dict[str, object], data).items()):
             if (
                 field_value == "" or field_value == []
             ):  # "" or [] are considered empty, 0 is a normal value

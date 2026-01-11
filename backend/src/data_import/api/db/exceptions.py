@@ -1,15 +1,13 @@
 from pydantic import ValidationError
 
-from src.data_import.api.types import SchoolDict
-
 
 class DataValidationError(Exception):
     """Raised when incoming school_data fails Pydantic validation."""
 
-    raw_data: SchoolDict
+    raw_data: dict[str, object]
     original_exc: ValidationError
 
-    def __init__(self, raw_data: SchoolDict, original_exc: ValidationError):
+    def __init__(self, raw_data: dict[str, object], original_exc: ValidationError):
         super().__init__(f"Validation failed for {raw_data}: {original_exc}")
         self.raw_data = raw_data
         self.original_exc = original_exc

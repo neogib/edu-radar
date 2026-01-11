@@ -20,7 +20,6 @@ from src.app.models.schools import (
 from src.data_import.api.db.exceptions import DataValidationError, SchoolProcessingError
 from src.data_import.api.db.excluded_fields import SchoolFieldExclusions
 from src.data_import.api.models import SzkolaAPIResponse
-from src.data_import.api.types import SchoolDict
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 logger = logging.getLogger(__name__)
@@ -217,7 +216,7 @@ class Decomposer(DatabaseManagerBase):
         return education_stages_list
 
     def _validate_required_school_data(
-        self, school_data: SchoolDict
+        self, school_data: dict[str, object]
     ) -> SzkolaAPIResponse:
         """Validate that all required fields are present in the school data"""
         school_model = SzkolaAPIResponse.model_validate(school_data)
@@ -258,7 +257,9 @@ class Decomposer(DatabaseManagerBase):
 
         return new_school
 
-    def prune_and_decompose_single_school_data(self, school_data: SchoolDict) -> None:
+    def prune_and_decompose_single_school_data(
+        self, school_data: dict[str, object]
+    ) -> None:
         """Process a single school's data and save to database"""
         session = self._ensure_session()
 
@@ -319,7 +320,9 @@ class Decomposer(DatabaseManagerBase):
             session.rollback()
             raise SchoolProcessingError(school.numer_rspo, e) from e
 
-    def prune_and_decompose_schools(self, schools_data: list[SchoolDict]) -> None:
+    def prune_and_decompose_schools(
+        self, schools_data: list[dict[str, object]]
+    ) -> None:
         """
         Process a list of schools data
         """

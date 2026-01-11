@@ -2,9 +2,8 @@ import logging
 from typing import cast
 
 from src.data_import.api.exceptions import APIRequestError, SchoolsDataError
-from src.data_import.api.types import APIResponse, BasicValue, SchoolDict
 from src.data_import.core.config import APISettings
-from src.data_import.utils.requests import api_request
+from src.data_import.utils.api_request import api_request
 
 logger = logging.getLogger(__name__)
 
@@ -14,12 +13,12 @@ class HydraResponse:
     Facilitate working with Hydra Web API responses
     """
 
-    def __init__(self, response_json: APIResponse):
-        self.raw: APIResponse = response_json
+    def __init__(self, response_json: dict[str, object]):
+        self.raw: dict[str, object] = response_json
 
     @property
-    def items(self) -> list[SchoolDict]:
-        return cast(list[SchoolDict], self.raw.get("hydra:member", []))
+    def items(self) -> list[dict[str, object]]:
+        return cast(list[dict[str, object]], self.raw.get("hydra:member", []))
 
     @property
     def next_page_url(self) -> str | None:
@@ -40,14 +39,14 @@ class SchoolsAPIFetcher:
         """
         Fetch schools data from one page
         """
-        params = {"page": page}
+        params: dict[str, object] = {"page": page}
 
         try:
             data = cast(
-                APIResponse,
+                dict[str, object],
                 api_request(
                     url=self.base_url,
-                    params=cast(dict[str, BasicValue], params),
+                    params=params,
                     headers=self.headers,
                 ),
             )
@@ -59,14 +58,14 @@ class SchoolsAPIFetcher:
 
     def fetch_schools_segment(
         self, start_page: int, max_schools: int = APISettings.MAX_SCHOOLS_SEGMENT
-    ) -> tuple[list[SchoolDict], int | None]:
+    ) -> tuple[list[dict[str, object]], int | None]:
         """
         Fetch a segment of schools data, up to max_schools.
 
         Returns:
             Tuple of (schools_list, next_page_number)
         """
-        schools: list[SchoolDict] = []
+        schools: list[dict[str, object]] = []
         current_page = start_page
 
         while current_page and len(schools) < max_schools:
