@@ -63,7 +63,6 @@ class SchoolLocationShifter(DatabaseManagerBase):
             select(lat.label("lat"), lon.label("lon"))
             .group_by("lat", "lon")
             .having(func.count() > 1)
-            .subquery()
         )
 
         # Main query: get all schools with those duplicate coordinates
