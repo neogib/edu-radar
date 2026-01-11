@@ -89,7 +89,7 @@ class GeocodingSettings:
     SRID_POL: int = 2180  # EPSG code for Poland CS92 coordinate system
     SRID_WGS84: int = 4326  # EPSG code for WGS84 coordinate system
     # Geocoding - change Warsaw districts into "Warszawa"
-    WARSAW_DISTRICTS: ClassVar[set[str]] = {
+    WARSAW_DISTRICTS: ClassVar = {
         "Wola",
         "Mokotów",
         "Ochota",
@@ -108,3 +108,4 @@ class GeocodingSettings:
         "Ursus",
         "Włochy",
     }
+    POLAND_BIGGEST_CITIES: ClassVar = {"Łódź", "Poznań", "Kraków", "Wrocław"}
