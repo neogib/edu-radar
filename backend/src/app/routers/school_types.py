@@ -1,12 +1,8 @@
-from typing import Annotated
+from fastapi import APIRouter, HTTPException
+from sqlmodel import select
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select
-
-from src.app.core.database import get_session
 from src.app.models.schools import TypSzkoly, TypSzkolyPublic
-
-SessionDep = Annotated[Session, Depends(get_session)]
+from src.dependencies import SessionDep
 
 router = APIRouter(
     prefix="/school_types",

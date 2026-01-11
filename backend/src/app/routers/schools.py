@@ -1,9 +1,8 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import Session, select
+from sqlmodel import select
 
-from src.app.core.database import get_session
 from src.app.models.bounding_box import BoundingBox
 from src.app.models.exam_results import (
     WynikE8PublicWithPrzedmiot,  # noqa: F401
@@ -14,11 +13,10 @@ from src.app.models.schools import (
     SzkolaPublicShort,
     SzkolaPublicWithRelations,
 )
-from src.dependencies import parse_bbox
+from src.dependencies import SessionDep, parse_bbox
 
 _ = SzkolaPublicWithRelations.model_rebuild()
 
-SessionDep = Annotated[Session, Depends(get_session)]
 
 router = APIRouter(
     prefix="/schools",
