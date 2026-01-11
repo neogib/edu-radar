@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
 from src.app.models.schools import Szkola
-from src.data_import.core.config import CSV_DIR, WARSAW_DISTRICTS
+from src.data_import.core.config import CSV_DIR, GeocodingSettings
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 logger = logging.getLogger(__name__)
@@ -89,7 +89,7 @@ class SchoolAddressExporter(DatabaseManagerBase):
         return [
             school.id,
             miejscowosc.nazwa
-            if miejscowosc.nazwa not in WARSAW_DISTRICTS
+            if miejscowosc.nazwa not in GeocodingSettings.WARSAW_DISTRICTS
             else "Warszawa",
             school.ulica.nazwa if school.ulica else "",
             school.numer_budynku or "",

@@ -81,23 +81,30 @@ DATA_DIR = BASE_DIR / "storage"
 CSV_DIR = DATA_DIR / "csv"
 LOGS_DIR = DATA_DIR / "logs"
 
-# Geocoding - change Warsaw districts into "Warszawa"
-WARSAW_DISTRICTS = {
-    "Wola",
-    "Mokotów",
-    "Ochota",
-    "Praga-Północ",
-    "Praga-Południe",
-    "Żoliborz",
-    "Ursynów",
-    "Bemowo",
-    "Bielany",
-    "Białołęka",
-    "Targówek",
-    "Wawer",
-    "Wilanów",
-    "Śródmieście",
-    "Rembertów",
-    "Ursus",
-    "Włochy",
-}
+
+@final
+class GeocodingSettings:
+    UUG_URL: str = "https://services.gugik.gov.pl/uug/"
+    ULDK_URL: str = "https://uldk.gugik.gov.pl"
+    SRID_POL: int = 2180  # EPSG code for Poland CS92 coordinate system
+    SRID_WGS84: int = 4326  # EPSG code for WGS84 coordinate system
+    # Geocoding - change Warsaw districts into "Warszawa"
+    WARSAW_DISTRICTS: ClassVar[set[str]] = {
+        "Wola",
+        "Mokotów",
+        "Ochota",
+        "Praga-Północ",
+        "Praga-Południe",
+        "Żoliborz",
+        "Ursynów",
+        "Bemowo",
+        "Bielany",
+        "Białołęka",
+        "Targówek",
+        "Wawer",
+        "Wilanów",
+        "Śródmieście",
+        "Rembertów",
+        "Ursus",
+        "Włochy",
+    }
