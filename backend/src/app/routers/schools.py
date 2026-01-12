@@ -11,6 +11,7 @@ from src.app.models.exam_results import (
 )
 from src.app.models.schools import (
     Szkola,
+    SzkolaKsztalcenieZawodoweLink,
     SzkolaPublicShort,
     SzkolaPublicWithRelations,
 )
@@ -52,6 +53,14 @@ async def read_schools(
         list[int] | None,
         Query(description="Filter by student category IDs", alias="category"),
     ] = None,
+    vocational_training_id: Annotated[
+        list[int] | None,
+        Query(
+            description="Filter by vocational training IDs", alias="vocational_training"
+        ),
+    ] = None,
+    min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
+    max_score: Annotated[int | None, Query(ge=0, le=100)] = None,
 ):
     """
     Get schools within bounding box with optional filters.
@@ -82,6 +91,19 @@ async def read_schools(
 
     if category_id:
         statement = statement.where(col(Szkola.kategoria_uczniow_id).in_(category_id))
+
+    if vocational_training_id:
+        school_ids_subquery = select(SzkolaKsztalcenieZawodoweLink.szkola_id).where(
+            col(SzkolaKsztalcenieZawodoweLink.ksztalcenie_zawodowe_id).in_(
+                vocational_training_id
+            )
+        )
+        statement = statement.where(col(Szkola.id).in_(school_ids_subquery))
+
+    if min_score is not None:
+        statement = statement.where(col(Szkola.score) >= min_score)
+    if max_score is not None:
+        statement = statement.where(col(Szkola.score) <= max_score)
 
     schools = session.exec(statement).all()
     return schools
