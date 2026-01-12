@@ -1,7 +1,8 @@
+from ast import alias
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import select
+from sqlmodel import col, select
 
 from src.app.models.bounding_box import BoundingBox
 from src.app.models.exam_results import (
@@ -40,8 +41,28 @@ class FilterParams(BoundingBox):
 async def read_schools(
     session: SessionDep,
     bbox: Annotated[BoundingBox, Depends(parse_bbox)],
-    school_type: Annotated[int | None, Query(alias="type")] = None,
+    type_id: Annotated[
+        list[int] | None, Query(description="Filter by school type IDs", alias="type")
+    ] = None,
+    status_id: Annotated[
+        list[int] | None,
+        Query(description="Filter by public/private status IDs", alias="status"),
+    ] = None,
+    category_id: Annotated[
+        list[int] | None,
+        Query(description="Filter by student category IDs", alias="category"),
+    ] = None,
 ):
+    """
+    Get schools within bounding box with optional filters.
+
+    ## Filter Logic
+    - Filters are combined with AND logic between different filter types
+    - Multiple values within the same filter use OR logic
+    - Example: `typ_id=1&typ_id=2&status_id=1` means
+      (type 1 OR type 2) AND (status 1)
+    """
+
     # SQL query to filter schools within bounding box boundaries
     statement = select(Szkola).where(
         (Szkola.geolokalizacja_latitude >= bbox.min_lat)
@@ -50,9 +71,17 @@ async def read_schools(
         & (Szkola.geolokalizacja_longitude <= bbox.max_lng)
     )
 
-    # Add type filter if type parameter is provided
-    if school_type is not None:
-        statement = statement.where(Szkola.typ_id == school_type)
+    # Apply filters based on query parameters
+    if type_id:
+        statement = statement.where(col(Szkola.typ_id).in_(type_id))
+
+    if status_id:
+        statement = statement.where(
+            col(Szkola.status_publicznoprawny_id).in_(status_id)
+        )
+
+    if category_id:
+        statement = statement.where(col(Szkola.kategoria_uczniow_id).in_(category_id))
 
     schools = session.exec(statement).all()
     return schools

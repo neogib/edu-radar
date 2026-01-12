@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.app.routers import school_types, schools
+from src.app.routers import filters, school_types, schools
 
 app = FastAPI()
 
@@ -22,6 +22,7 @@ app.add_middleware(
 
 app.include_router(schools.router)
 app.include_router(school_types.router)
+app.include_router(filters.router)
 
 
 @app.get("/test")
