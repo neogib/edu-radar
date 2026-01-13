@@ -3,7 +3,7 @@
  * These types correspond to the backend Python models in app.models.schools
  * Types were generated using a openapi-typescript generator
  */
-import type { components } from "./api"
+import type { components, paths } from "./api"
 
 type schemas = components["schemas"]
 
@@ -21,3 +21,8 @@ export type SzkolaPublicShortFromGeoJsonFeatures = Omit<
 
 export type WynikE8PublicWithPrzedmiot = schemas["WynikE8PublicWithPrzedmiot"]
 export type WynikEMPublicWithPrzedmiot = schemas["WynikEMPublicWithPrzedmiot"]
+
+export type FiltersResponse = schemas["FiltersResponse"]
+
+export type SchoolFilterParams =
+    paths["/schools/"]["get"]["parameters"]["query"]

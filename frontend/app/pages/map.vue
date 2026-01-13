@@ -22,13 +22,14 @@ const handleSidebarClose = () => {
 
 <template>
     <div>
-        <NavBar />
+        <NavBar class="absolute w-full" />
 
         <!-- Sidebar -->
         <SidebarMain
             :is-open="isSidebarOpen"
             :selected-point="selectedSchool"
             @close="handleSidebarClose" />
+        <MapSearchFilter />
 
         <!-- MapView taking full remaining space with dynamic margin for sidebar -->
         <div :class="['transition-all duration-300']">
