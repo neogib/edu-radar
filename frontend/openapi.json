@@ -394,12 +394,12 @@
             "type": "array",
             "title": "Student Categories"
           },
-          "vocation_training": {
+          "vocational_training": {
             "items": {
               "$ref": "#/components/schemas/KsztalcenieZawodowePublic"
             },
             "type": "array",
-            "title": "Vocation Training"
+            "title": "Vocational Training"
           }
         },
         "type": "object",
@@ -407,7 +407,7 @@
           "school_types",
           "public_statuses",
           "student_categories",
-          "vocation_training"
+          "vocational_training"
         ],
         "title": "FiltersResponse"
       },

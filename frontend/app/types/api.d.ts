@@ -137,8 +137,8 @@ export interface components {
             public_statuses: components["schemas"]["StatusPublicznoprawnyPublic"][];
             /** Student Categories */
             student_categories: components["schemas"]["KategoriaUczniowPublic"][];
-            /** Vocation Training */
-            vocation_training: components["schemas"]["KsztalcenieZawodowePublic"][];
+            /** Vocational Training */
+            vocational_training: components["schemas"]["KsztalcenieZawodowePublic"][];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
