@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { LngLatBoundsLike } from "maplibre-gl"
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
@@ -7,7 +6,7 @@ const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations]
 }>()
 
-const { bbox, updateBbox } = useBoundingBox()
+const { parseBbox, updateBbox } = useBoundingBox()
 const displayPopup = ref(false)
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
 const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
@@ -17,25 +16,24 @@ const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     popupCoordinates,
 )
 
-const bounds: LngLatBoundsLike | undefined = !bbox
-    ? undefined
-    : [
-          [bbox.value.minLon, bbox.value.minLat],
-          [bbox.value.maxLon, bbox.value.maxLat],
-      ]
+const route = useRoute()
+const bbox = parseBbox(route.query.bbox ? (route.query.bbox as string) : null)
+console.log(`bbox: ${bbox}`)
 
 const onMapLoaded = (event: { map: maplibregl.Map }) => {
     setupMapEventHandlers(event.map)
+    updateBbox(event.map.getBounds())
 }
 </script>
 
 <template>
     <MglMap
         :map-style="MAP_CONFIG.style"
-        :center="MAP_CONFIG.defaultCenter"
-        :zoom="MAP_CONFIG.defaultZoom"
         :max-bounds="MAP_CONFIG.polandBounds"
-        :bounds="bounds"
+        :bounds="[
+            [bbox.minLon, bbox.minLat],
+            [bbox.maxLon, bbox.maxLat],
+        ]"
         height="100vh"
         @map:load="onMapLoaded">
         <MglNavigationControl />

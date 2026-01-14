@@ -7,8 +7,6 @@ import hexagonIconUrl from "~/assets/images/figures/hexagon.png"
 // constants/mapConfig.ts
 export const MAP_CONFIG = {
     style: "https://tiles.openfreemap.org/styles/liberty",
-    defaultCenter: [21.008333, 52.232222] as [number, number],
-    defaultZoom: 12,
     polandBounds: [
         [14.0, 49],
         [24.5, 55.2],
