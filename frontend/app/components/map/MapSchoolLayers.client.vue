@@ -5,7 +5,7 @@ import {
     POINT_LAYER_STYLE,
 } from "~/constants/mapLayerStyles"
 import type { BoundingBox } from "~/types/boundingBox"
-import type { SzkolaPublicShort } from "~/types/schools"
+import type { SchoolFilterParams, SzkolaPublicShort } from "~/types/schools"
 
 const route = useRoute()
 const mapCache = useMapCacheStore() // cache for schools points
@@ -19,19 +19,24 @@ let schools = ref<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
 
 const handleQueryChange = async (newQuery: LocationQuery) => {
-    // no need to fetch data if cache already covers the bbox
-    // if (mapCache.isCovered(newBbox)) {
-    //     console.log(
-    //         "MapSchoolLayers.vue - Map cache already covers the bounding box. No data fetch needed.",
-    //     )
-    //     schools.value = mapCache.getCachedSchools(bbox.value)
-    //     return
-    // }
-
-    // if the user on its own updates query we should first remove elements that are not in SchoolFilterParams
-
     // parse bbox from query to check if it's valid
     const bbox = parseBbox(newQuery ? (newQuery.bbox as string) : null)
+
+    // Check cache with current filters
+    if (mapCache.isCovered(bbox, route.query)) {
+        console.log(
+            "MapSchoolLayers.vue - Map cache covers the bounding box with filters. Using cached data.",
+        )
+        // For getCachedSchools, we pass all query params.
+        // The store handles filtering by iterating the single big Map of schools.
+        schools.value = mapCache.getCachedSchools(
+            bbox,
+            route.query as SchoolFilterParams,
+        )
+        return
+    }
+
+    // if the user on its own updates query we should first remove elements that are not in SchoolFilterParams
 
     toast.clear()
     toast.add({
@@ -56,8 +61,8 @@ const handleQueryChange = async (newQuery: LocationQuery) => {
         schools.value = data
 
         // Update Cache
-        // mapCache.addSchools(data)
-        // mapCache.addFetchedArea(newQuery)
+        mapCache.addSchools(data)
+        mapCache.addFetchedArea(bbox, route.query)
     } catch (err) {
         toast.add({
             title: "Błąd ładowania danych",

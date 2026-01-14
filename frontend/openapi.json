@@ -568,6 +568,16 @@
           },
           "status_publicznoprawny": {
             "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
+          },
+          "kategoria_uczniow": {
+            "$ref": "#/components/schemas/KategoriaUczniowPublic"
+          },
+          "ksztalcenie_zawodowe": {
+            "items": {
+              "$ref": "#/components/schemas/KsztalcenieZawodowePublic"
+            },
+            "type": "array",
+            "title": "Ksztalcenie Zawodowe"
           }
         },
         "type": "object",
@@ -579,7 +589,9 @@
           "geolokalizacja_longitude",
           "score",
           "typ",
-          "status_publicznoprawny"
+          "status_publicznoprawny",
+          "kategoria_uczniow",
+          "ksztalcenie_zawodowe"
         ],
         "title": "SzkolaPublicShort"
       },
