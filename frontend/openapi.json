@@ -179,9 +179,16 @@
           {
             "name": "bbox",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string",
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
               "description": "Bounding box: min_lng,min_lat,max_lng,max_lat",
               "title": "Bbox"
             },

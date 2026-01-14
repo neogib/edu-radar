@@ -41,7 +41,7 @@ class FilterParams(BoundingBox):
 @router.get("/", response_model=list[SzkolaPublicShort])
 async def read_schools(
     session: SessionDep,
-    bbox: Annotated[BoundingBox, Depends(parse_bbox)],
+    bbox: Annotated[BoundingBox | None, Depends(parse_bbox)],
     type_id: Annotated[
         list[int] | None, Query(description="Filter by school type IDs", alias="type")
     ] = None,
@@ -73,12 +73,14 @@ async def read_schools(
     """
 
     # SQL query to filter schools within bounding box boundaries
-    statement = select(Szkola).where(
-        (Szkola.geolokalizacja_latitude >= bbox.min_lat)
-        & (Szkola.geolokalizacja_latitude <= bbox.max_lat)
-        & (Szkola.geolokalizacja_longitude >= bbox.min_lng)
-        & (Szkola.geolokalizacja_longitude <= bbox.max_lng)
-    )
+    statement = select(Szkola)
+    if bbox:
+        statement = statement.where(
+            (Szkola.geolokalizacja_latitude >= bbox.min_lat)
+            & (Szkola.geolokalizacja_latitude <= bbox.max_lat)
+            & (Szkola.geolokalizacja_longitude >= bbox.min_lng)
+            & (Szkola.geolokalizacja_longitude <= bbox.max_lng)
+        )
 
     # Apply filters based on query parameters
     if type_id:

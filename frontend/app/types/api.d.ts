@@ -371,7 +371,7 @@ export interface operations {
     };
     read_schools_schools__get: {
         parameters: {
-            query: {
+            query?: {
                 /** @description Filter by school type IDs */
                 type?: number[] | null;
                 /** @description Filter by public/private status IDs */
@@ -386,7 +386,7 @@ export interface operations {
                  * @description Bounding box: min_lng,min_lat,max_lng,max_lat
                  * @example 19.0,51.9,19.1,52.0
                  */
-                bbox: string;
+                bbox?: string | null;
             };
             header?: never;
             path?: never;
