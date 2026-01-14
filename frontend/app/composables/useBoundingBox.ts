@@ -10,7 +10,7 @@ export const useBoundingBox = () => {
      * @param bboxString - Comma-separated string "minLon,minLat,maxLon,maxLat"
      * @returns BoundingBox object or null if invalid
      */
-    const parseBbox = (bboxString: string | null): BoundingBox => {
+    const parseBbox = (bboxString: string | null | undefined): BoundingBox => {
         if (!bboxString) return MAP_CONFIG.defaultBbox
 
         try {
@@ -64,6 +64,10 @@ export const useBoundingBox = () => {
         }
     }
 
+    const bbox = computed(() => {
+        return parseBbox((route.query.bbox as string) ?? undefined)
+    })
+
     // Update bbox in URL
     const updateQueryBboxParam = (bounds: LngLatBounds) => {
         const round = (val: number) => val.toFixed(6)
@@ -76,7 +80,7 @@ export const useBoundingBox = () => {
     }
 
     return {
-        parseBbox,
+        bbox,
         updateBbox: updateQueryBboxParam,
     }
 }

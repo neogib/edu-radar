@@ -6,8 +6,6 @@ import {
 } from "~/constants/mapLayerStyles"
 import type { SchoolFilterParams, SzkolaPublicShort } from "~/types/schools"
 
-const mapCache = useMapCacheStore() // cache for schools points
-const { parseBbox } = useBoundingBox()
 const { $api } = useNuxtApp()
 
 // filters computed
@@ -19,24 +17,9 @@ const toast = useToast()
 
 let schools = ref<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
+const { bbox } = useBoundingBox()
 
 const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
-    // parse bbox from query to check if it's valid
-    const bbox = parseBbox(
-        schoolFilters ? (schoolFilters.bbox as string) : null,
-    )
-
-    // Check cache with current filters
-    const cachedSchools = mapCache.getSchoolsFromCache(bbox, schoolFilters)
-
-    if (cachedSchools) {
-        console.log(
-            "MapSchoolLayers.vue - Map cache covers the bounding box with filters. Using cached data.",
-        )
-        schools.value = cachedSchools
-        return
-    }
-
     toast.clear()
     toast.add({
         title: "Ładowanie danych",
@@ -45,19 +28,16 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
         color: "info",
         id: "loading-schools-toast",
     })
-
-    console.log(
-        "MapSchoolLayers.vue - Map cache does not cover the bounding box. Fetching new data.",
-    )
     try {
+        console.log(`Fetching schools for bbox`)
         const data = await $api<SzkolaPublicShort[]>("/schools", {
-            query: schoolFilters,
+            query: {
+                ...schoolFilters,
+                bbox: `${bbox.value.minLon},${bbox.value.minLat},${bbox.value.maxLon},${bbox.value.maxLat}`,
+            },
         })
 
         schools.value = data
-
-        // Update Cache
-        mapCache.addQuery(bbox, schoolFilters, data)
     } catch (err) {
         toast.add({
             title: "Błąd ładowania danych",
@@ -70,15 +50,22 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
     } finally {
         toast.remove("loading-schools-toast")
     }
+
+    // get schools for the whole map
+    console.log("Fetching schools for the whole map with new filters...")
+    const data = await $api<SzkolaPublicShort[]>("/schools", {
+        query: schoolFilters,
+    })
+    schools.value = data
 }
-watch(
-    filters,
-    (schoolFilters) => {
-        console.log("Query changed!")
-        if (schoolFilters) handleNewFilters(schoolFilters)
-    },
-    { immediate: true },
-)
+let lastKey = ""
+watch(filters, (schoolFilters) => {
+    const key = JSON.stringify(schoolFilters)
+    if (key === lastKey) return
+    lastKey = key
+    console.log("Query changed!")
+    handleNewFilters(schoolFilters)
+})
 </script>
 
 <template>

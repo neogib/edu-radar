@@ -6,7 +6,7 @@ const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations]
 }>()
 
-const { parseBbox, updateBbox } = useBoundingBox()
+const { bbox, updateBbox } = useBoundingBox()
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
 const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     emit,
@@ -14,8 +14,6 @@ const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     popupCoordinates,
 )
 
-const route = useRoute()
-const bbox = parseBbox(route.query.bbox ? (route.query.bbox as string) : null)
 console.log(`bbox: ${bbox}`)
 
 const onMapLoaded = (event: { map: maplibregl.Map }) => {

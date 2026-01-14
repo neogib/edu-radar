@@ -4,8 +4,6 @@ export const useSchoolFiltersFromRoute = () => {
     const filters = computed(() => {
         const q = route.query
 
-        if (typeof q.bbox !== "string") return null
-
         const parseArray = (v: string | string[] | undefined) => {
             if (!v) return undefined
             const arr = Array.isArray(v) ? v : [v]
@@ -22,7 +20,6 @@ export const useSchoolFiltersFromRoute = () => {
         }
 
         return {
-            bbox: q.bbox,
             type: parseArray(q.type as string | string[] | undefined),
             status: parseArray(q.status as string | string[] | undefined),
             category: parseArray(q.category as string | string[] | undefined),

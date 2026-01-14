@@ -11,14 +11,16 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 def parse_bbox(
     bbox: Annotated[
-        str,
+        str | None,
         Query(
             description="Bounding box: min_lng,min_lat,max_lng,max_lat",
             example="19.0,51.9,19.1,52.0",
         ),
-    ],
-) -> BoundingBox:
+    ] = None,
+) -> BoundingBox | None:
     """Parse and validate bbox string parameter"""
+    if not bbox:
+        return None
     try:
         return BoundingBox.from_string(bbox)
     except ValueError as e:
