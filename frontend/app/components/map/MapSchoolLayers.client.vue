@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import type { LocationQuery } from "vue-router"
+import { useSchoolFiltersFromRoute } from "~/composables/useSchoolFiltersFromRoute"
 import {
     CLUSTER_LAYER_STYLE,
     POINT_LAYER_STYLE,
 } from "~/constants/mapLayerStyles"
-import type { BoundingBox } from "~/types/boundingBox"
 import type { SchoolFilterParams, SzkolaPublicShort } from "~/types/schools"
 
-const route = useRoute()
 const mapCache = useMapCacheStore() // cache for schools points
 const { parseBbox } = useBoundingBox()
 const { $api } = useNuxtApp()
+
+// filters computed
+const { filters } = useSchoolFiltersFromRoute()
+console.log(`Filters: ${filters.value}`)
 
 // user messages using toast from nuxt-ui
 const toast = useToast()
@@ -18,25 +20,22 @@ const toast = useToast()
 let schools = ref<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
 
-const handleQueryChange = async (newQuery: LocationQuery) => {
+const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
     // parse bbox from query to check if it's valid
-    const bbox = parseBbox(newQuery ? (newQuery.bbox as string) : null)
+    const bbox = parseBbox(
+        schoolFilters ? (schoolFilters.bbox as string) : null,
+    )
 
     // Check cache with current filters
-    if (mapCache.isCovered(bbox, route.query)) {
+    const cachedSchools = mapCache.getSchoolsFromCache(bbox, schoolFilters)
+
+    if (cachedSchools) {
         console.log(
             "MapSchoolLayers.vue - Map cache covers the bounding box with filters. Using cached data.",
         )
-        // For getCachedSchools, we pass all query params.
-        // The store handles filtering by iterating the single big Map of schools.
-        schools.value = mapCache.getCachedSchools(
-            bbox,
-            route.query as SchoolFilterParams,
-        )
+        schools.value = cachedSchools
         return
     }
-
-    // if the user on its own updates query we should first remove elements that are not in SchoolFilterParams
 
     toast.clear()
     toast.add({
@@ -52,17 +51,13 @@ const handleQueryChange = async (newQuery: LocationQuery) => {
     )
     try {
         const data = await $api<SzkolaPublicShort[]>("/schools", {
-            query: {
-                ...route.query,
-                bbox: `${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}`,
-            },
+            query: schoolFilters,
         })
 
         schools.value = data
 
         // Update Cache
-        mapCache.addSchools(data)
-        mapCache.addFetchedArea(bbox, route.query)
+        mapCache.addQuery(bbox, schoolFilters, data)
     } catch (err) {
         toast.add({
             title: "Błąd ładowania danych",
@@ -77,10 +72,10 @@ const handleQueryChange = async (newQuery: LocationQuery) => {
     }
 }
 watch(
-    () => route.query,
-    (newQuery) => {
+    filters,
+    (schoolFilters) => {
         console.log("Query changed!")
-        handleQueryChange(newQuery)
+        if (schoolFilters) handleNewFilters(schoolFilters)
     },
     { immediate: true },
 )
