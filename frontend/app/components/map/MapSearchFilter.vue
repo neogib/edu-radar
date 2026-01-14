@@ -90,16 +90,23 @@ const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 // Handle search/filters submit
 const route = useRoute()
 const handleSearch = async () => {
+    const types_id = activeSelections.type.filter((v) => v > 0)
+    const statuses_id = activeSelections.status.filter((v) => v > 0)
+    const categories_id = activeSelections.category.filter((v) => v > 0)
+    const vocational_trainings_id = activeSelections.vocational_training.filter(
+        (v) => v > 0,
+    )
     await navigateTo({
         query: {
             bbox: route.query.bbox || undefined,
             search: searchQuery.value || undefined,
-            type: activeSelections.type.filter((v) => v > 0),
-            status: activeSelections.status.filter((v) => v > 0),
-            category: activeSelections.category.filter((v) => v > 0),
-            vocational_training: activeSelections.vocational_training.filter(
-                (v) => v > 0,
-            ),
+            type: types_id.length > 0 ? types_id : undefined,
+            status: statuses_id.length > 0 ? statuses_id : undefined,
+            category: categories_id.length > 0 ? categories_id : undefined,
+            vocational_training:
+                vocational_trainings_id.length > 0
+                    ? vocational_trainings_id
+                    : undefined,
             min_score: min_score.value ?? undefined,
             max_score: max_score.value ?? undefined,
         },
