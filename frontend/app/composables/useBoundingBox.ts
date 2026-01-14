@@ -64,13 +64,6 @@ export const useBoundingBox = () => {
         }
     }
 
-    // Reactive bbox that automatically updates when URL changes
-    const bbox = computed(() => {
-        const bboxParam = route.query.bbox as string | undefined
-        console.log("Current bbox param:", bboxParam)
-        return parseBbox(bboxParam || null)
-    })
-
     // Update bbox in URL
     const updateQueryBboxParam = (bounds: LngLatBounds) => {
         return navigateTo({
@@ -82,7 +75,7 @@ export const useBoundingBox = () => {
     }
 
     return {
-        bbox,
+        parseBbox,
         updateBbox: updateQueryBboxParam,
     }
 }

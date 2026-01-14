@@ -88,8 +88,22 @@ const activeFilterCount = computed(() => {
 const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 
 // Handle search/filters submit
-const handleSearch = () => {
-    // todo
+const route = useRoute()
+const handleSearch = async () => {
+    await navigateTo({
+        query: {
+            bbox: route.query.bbox || undefined,
+            search: searchQuery.value || undefined,
+            type: activeSelections.type.filter((v) => v > 0),
+            status: activeSelections.status.filter((v) => v > 0),
+            category: activeSelections.category.filter((v) => v > 0),
+            vocational_training: activeSelections.vocational_training.filter(
+                (v) => v > 0,
+            ),
+            min_score: min_score.value ?? undefined,
+            max_score: max_score.value ?? undefined,
+        },
+    })
 }
 
 // Clear all filters
@@ -106,7 +120,7 @@ const handleClearFilters = () => {
 
 <template>
     <div
-        class="absolute top-20 left-2 z-1000 flex flex-col gap-2 max-w-[calc(100vw-2rem)]">
+        class="absolute top-20 left-2 z-10 flex flex-col gap-2 max-w-[calc(100vw-2rem)]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
             <form

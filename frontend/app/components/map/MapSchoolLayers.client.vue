@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { LocationQuery } from "vue-router"
 import {
     CLUSTER_LAYER_STYLE,
     POINT_LAYER_STYLE,
@@ -8,7 +9,7 @@ import type { SzkolaPublicShort } from "~/types/schools"
 
 const route = useRoute()
 const mapCache = useMapCacheStore() // cache for schools points
-const { bbox } = useBoundingBox()
+const { parseBbox } = useBoundingBox()
 const { $api } = useNuxtApp()
 
 // user messages using toast from nuxt-ui
@@ -17,15 +18,20 @@ const toast = useToast()
 let schools = ref<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
 
-const handleQueryChange = async (newBbox: BoundingBox) => {
+const handleQueryChange = async (newQuery: LocationQuery) => {
     // no need to fetch data if cache already covers the bbox
-    if (mapCache.isCovered(newBbox)) {
-        console.log(
-            "MapSchoolLayers.vue - Map cache already covers the bounding box. No data fetch needed.",
-        )
-        schools.value = mapCache.getCachedSchools(bbox.value)
-        return
-    }
+    // if (mapCache.isCovered(newBbox)) {
+    //     console.log(
+    //         "MapSchoolLayers.vue - Map cache already covers the bounding box. No data fetch needed.",
+    //     )
+    //     schools.value = mapCache.getCachedSchools(bbox.value)
+    //     return
+    // }
+
+    // if the user on its own updates query we should first remove elements that are not in SchoolFilterParams
+
+    // parse bbox from query to check if it's valid
+    const bbox = parseBbox(newQuery ? (newQuery.bbox as string) : null)
 
     toast.clear()
     toast.add({
@@ -43,15 +49,15 @@ const handleQueryChange = async (newBbox: BoundingBox) => {
         const data = await $api<SzkolaPublicShort[]>("/schools", {
             query: {
                 ...route.query,
-                bbox: `${newBbox.minLon},${newBbox.minLat},${newBbox.maxLon},${newBbox.maxLat}`,
+                bbox: `${bbox.minLon},${bbox.minLat},${bbox.maxLon},${bbox.maxLat}`,
             },
         })
 
         schools.value = data
 
         // Update Cache
-        mapCache.addSchools(data)
-        mapCache.addFetchedArea(newBbox)
+        // mapCache.addSchools(data)
+        // mapCache.addFetchedArea(newQuery)
     } catch (err) {
         toast.add({
             title: "Błąd ładowania danych",
@@ -66,7 +72,7 @@ const handleQueryChange = async (newBbox: BoundingBox) => {
     }
 }
 watch(
-    bbox,
+    () => route.query,
     (newQuery) => {
         console.log("Query changed!")
         handleQueryChange(newQuery)
