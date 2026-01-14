@@ -7,12 +7,10 @@ const emit = defineEmits<{
 }>()
 
 const { parseBbox, updateBbox } = useBoundingBox()
-const displayPopup = ref(false)
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
 const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     emit,
     updateBbox,
-    displayPopup,
     popupCoordinates,
 )
 

@@ -10,7 +10,6 @@ import type {
 export const useMapInteractions = (
     emit: (event: "point-clicked", school: SzkolaPublicWithRelations) => void,
     updateQueryBboxParam: (bounds: LngLatBounds) => void,
-    displayPopup: Ref<boolean>,
     popupCoordinates: Ref<[number, number] | undefined>,
 ) => {
     let currentFeatureCoordinates: string | undefined = undefined
@@ -46,7 +45,6 @@ export const useMapInteractions = (
             }
 
             // Use the MglPopup component instead of native popup
-            displayPopup.value = true
             popupCoordinates.value = coordinates
         }
     }
@@ -54,7 +52,6 @@ export const useMapInteractions = (
     const handleMouseLeave = (map: maplibregl.Map) => {
         currentFeatureCoordinates = undefined
         map.getCanvas().style.cursor = ""
-        displayPopup.value = false
         popupCoordinates.value = undefined
         hoveredSchool.value = null
     }
