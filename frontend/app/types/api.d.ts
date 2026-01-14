@@ -200,9 +200,6 @@ export interface components {
             score: number | null;
             typ: components["schemas"]["TypSzkolyPublic"];
             status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
-            kategoria_uczniow: components["schemas"]["KategoriaUczniowPublic"];
-            /** Ksztalcenie Zawodowe */
-            ksztalcenie_zawodowe: components["schemas"]["KsztalcenieZawodowePublic"][];
         };
         /** SzkolaPublicWithRelations */
         SzkolaPublicWithRelations: {

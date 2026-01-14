@@ -2,7 +2,7 @@ from ast import alias
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlmodel import col, select
+from sqlmodel import col, exists, select
 
 from src.app.models.bounding_box import BoundingBox
 from src.app.models.exam_results import (
@@ -93,12 +93,16 @@ async def read_schools(
         statement = statement.where(col(Szkola.kategoria_uczniow_id).in_(category_id))
 
     if vocational_training_id:
-        school_ids_subquery = select(SzkolaKsztalcenieZawodoweLink.szkola_id).where(
-            col(SzkolaKsztalcenieZawodoweLink.ksztalcenie_zawodowe_id).in_(
-                vocational_training_id
+        statement = statement.where(
+            exists(
+                select(1).where(
+                    SzkolaKsztalcenieZawodoweLink.szkola_id == Szkola.id,
+                    col(SzkolaKsztalcenieZawodoweLink.ksztalcenie_zawodowe_id).in_(
+                        vocational_training_id
+                    ),
+                )
             )
         )
-        statement = statement.where(col(Szkola.id).in_(school_ids_subquery))
 
     if min_score is not None:
         statement = statement.where(col(Szkola.score) >= min_score)

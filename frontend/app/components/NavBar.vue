@@ -13,13 +13,13 @@ const items = computed<NavigationMenuItem[]>(() => [
     },
     {
         label: "O nas",
-        to: "/about",
+        to: "#",
         icon: "i-mdi-information",
         active: route.path.startsWith("/about"),
     },
     {
         label: "Kontakt",
-        to: "/contact",
+        to: "#",
         icon: "i-mdi-phone", // Or 'i-mdi-email' depending on preference
         active: route.path.startsWith("/contact"),
     },
