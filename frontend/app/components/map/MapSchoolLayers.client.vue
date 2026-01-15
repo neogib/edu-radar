@@ -47,8 +47,6 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
             color: "error",
             id: "error-schools-toast",
         })
-    } finally {
-        toast.remove("loading-schools-toast")
     }
 
     // get schools for the whole map
@@ -57,6 +55,7 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
         query: schoolFilters,
     })
     schools.value = data
+    toast.remove("loading-schools-toast")
 }
 let lastKey = ""
 watch(

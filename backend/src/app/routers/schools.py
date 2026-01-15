@@ -1,7 +1,7 @@
-from ast import alias
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import selectinload
 from sqlmodel import col, exists, select
 
 from src.app.models.bounding_box import BoundingBox
@@ -73,7 +73,10 @@ async def read_schools(
     """
 
     # SQL query to filter schools within bounding box boundaries
-    statement = select(Szkola)
+    statement = select(Szkola).options(
+        selectinload(Szkola.typ),  # pyright: ignore [reportArgumentType]
+        selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
+    )
     if bbox:
         statement = statement.where(
             (Szkola.geolokalizacja_latitude >= bbox.min_lat)
