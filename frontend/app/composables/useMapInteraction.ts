@@ -16,6 +16,7 @@ export const useMapInteractions = (
     let debounceTimeout: NodeJS.Timeout | null = null
     const hoveredSchool: Ref<SzkolaPublicShortFromGeoJsonFeatures | null> =
         ref(null)
+    const { $api } = useNuxtApp()
 
     const handleMouseMove = (map: maplibregl.Map, e: MapMouseLayerEvent) => {
         const feature_collection = e.features?.[0]
@@ -60,12 +61,12 @@ export const useMapInteractions = (
         const feature_collection = e.features?.[0]
         if (!feature_collection) return
 
-        const schoolFullDetails = await useApi<SzkolaPublicWithRelations>(
+        const schoolFullDetails = await $api<SzkolaPublicWithRelations>(
             `/schools/${feature_collection.properties.id}`,
         )
 
-        if (schoolFullDetails.data.value) {
-            emit("point-clicked", schoolFullDetails.data.value)
+        if (schoolFullDetails) {
+            emit("point-clicked", schoolFullDetails)
         }
     }
 

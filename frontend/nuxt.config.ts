@@ -15,4 +15,7 @@ export default defineNuxtConfig({
     vite: {
         plugins: [tailwindcss()],
     },
+    devServer: {
+        host: "0.0.0.0",
+    },
 })
