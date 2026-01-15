@@ -15,12 +15,8 @@ console.log(`Filters: ${filters.value}`)
 // user messages using toast from nuxt-ui
 const toast = useToast()
 
-const geojsonData = ref<
-    GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>
->({
-    type: "FeatureCollection",
-    features: [],
-})
+let schools = ref<SzkolaPublicShort[]>([])
+const { geoJsonSource } = useSchoolGeoJson(schools)
 const { bbox } = useBoundingBox()
 
 const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
@@ -34,12 +30,14 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
     })
     try {
         console.log(`Fetching schools for bbox`)
-        // geojsonData.value = await $api("/schools", {
-        //     query: {
-        //         ...schoolFilters,
-        //         bbox: `${bbox.value.minLon},${bbox.value.minLat},${bbox.value.maxLon},${bbox.value.maxLat}`,
-        //     },
-        // })
+        const data = await $api<SzkolaPublicShort[]>("/schools", {
+            query: {
+                ...schoolFilters,
+                bbox: `${bbox.value.minLon},${bbox.value.minLat},${bbox.value.maxLon},${bbox.value.maxLat}`,
+            },
+        })
+
+        schools.value = data
     } catch (err) {
         toast.add({
             title: "Błąd ładowania danych",
@@ -55,13 +53,10 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
 
     // get schools for the whole map
     console.log("Fetching schools for the whole map with new filters...")
-    console.time("fetch schools")
-
-    geojsonData.value = await $api("/schools", {
+    const data = await $api<SzkolaPublicShort[]>("/schools", {
         query: schoolFilters,
     })
-
-    console.timeEnd("fetch schools")
+    schools.value = data
 }
 let lastKey = ""
 watch(
@@ -80,7 +75,7 @@ watch(
 <template>
     <MglGeoJsonSource
         source-id="schools-source"
-        :data="geojsonData"
+        :data="geoJsonSource"
         :cluster="true"
         :cluster-max-zoom="14"
         :cluster-properties="{
