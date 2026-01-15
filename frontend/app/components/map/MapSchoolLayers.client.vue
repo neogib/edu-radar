@@ -59,13 +59,17 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
     schools.value = data
 }
 let lastKey = ""
-watch(filters, (schoolFilters) => {
-    const key = JSON.stringify(schoolFilters)
-    if (key === lastKey) return
-    lastKey = key
-    console.log("Query changed!")
-    handleNewFilters(schoolFilters)
-})
+watch(
+    filters,
+    (schoolFilters) => {
+        const key = JSON.stringify(schoolFilters)
+        if (key === lastKey) return
+        lastKey = key
+        console.log("Query changed!")
+        handleNewFilters(schoolFilters)
+    },
+    { immediate: true },
+)
 </script>
 
 <template>

@@ -96,6 +96,7 @@ const handleSearch = async () => {
     const vocational_trainings_id = activeSelections.vocational_training.filter(
         (v) => v > 0,
     )
+    isFilterPanelOpen.value = false
     await navigateTo({
         query: {
             bbox: route.query.bbox || undefined,

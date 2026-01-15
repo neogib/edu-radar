@@ -69,9 +69,9 @@ export const useBoundingBox = () => {
     })
 
     // Update bbox in URL
-    const updateQueryBboxParam = (bounds: LngLatBounds) => {
+    const updateQueryBboxParam = async (bounds: LngLatBounds) => {
         const round = (val: number) => val.toFixed(6)
-        return navigateTo({
+        await navigateTo({
             query: {
                 ...route.query,
                 bbox: `${round(bounds.getWest())},${round(bounds.getSouth())},${round(bounds.getEast())},${round(bounds.getNorth())}`,
@@ -81,6 +81,6 @@ export const useBoundingBox = () => {
 
     return {
         bbox,
-        updateBbox: updateQueryBboxParam,
+        updateQueryBboxParam,
     }
 }

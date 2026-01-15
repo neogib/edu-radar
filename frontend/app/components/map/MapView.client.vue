@@ -6,11 +6,11 @@ const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations]
 }>()
 
-const { bbox, updateBbox } = useBoundingBox()
+const { bbox, updateQueryBboxParam } = useBoundingBox()
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
 const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     emit,
-    updateBbox,
+    updateQueryBboxParam,
     popupCoordinates,
 )
 
@@ -18,7 +18,7 @@ console.log(`bbox: ${bbox}`)
 
 const onMapLoaded = (event: { map: maplibregl.Map }) => {
     setupMapEventHandlers(event.map)
-    updateBbox(event.map.getBounds())
+    updateQueryBboxParam(event.map.getBounds())
 }
 </script>
 
