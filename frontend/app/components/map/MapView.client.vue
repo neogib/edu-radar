@@ -25,14 +25,21 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
 <template>
     <MglMap
         :map-style="MAP_CONFIG.style"
-        :max-bounds="MAP_CONFIG.polandBounds"
         :bounds="[
             [bbox.minLon, bbox.minLat],
             [bbox.maxLon, bbox.maxLat],
         ]"
         height="100vh"
+        :fade-duration="0"
+        :min-zoom="MAP_CONFIG.minZoom"
+        :max-zoom="MAP_CONFIG.maxZoom"
         @map:load="onMapLoaded">
-        <MglNavigationControl />
+        <MglNavigationControl position="bottom-right" />
+        <MglFullscreenControl position="bottom-right" />
+        <MglGeolocateControl
+            position="bottom-right"
+            :positionOptions="{ enableHighAccuracy: true }"
+            :trackUserLocation="true" />
 
         <MglImage
             v-for="iconUrl in ICON_URLS"
