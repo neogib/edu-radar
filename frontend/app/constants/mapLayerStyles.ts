@@ -41,9 +41,7 @@ export const POINT_LAYER_STYLE = {
             // Default fallback for any other school types
             SCHOOL_ICONS.default,
         ] as DataDrivenPropertyValueSpecification<string>,
-        "icon-overlap": "always" as PropertyValueSpecification<
-            "always" | "never" | "cooperative"
-        >,
+        "icon-allow-overlap": true,
     },
 }
 

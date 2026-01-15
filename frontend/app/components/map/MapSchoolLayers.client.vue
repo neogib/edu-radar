@@ -77,6 +77,7 @@ watch(
         source-id="schools-source"
         :data="geoJsonSource"
         :cluster="true"
+        :cluster-max-zoom="14"
         :cluster-properties="{
             sum: [
                 '+',

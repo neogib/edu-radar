@@ -17,6 +17,8 @@ export const MAP_CONFIG = {
         maxLon: 21.3901,
         maxLat: 52.3473,
     },
+    maxZoom: 19,
+    minZoom: 5,
 }
 
 export const SCHOOL_ICONS = {
