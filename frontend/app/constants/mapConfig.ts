@@ -17,6 +17,8 @@ export const MAP_CONFIG = {
         maxLon: 21.3901,
         maxLat: 52.3473,
     },
+    defaultCenter: [21.008333, 52.232222] as [number, number],
+    defaultZoom: 12,
     maxZoom: 19,
     minZoom: 5,
 }

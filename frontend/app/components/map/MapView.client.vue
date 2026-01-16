@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { LngLatBoundsLike } from "maplibre-gl"
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
@@ -14,18 +15,24 @@ const { setupMapEventHandlers, hoveredSchool, updateQueryBboxParam } =
 
 const bbox = parseBbox((route.query.bbox as string) ?? undefined)
 
+const bounds: LngLatBoundsLike | undefined = !route.query.bbox
+    ? undefined
+    : [bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat]
+
 const onMapLoaded = (event: { map: maplibregl.Map }) => {
-    setupMapEventHandlers(event.map)
-    updateQueryBboxParam(event.map.getBounds())
+    const map = event.map
+    setupMapEventHandlers(map)
+    updateQueryBboxParam(map.getBounds())
 }
 </script>
 
 <template>
     <MglMap
         :map-style="MAP_CONFIG.style"
-        :bounds="[bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat]"
+        :center="MAP_CONFIG.defaultCenter"
+        :zoom="MAP_CONFIG.defaultZoom"
         :maxBounds="MAP_CONFIG.polandBounds"
-        height="100vh"
+        :bounds="bounds"
         :fade-duration="0"
         :min-zoom="MAP_CONFIG.minZoom"
         :max-zoom="MAP_CONFIG.maxZoom"
