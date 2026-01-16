@@ -10,7 +10,7 @@ import type { VoivodeshipData } from "~/types/voivodeships"
  */
 export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
     dolnoslaskie: {
-        name: "Dolnośląskie",
+        name: "dolnośląskie",
         coordinates: {
             minLon: 14.76,
             minLat: 49.98,
@@ -19,7 +19,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     kujawsko_pomorskie: {
-        name: "Kujawsko-pomorskie",
+        name: "kujawsko-pomorskie",
         coordinates: {
             minLon: 17.16,
             minLat: 52.28,
@@ -28,7 +28,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     lubelskie: {
-        name: "Lubelskie",
+        name: "lubelskie",
         coordinates: {
             minLon: 21.52,
             minLat: 50.2,
@@ -37,7 +37,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     lubuskie: {
-        name: "Lubuskie",
+        name: "lubuskie",
         coordinates: {
             minLon: 14.4,
             minLat: 51.33,
@@ -46,7 +46,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     lodzkie: {
-        name: "Łódzkie",
+        name: "łódzkie",
         coordinates: {
             minLon: 17.95,
             minLat: 50.78,
@@ -55,7 +55,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     malopolskie: {
-        name: "Małopolskie",
+        name: "małopolskie",
         coordinates: {
             minLon: 18.92,
             minLat: 49.07,
@@ -64,7 +64,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     mazowieckie: {
-        name: "Mazowieckie",
+        name: "mazowieckie",
         coordinates: {
             minLon: 19.15,
             minLat: 50.95,
@@ -73,7 +73,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     opolskie: {
-        name: "Opolskie",
+        name: "opolskie",
         coordinates: {
             minLon: 16.8461,
             minLat: 49.942,
@@ -82,7 +82,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     podkarpackie: {
-        name: "Podkarpackie",
+        name: "podkarpackie",
         coordinates: {
             minLon: 21.03,
             minLat: 48.95,
@@ -91,7 +91,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     podlaskie: {
-        name: "Podlaskie",
+        name: "podlaskie",
         coordinates: {
             minLon: 21.45,
             minLat: 52.17,
@@ -100,7 +100,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     pomorskie: {
-        name: "Pomorskie",
+        name: "pomorskie",
         coordinates: {
             minLon: 16.65,
             minLat: 53.4,
@@ -109,7 +109,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     slaskie: {
-        name: "Śląskie",
+        name: "śląskie",
         coordinates: {
             minLon: 17.8872,
             minLat: 49.2956,
@@ -118,7 +118,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     swietokrzyskie: {
-        name: "Świętokrzyskie",
+        name: "świętokrzyskie",
         coordinates: {
             minLon: 19.6,
             minLat: 50.1,
@@ -127,7 +127,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     "warminsko-mazurskie": {
-        name: "Warmińsko-mazurskie",
+        name: "warmińsko-mazurskie",
         coordinates: {
             minLon: 19.05,
             minLat: 53.07,
@@ -136,7 +136,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     wielkopolskie: {
-        name: "Wielkopolskie",
+        name: "wielkopolskie",
         coordinates: {
             minLon: 15.68,
             minLat: 51.05,
@@ -145,7 +145,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         },
     },
     "zachodnio-pomorskie": {
-        name: "Zachodniopomorskie",
+        name: "zachodniopomorskie",
         coordinates: {
             minLon: 13.95,
             minLat: 52.58,
