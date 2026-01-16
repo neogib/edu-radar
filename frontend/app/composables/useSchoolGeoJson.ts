@@ -9,12 +9,18 @@ export const useSchoolGeoJson = (
     ): Feature<Point, SzkolaPublicShort>[] => {
         return schools.map((school) => ({
             type: "Feature",
-            properties: school,
+            properties: {
+                id: school.id,
+                nazwa: school.nazwa,
+                typ: school.typ,
+                status_publicznoprawny: school.status_publicznoprawny,
+                score: school.score ? Number(school.score.toFixed(2)) : null,
+            },
             geometry: {
                 type: "Point",
                 coordinates: [
-                    school.geolokalizacja_longitude,
-                    school.geolokalizacja_latitude,
+                    school.geolokalizacja_longitude.toFixed(6),
+                    school.geolokalizacja_latitude.toFixed(6),
                 ],
             },
         }))
