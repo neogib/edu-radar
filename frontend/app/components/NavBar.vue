@@ -13,13 +13,13 @@ const items = computed<NavigationMenuItem[]>(() => [
     },
     {
         label: "O nas",
-        to: "#",
+        to: "/",
         icon: "i-mdi-information",
         active: route.path.startsWith("/about"),
     },
     {
         label: "Kontakt",
-        to: "#",
+        to: "/",
         icon: "i-mdi-phone", // Or 'i-mdi-email' depending on preference
         active: route.path.startsWith("/contact"),
     },
@@ -57,7 +57,11 @@ const items = computed<NavigationMenuItem[]>(() => [
             <UNavigationMenu
                 :items="items"
                 orientation="vertical"
-                class="-mx-2.5" />
+                class="-mx-2.5"
+                :ui="{
+                    link: 'px-3 py-2.5 text-base', // Bigger padding and font size for main items
+                    linkLeadingIcon: 'size-6', // Bigger icon
+                }" />
         </template>
     </UHeader>
 </template>
