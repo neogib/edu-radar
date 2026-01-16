@@ -9,18 +9,21 @@ const { data: filterOptions } = useApi<FiltersResponse>("/filters/")
 // Search state
 const searchQuery = ref("")
 
+// get filters from route.query
+const { filters } = useSchoolFiltersFromRoute()
+
 // min, max score
-const min_score = ref<number | null>(null)
-const max_score = ref<number | null>(null)
+const min_score = ref<number | null>(filters.value.min_score ?? null)
+const max_score = ref<number | null>(filters.value.max_score ?? null)
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
 
 const activeSelections = reactive<ActiveSelections>({
-    type: [],
-    status: [],
-    category: [],
-    vocational_training: [],
+    type: filters.value.type ?? [],
+    status: filters.value.status ?? [],
+    category: filters.value.category ?? [],
+    vocational_training: filters.value.vocational_training ?? [],
 })
 
 // Get available items (not already selected) for a filter
