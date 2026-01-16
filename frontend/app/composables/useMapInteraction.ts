@@ -9,7 +9,6 @@ import type {
 
 export const useMapInteractions = (
     emit: (event: "point-clicked", school: SzkolaPublicWithRelations) => void,
-    updateQueryBboxParam: (bounds: LngLatBounds) => void,
     popupCoordinates: Ref<[number, number] | undefined>,
 ) => {
     let currentFeatureCoordinates: string | undefined = undefined
@@ -17,6 +16,7 @@ export const useMapInteractions = (
     const hoveredSchool: Ref<SzkolaPublicShortFromGeoJsonFeatures | null> =
         ref(null)
     const { $api } = useNuxtApp()
+    const route = useRoute()
 
     const handleMouseMove = (map: maplibregl.Map, e: MapMouseLayerEvent) => {
         const feature_collection = e.features?.[0]
@@ -106,8 +106,25 @@ export const useMapInteractions = (
         map.on("mouseleave", "unclustered-points", () => handleMouseLeave(map))
         map.on("click", "unclustered-points", handleClick)
         map.on("click", "clusters", (e) => handleClusterClick(map, e))
+        map.on("mouseenter", "clusters", () => {
+            map.getCanvas().style.cursor = "pointer"
+        })
+        map.on("mouseleave", "clusters", () => {
+            map.getCanvas().style.cursor = ""
+        })
         map.on("moveend", () => handleMoveEnd(map))
     }
 
-    return { setupMapEventHandlers, hoveredSchool }
+    // Update bbox in URL
+    const updateQueryBboxParam = async (bounds: LngLatBounds) => {
+        const round = (val: number) => val.toFixed(6)
+        await navigateTo({
+            query: {
+                ...route.query,
+                bbox: `${round(bounds.getWest())},${round(bounds.getSouth())},${round(bounds.getEast())},${round(bounds.getNorth())}`,
+            },
+        })
+    }
+
+    return { setupMapEventHandlers, hoveredSchool, updateQueryBboxParam }
 }

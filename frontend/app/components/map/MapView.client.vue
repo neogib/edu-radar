@@ -2,19 +2,17 @@
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
+const route = useRoute()
 const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations]
 }>()
 
-const { bbox, updateQueryBboxParam } = useBoundingBox()
+const { parseBbox } = useBoundingBox()
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
-const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
-    emit,
-    updateQueryBboxParam,
-    popupCoordinates,
-)
+const { setupMapEventHandlers, hoveredSchool, updateQueryBboxParam } =
+    useMapInteractions(emit, popupCoordinates)
 
-console.log(`bbox: ${bbox}`)
+const bbox = parseBbox((route.query.bbox as string) ?? undefined)
 
 const onMapLoaded = (event: { map: maplibregl.Map }) => {
     setupMapEventHandlers(event.map)
@@ -25,10 +23,8 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
 <template>
     <MglMap
         :map-style="MAP_CONFIG.style"
-        :bounds="[
-            [bbox.minLon, bbox.minLat],
-            [bbox.maxLon, bbox.maxLat],
-        ]"
+        :bounds="[bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat]"
+        :maxBounds="MAP_CONFIG.polandBounds"
         height="100vh"
         :fade-duration="0"
         :min-zoom="MAP_CONFIG.minZoom"

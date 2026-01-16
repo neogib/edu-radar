@@ -1,4 +1,3 @@
-import type { LngLatBounds } from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import type { BoundingBox } from "~/types/boundingBox"
 
@@ -65,22 +64,12 @@ export const useBoundingBox = () => {
     }
 
     const bbox = computed(() => {
+        console.log("bbox changed")
         return parseBbox((route.query.bbox as string) ?? undefined)
     })
 
-    // Update bbox in URL
-    const updateQueryBboxParam = async (bounds: LngLatBounds) => {
-        const round = (val: number) => val.toFixed(6)
-        await navigateTo({
-            query: {
-                ...route.query,
-                bbox: `${round(bounds.getWest())},${round(bounds.getSouth())},${round(bounds.getEast())},${round(bounds.getNorth())}`,
-            },
-        })
-    }
-
     return {
         bbox,
-        updateQueryBboxParam,
+        parseBbox,
     }
 }
