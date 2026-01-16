@@ -37,17 +37,15 @@ const items = computed<NavigationMenuItem[]>(() => [
         }"
         mode="slideover">
         <template #title>
-            <h1 class="text-2xl font-bold">
-                <NuxtLink to="/" class="group">
-                    <span
-                        class="text-gray-800 group-hover:text-indigo-600 transition-colors duration-200"
-                        >Ranking</span
-                    >
-                    <span
-                        class="text-indigo-600 group-hover:text-indigo-900 transition-colors duration-200"
-                        >Szkół</span
-                    >
-                </NuxtLink>
+            <h1 class="text-2xl font-bold group">
+                <span
+                    class="text-gray-800 group-hover:text-indigo-600 transition-colors duration-200"
+                    >Ranking</span
+                >
+                <span
+                    class="text-indigo-600 group-hover:text-indigo-900 transition-colors duration-200"
+                    >Szkół</span
+                >
             </h1>
         </template>
 
