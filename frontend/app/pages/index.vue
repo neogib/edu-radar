@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const selectedVoivodeship = ref<string>("")
+const voivodeships_map = ref<HTMLElement | null>(null)
 
 const handleVoivodeshipSelect = (voivodeshipId: string) => {
     selectedVoivodeship.value = voivodeshipId
@@ -31,6 +32,15 @@ const handleSearchSubmit = async (searchParams: {
             type: searchParams.schoolType,
         },
     })
+}
+
+const handleScrollToMap = () => {
+    if (voivodeships_map.value) {
+        voivodeships_map.value.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+        })
+    }
 }
 </script>
 
@@ -62,10 +72,11 @@ const handleSearchSubmit = async (searchParams: {
                 <SchoolSearchForm
                     :selected-voivodeship="selectedVoivodeship"
                     @submit="handleSearchSubmit"
-                    @clear-voivodeship="selectedVoivodeship = ''" />
+                    @clear-voivodeship="selectedVoivodeship = ''"
+                    @scroll-to-map="handleScrollToMap" />
 
                 <!-- Map Section -->
-                <div class="content-card">
+                <div ref="voivodeships_map" class="content-card">
                     <div class="mb-2">
                         <h2 class="text-2xl font-bold text-gray-900 mb-2">
                             Mapa województw

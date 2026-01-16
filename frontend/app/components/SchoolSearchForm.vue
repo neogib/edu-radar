@@ -11,6 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: "submit", payload: { schoolType: number; voivodeship: string }): void
     (e: "clear-voivodeship"): void
+    (e: "scroll-to-map"): void
 }>()
 
 const selectedSchoolType = ref<number>()
@@ -64,7 +65,7 @@ const resetForm = () => {
             </p>
         </div>
 
-        <form class="space-y-6" @submit.prevent="handleSubmit">
+        <form class="space-y-4" @submit.prevent="handleSubmit">
             <!-- School Type Selection -->
             <div>
                 <label
@@ -101,10 +102,10 @@ const resetForm = () => {
                     Wybrane województwo *
                 </label>
                 <div
-                    class="p-4 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                    class="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                     <div
                         v-if="selectedVoivodeship"
-                        class="flex justify-between">
+                        class="flex justify-between p-3">
                         <span class="text-lg font-medium text-indigo-600">
                             {{ voivodeshipName }}
                         </span>
@@ -115,14 +116,21 @@ const resetForm = () => {
                             <Icon name="mdi:close" class="w-6 h-6" />
                         </button>
                     </div>
-                    <div v-else class="text-gray-500 text-center py-2">
-                        Kliknij na województwo na mapie →
-                    </div>
+                    <UButton
+                        v-else
+                        block
+                        class="p-4"
+                        variant="soft"
+                        color="neutral"
+                        icon="i-heroicons-map"
+                        @click="emit('scroll-to-map')">
+                        Wybierz na mapie →
+                    </UButton>
                 </div>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-6">
+            <div class="flex flex-col sm:flex-row gap-4 pt-2">
                 <button
                     type="submit"
                     :disabled="!selectedSchoolType || !selectedVoivodeship"
