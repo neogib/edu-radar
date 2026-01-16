@@ -29,7 +29,7 @@ const handleSidebarClose = () => {
             :is-open="isSidebarOpen"
             :selected-point="selectedSchool"
             @close="handleSidebarClose" />
-        <MapSearchFilter />
+        <MapSearchFilter v-if="!isSidebarOpen" />
 
         <!-- MapView taking full remaining space with dynamic margin for sidebar -->
         <div :class="['transition-all duration-300']">

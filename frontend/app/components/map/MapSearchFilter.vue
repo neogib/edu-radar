@@ -6,11 +6,11 @@ import type { FiltersResponse } from "~/types/schools"
 // all filter options from api
 const { data: filterOptions } = useApi<FiltersResponse>("/filters/")
 
-// Search state
-const searchQuery = ref("")
-
 // get filters from route.query
 const { filters } = useSchoolFiltersFromRoute()
+
+// Search state
+const searchQuery = ref("") // later maybe add to filters
 
 // min, max score
 const min_score = ref<number | null>(filters.value.min_score ?? null)
@@ -111,8 +111,14 @@ const handleSearch = async () => {
                 vocational_trainings_id.length > 0
                     ? vocational_trainings_id
                     : undefined,
-            min_score: min_score.value ?? undefined,
-            max_score: max_score.value ?? undefined,
+            min_score:
+                min_score.value && min_score.value > 0
+                    ? min_score.value
+                    : undefined,
+            max_score:
+                max_score.value && max_score.value < 100
+                    ? max_score.value
+                    : undefined,
         },
     })
 }
@@ -131,7 +137,7 @@ const handleClearFilters = () => {
 
 <template>
     <div
-        class="absolute top-20 left-2 z-10 flex flex-col gap-2 max-w-[calc(100vw-2rem)]">
+        class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[calc(100vw-2rem)]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
             <form
@@ -141,7 +147,7 @@ const handleClearFilters = () => {
                     v-model="searchQuery"
                     icon="i-mdi-magnify"
                     placeholder="Szukaj szkoły..."
-                    size="lg"
+                    size="md"
                     :ui="{ root: 'w-full' }" />
             </form>
 
@@ -150,7 +156,7 @@ const handleClearFilters = () => {
                 :icon="isFilterPanelOpen ? 'i-mdi-filter-off' : 'i-mdi-filter'"
                 :color="hasActiveFilters ? 'primary' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
-                size="lg"
+                size="md"
                 @click="isFilterPanelOpen = !isFilterPanelOpen">
                 <template v-if="activeFilterCount > 0">
                     <UBadge color="error" class="ml-1">
@@ -164,12 +170,12 @@ const handleClearFilters = () => {
         <Transition name="slide-fade">
             <div
                 v-if="isFilterPanelOpen"
-                class="backdrop-blur-md bg-white/95 rounded-xl shadow-2xl border border-white/20 p-4 max-w-full overflow-x-auto">
+                class="backdrop-blur-md bg-white/95 rounded-xl shadow-2xl border border-white/20 p-3 max-w-full overflow-x-auto">
                 <!-- Filter Options -->
                 <div v-if="filterOptions == undefined">
                     <p>Waiting for filter options...</p>
                 </div>
-                <div class="flex flex-col gap-4" v-else>
+                <div class="flex flex-col gap-2" v-else>
                     <!-- Dynamic Filter Selects -->
                     <div class="flex flex-wrap gap-4">
                         <div
@@ -263,35 +269,40 @@ const handleClearFilters = () => {
 
                     <!-- Score Range Section -->
                     <div
-                        class="bg-neutral-50 rounded-lg p-3 flex flex-col gap-2 items-center justify-center">
-                        <div
-                            class="flex items-center justify-center gap-2 text-sm font-medium text-neutral-700">
-                            <UIcon name="i-mdi-star" class="text-amber-500" />
-                            <span>Zakres punktów (0-100)</span>
+                        class="bg-neutral-50 rounded-lg p-2 flex flex-row flex-wrap gap-x-6 gap-y-2 items-center justify-center">
+                        <div class="flex items-center gap-1.5">
+                            <UIcon
+                                name="i-mdi-star"
+                                class="text-amber-500 size-4" />
+                            <span class="text-sm font-medium text-neutral-600"
+                                >Punkty (0-100)</span
+                            >
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-xs text-neutral-500"
-                                    >Min</label
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-neutral-500"
+                                    >Min</span
                                 >
                                 <UInputNumber
                                     v-model="min_score"
                                     :min="0"
                                     :max="100"
+                                    size="xs"
                                     placeholder="0"
-                                    class="w-30" />
+                                    class="w-20" />
                             </div>
-                            <div class="text-neutral-400 pt-4">—</div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-xs text-neutral-500"
-                                    >Max</label
+                            <span class="text-neutral-400 text-xs">—</span>
+                            <div class="flex items-center gap-1">
+                                <span class="text-xs text-neutral-500"
+                                    >Max</span
                                 >
                                 <UInputNumber
                                     v-model="max_score"
                                     placeholder="100"
+                                    size="xs"
                                     :min="0"
                                     :max="100"
-                                    class="w-30" />
+                                    class="w-20" />
                             </div>
                         </div>
                     </div>
@@ -305,11 +316,13 @@ const handleClearFilters = () => {
                             label="Wyczyść filtry"
                             color="error"
                             variant="ghost"
+                            size="md"
                             @click="handleClearFilters" />
                         <div v-else />
 
                         <UButton
                             icon="i-mdi-magnify"
+                            size="md"
                             label="Szukaj"
                             color="primary"
                             @click="handleSearch" />
@@ -318,6 +331,10 @@ const handleClearFilters = () => {
             </div>
         </Transition>
     </div>
+    <div
+        v-if="isFilterPanelOpen"
+        class="fixed inset-0 bg-black opacity-25 z-10 md:hidden"
+        @click="isFilterPanelOpen = false" />
 </template>
 
 <style scoped>

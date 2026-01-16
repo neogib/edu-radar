@@ -33,13 +33,13 @@ const scoreColor = computed(() => {
 <template>
     <div
         :class="[
-            'fixed top-0 left-0 h-full bg-white shadow-2xl transition-transform duration-300 z-50',
+            'fixed top-0 left-0 h-full bg-white shadow-2xl transition-transform duration-300 z-70',
             'max-w-md min-w-xs  border-r border-gray-200',
             isOpen ? 'transform translate-x-0' : 'transform -translate-x-full',
         ]">
         <!-- Sidebar Header -->
         <div
-            class="sticky top-0 bg-white z-10 border-b border-gray-200 flex items-center justify-between p-4">
+            class="sticky top-0 bg-white border-b border-gray-200 flex items-center justify-between p-4">
             <h2 class="text-lg font-semibold text-gray-900">
                 Szczegóły szkoły
             </h2>
@@ -142,7 +142,7 @@ const scoreColor = computed(() => {
     <!-- Overlay for mobile -->
     <div
         v-if="isOpen"
-        class="fixed inset-0 bg-black opacity-25 z-40 lg:hidden"
+        class="fixed inset-0 bg-black opacity-25 z-60 lg:hidden"
         @click="closeSidebar" />
 </template>
 
