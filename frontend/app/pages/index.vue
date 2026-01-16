@@ -86,7 +86,7 @@ const handleScrollToMap = () => {
                         </p>
                     </div>
 
-                    <div class="relative p-2">
+                    <div class="relative">
                         <VoivodeshipsMap
                             @path-click="handleVoivodeshipSelect" />
 
