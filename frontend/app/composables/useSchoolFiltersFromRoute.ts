@@ -1,33 +1,38 @@
 export const useSchoolFiltersFromRoute = () => {
     const route = useRoute()
 
+    // granular computeds to prevent re-evaluation of the main filter object
+    // when unrelated query params (like bbox) change
+    const typeParam = computed(() => route.query.type)
+    const statusParam = computed(() => route.query.status)
+    const categoryParam = computed(() => route.query.category)
+    const vocationalParam = computed(() => route.query.vocational_training)
+    const minScoreParam = computed(() => route.query.min_score)
+    const maxScoreParam = computed(() => route.query.max_score)
+
+    const parseArray = (v: unknown) => {
+        if (!v) return undefined
+        const arr = (Array.isArray(v) ? v : [v])
+            .map(Number)
+            .filter((n) => Number.isFinite(n) && n > 0)
+            .sort((a, b) => a - b)
+        return arr.length ? arr : undefined
+    }
+
+    const parseNumber = (v: unknown) => {
+        if (!v) return undefined
+        const n = Number(Array.isArray(v) ? v[0] : v)
+        return Number.isFinite(n) ? n : undefined
+    }
+
     const filters = computed(() => {
-        const q = route.query
-
-        const parseArray = (v: string | string[] | undefined) => {
-            if (!v) return undefined
-            const arr = Array.isArray(v) ? v : [v]
-            const nums = arr
-                .map(Number)
-                .filter((n) => Number.isFinite(n) && n > 0)
-            return nums.length ? nums : undefined
-        }
-
-        const parseNumber = (v: string | string[] | undefined) => {
-            if (!v || Array.isArray(v)) return undefined
-            const n = Number(v)
-            return Number.isFinite(n) ? n : undefined
-        }
-
         return {
-            type: parseArray(q.type as string | string[] | undefined),
-            status: parseArray(q.status as string | string[] | undefined),
-            category: parseArray(q.category as string | string[] | undefined),
-            vocational_training: parseArray(
-                q.vocational_training as string | string[] | undefined,
-            ),
-            min_score: parseNumber(q.min_score as string | undefined),
-            max_score: parseNumber(q.max_score as string | undefined),
+            type: parseArray(typeParam.value),
+            status: parseArray(statusParam.value),
+            category: parseArray(categoryParam.value),
+            vocational_training: parseArray(vocationalParam.value),
+            min_score: parseNumber(minScoreParam.value),
+            max_score: parseNumber(maxScoreParam.value),
         }
     })
 
