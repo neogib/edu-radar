@@ -23,6 +23,7 @@ const handleSidebarClose = () => {
 <template>
     <div class="relative h-dvh w-screen overflow-hidden">
         <NavBar class="absolute w-full" />
+        <MapLegend />
 
         <SidebarMain
             :is-open="isSidebarOpen"
