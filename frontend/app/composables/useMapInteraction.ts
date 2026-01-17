@@ -1,6 +1,7 @@
 import type { Point } from "geojson"
 import type { LngLatBounds } from "maplibre-gl"
 import type maplibregl from "maplibre-gl"
+import { MAP_CONFIG } from "~/constants/mapConfig"
 import type { MapMouseLayerEvent } from "~/types/map"
 import type {
     SzkolaPublicWithRelations,
@@ -88,12 +89,23 @@ export const useMapInteractions = (
     }
 
     const handleMoveEnd = (map: maplibregl.Map) => {
+        const { lng, lat } = map.getCenter()
+        const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
+
+        // if user moved outside of Poland bounds, reset to default center
+        if (lng < minLon || lng > maxLon || lat < minLat || lat > maxLat) {
+            map.easeTo({
+                center: MAP_CONFIG.defaultCenter,
+            })
+            return
+        }
+
         // Clear the previous timeout if it exists
         if (debounceTimeout) {
             clearTimeout(debounceTimeout)
         }
 
-        // Set a new timeout
+        // Set a new timeout to update the bbox after a delay
         debounceTimeout = setTimeout(() => {
             updateQueryBboxParam(map.getBounds())
         }, 300) // Wait for 300ms of inactivity before fetching

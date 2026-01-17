@@ -7,10 +7,7 @@ import hexagonIconUrl from "~/assets/images/figures/hexagon.png"
 // constants/mapConfig.ts
 export const MAP_CONFIG = {
     style: "https://tiles.openfreemap.org/styles/liberty",
-    polandBounds: [
-        [14.0, 49],
-        [24.5, 55.2],
-    ] as [[number, number], [number, number]],
+    polandBounds: [14.0, 49, 24.5, 55.2] as [number, number, number, number],
     defaultBbox: {
         minLon: 20.7639,
         minLat: 52.1189,

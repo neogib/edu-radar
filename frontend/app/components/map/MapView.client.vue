@@ -31,7 +31,6 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
         :map-style="MAP_CONFIG.style"
         :center="MAP_CONFIG.defaultCenter"
         :zoom="MAP_CONFIG.defaultZoom"
-        :maxBounds="MAP_CONFIG.polandBounds"
         :bounds="bounds"
         :fade-duration="0"
         :min-zoom="MAP_CONFIG.minZoom"
