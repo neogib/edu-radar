@@ -13,8 +13,8 @@ const { filters } = useSchoolFiltersFromRoute()
 const searchQuery = ref("") // later maybe add to filters
 
 // min, max score
-const min_score = ref<number | null>(filters.value.min_score ?? null)
-const max_score = ref<number | null>(filters.value.max_score ?? null)
+const min_score = ref<number | undefined>(filters.value.min_score)
+const max_score = ref<number | undefined>(filters.value.max_score)
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
@@ -83,8 +83,8 @@ const activeFilterCount = computed(() => {
     ) as (keyof ActiveSelections)[]) {
         count += activeSelections[key].filter((v) => v > 0).length
     }
-    if (min_score.value !== null && min_score.value !== 0) count++
-    if (max_score.value !== null && max_score.value !== 100) count++
+    if (min_score.value) count++
+    if (max_score.value && max_score.value !== 100) count++
     return count
 })
 
@@ -111,14 +111,8 @@ const handleSearch = async () => {
                 vocational_trainings_id.length > 0
                     ? vocational_trainings_id
                     : undefined,
-            min_score:
-                min_score.value && min_score.value > 0
-                    ? min_score.value
-                    : undefined,
-            max_score:
-                max_score.value && max_score.value < 100
-                    ? max_score.value
-                    : undefined,
+            min_score: min_score.value || undefined,
+            max_score: max_score.value !== 100 ? max_score.value : undefined,
         },
     })
 }
@@ -130,8 +124,8 @@ const handleClearFilters = () => {
     activeSelections.status = []
     activeSelections.category = []
     activeSelections.vocational_training = []
-    min_score.value = null
-    max_score.value = null
+    min_score.value = undefined
+    max_score.value = undefined
 }
 </script>
 
