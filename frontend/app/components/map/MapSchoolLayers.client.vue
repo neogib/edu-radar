@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { MAP_CONFIG } from "~/constants/mapConfig"
 import { useSchoolFiltersFromRoute } from "~/composables/useSchoolFiltersFromRoute"
 import {
     CLUSTER_LAYER_STYLE,
@@ -28,12 +29,13 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
         color: "info",
         id: "loading-schools-toast",
     })
+    const bb = bbox.value
     try {
         console.log(`Fetching schools for bbox`)
         const data = await $api<SzkolaPublicShort[]>("/schools", {
             query: {
                 ...schoolFilters,
-                bbox: `${bbox.value.minLon},${bbox.value.minLat},${bbox.value.maxLon},${bbox.value.maxLat}`,
+                bbox: `${bb.minLon},${bb.minLat},${bb.maxLon},${bb.maxLat}`,
             },
         })
 
@@ -51,7 +53,19 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
         toast.remove("loading-schools-toast")
     }
 
-    // get schools for the whole map
+    // get schools for the whole map if bbox is smaller than PolandBounds
+    const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
+
+    if (
+        bb.minLat < minLat &&
+        bb.maxLat > maxLat &&
+        bb.minLon < minLon &&
+        bb.maxLon > maxLon
+    ) {
+        console.log("Bbox is bigger than PolandBounds, skipping...")
+        return
+    }
+
     console.log("Fetching schools for the whole map with new filters...")
     const data = await $api<SzkolaPublicShort[]>("/schools", {
         query: schoolFilters,
