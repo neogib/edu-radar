@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue"
 import { VOIVODESHIPS_PATHS } from "~/constants/voivodeships"
 
-const emit = defineEmits(["path-click"])
-
-const selectedVoivodeship = ref<string | null>(null)
+const selectedVoivodeship = defineModel<string>()
 
 // Define a function to handle clicks on the path elements
 function handlePathClick(event: MouseEvent) {
@@ -13,10 +10,7 @@ function handlePathClick(event: MouseEvent) {
 
     // Toggle selection: deselect if clicking the same one
     selectedVoivodeship.value =
-        selectedVoivodeship.value === pathId ? null : pathId
-
-    // Emit the 'path-click' event with the path ID
-    emit("path-click", pathId)
+        selectedVoivodeship.value === pathId ? "" : pathId
 }
 </script>
 

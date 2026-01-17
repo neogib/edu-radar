@@ -1,47 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 definePageMeta({
     colorMode: "light",
 })
-
-const selectedVoivodeship = ref<string>("")
-const voivodeships_map = ref<HTMLElement | null>(null)
-
-const handleVoivodeshipSelect = (voivodeshipId: string) => {
-    selectedVoivodeship.value = voivodeshipId
-}
-
-const handleSearchSubmit = async (searchParams: {
-    schoolType: number
-    voivodeship: string
-}) => {
-    const voivodeshipData = VOIVODESHIP_NAMES[searchParams.voivodeship]
-    if (!voivodeshipData) {
-        console.error("Voivodeship not found:", searchParams.voivodeship)
-        return
-    }
-
-    const coordinates = voivodeshipData.coordinates
-    const bbox = `${coordinates.minLon},${coordinates.minLat},${coordinates.maxLon},${coordinates.maxLat}`
-
-    await navigateTo({
-        path: "/map",
-        query: {
-            bbox: bbox,
-            type: searchParams.schoolType,
-        },
-    })
-}
-
-const handleScrollToMap = () => {
-    if (voivodeships_map.value) {
-        voivodeships_map.value.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-        })
-    }
-}
 </script>
 
 <template>
@@ -67,43 +27,7 @@ const handleScrollToMap = () => {
             </div>
 
             <!-- Main Content Grid -->
-            <div class="grid lg:grid-cols-2 gap-12 items-start">
-                <!-- Form Section -->
-                <SchoolSearchForm
-                    :selected-voivodeship="selectedVoivodeship"
-                    @submit="handleSearchSubmit"
-                    @clear-voivodeship="selectedVoivodeship = ''"
-                    @scroll-to-map="handleScrollToMap" />
-
-                <!-- Map Section -->
-                <div ref="voivodeships_map" class="content-card">
-                    <div class="mb-2">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-                            Mapa województw
-                        </h2>
-                        <p class="text-gray-600">
-                            Kliknij na województwo, aby je wybrać
-                        </p>
-                    </div>
-
-                    <div class="relative">
-                        <VoivodeshipsMap
-                            @path-click="handleVoivodeshipSelect" />
-
-                        <!-- Map overlay for selected voivodeship -->
-                        <div
-                            v-if="selectedVoivodeship"
-                            class="absolute top-0 right-0 bg-indigo-100 text-indigo-800 px-3 py-2 rounded-lg text-sm border border-indigo-200">
-                            <p>
-                                Wybrano:
-                                {{
-                                    VOIVODESHIP_NAMES[selectedVoivodeship]?.name
-                                }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <SchoolSearchForm />
 
             <!-- Additional Info Section -->
             <AdditionalInfo />
