@@ -56,7 +56,7 @@ export interface paths {
         };
         /**
          * Read School Types
-         * @description Fetch all available school types or just one type if type name is provided.
+         * @description Fetch all available school types or school types filtered by a list of names.
          */
         get: operations["read_school_types_school_types__get"];
         put?: never;
@@ -417,7 +417,8 @@ export interface operations {
     read_school_types_school_types__get: {
         parameters: {
             query?: {
-                name?: string | null;
+                /** @description Filter by school type names */
+                names?: string[] | null;
             };
             header?: never;
             path?: never;

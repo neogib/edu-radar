@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
+from typing import Annotated
+
+from fastapi import APIRouter, HTTPException, Query
+from sqlmodel import col, select
 
 from src.app.models.schools import TypSzkoly, TypSzkolyPublic
 from src.dependencies import SessionDep
@@ -11,16 +13,23 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[TypSzkolyPublic])
-async def read_school_types(session: SessionDep, name: str | None = None):
+async def read_school_types(
+    session: SessionDep,
+    names: Annotated[
+        list[str] | None, Query(description="Filter by school type names")
+    ] = None,
+):
     """
-    Fetch all available school types or just one type if type name is provided.
+    Fetch all available school types or school types filtered by a list of names.
     """
     statement = select(TypSzkoly)
-    if name:
-        statement = statement.where(TypSzkoly.nazwa == name)
+    if names:
+        statement = statement.where(col(TypSzkoly.nazwa).in_(names))
     school_types = session.exec(statement).all()
-    if name and not school_types:
-        raise HTTPException(status_code=404, detail="School type not found")
+
+    if names and not school_types:
+        raise HTTPException(status_code=404, detail="School types not found")
+
     return school_types
 
 

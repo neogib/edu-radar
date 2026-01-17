@@ -230,24 +230,29 @@
           "school_types"
         ],
         "summary": "Read School Types",
-        "description": "Fetch all available school types or just one type if type name is provided.",
+        "description": "Fetch all available school types or school types filtered by a list of names.",
         "operationId": "read_school_types_school_types__get",
         "parameters": [
           {
-            "name": "name",
+            "name": "names",
             "in": "query",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 {
                   "type": "null"
                 }
               ],
-              "title": "Name"
-            }
+              "description": "Filter by school type names",
+              "title": "Names"
+            },
+            "description": "Filter by school type names"
           }
         ],
         "responses": {
