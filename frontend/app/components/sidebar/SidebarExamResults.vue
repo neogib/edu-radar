@@ -9,9 +9,10 @@ interface Props {
     wynikiEm: WynikEMPublicWithPrzedmiot[]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const { getColor } = useScoreColor()
+
 const groupResultsBySubject = (
     results: WynikE8PublicWithPrzedmiot[] | WynikEMPublicWithPrzedmiot[],
 ) => {
@@ -33,59 +34,68 @@ const groupResultsBySubject = (
 
     return { grouped, years: Array.from(years).sort() }
 }
+
+const e8Data = computed(() => groupResultsBySubject(props.wynikiE8))
+const emData = computed(() => groupResultsBySubject(props.wynikiEm))
 </script>
 <template>
     <!-- Exam Results Section -->
-    <div v-if="wynikiE8.length || wynikiEm.length" class="p-6 border-b">
+    <div v-if="wynikiE8.length || wynikiEm.length" class="p-4 border-b">
         <h4 class="exam-title">
             <Icon name="mdi:school" class="exam-icon text-green-500" />
             Wyniki z egzaminów
         </h4>
 
         <!-- E8 Results Table -->
-        <div v-if="wynikiE8?.length" class="overflow-x-auto">
+        <div v-if="wynikiE8?.length" class="overflow-x-auto mb-6">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-300">
                         <th
-                            class="text-left py-2 px-2 font-semibold text-gray-700">
+                            class="text-left py-2 px-1 font-semibold text-gray-700 max-w-30 w-30">
                             Przedmiot
                         </th>
                         <th
-                            v-for="year in groupResultsBySubject(wynikiE8)
-                                .years"
+                            v-for="year in e8Data.years"
                             :key="`year-${year}`"
-                            class="text-center py-2 px-2 font-semibold text-gray-700">
+                            class="text-center py-2 px-1 font-semibold text-gray-700">
                             {{ year }}
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr
-                        v-for="(yearData, subject) in groupResultsBySubject(
-                            wynikiE8,
-                        ).grouped"
+                        v-for="(yearData, subject) in e8Data.grouped"
                         :key="`e8-${subject}`"
                         class="border-b border-gray-200">
-                        <td class="py-3 px-2 text-gray-900">
-                            <div class="font-medium">{{ subject }}</div>
+                        <td class="py-3 px-1 text-gray-900">
+                            <div class="font-medium" :title="subject">
+                                {{ subject }}
+                            </div>
                         </td>
                         <td
-                            v-for="year in groupResultsBySubject(wynikiE8)
-                                .years"
+                            v-for="year in e8Data.years"
                             :key="`e8-${subject}-${year}`"
-                            class="text-center py-3 px-2">
+                            class="text-center py-3 px-1">
                             <template v-if="yearData[year]">
                                 <div
                                     class="text-2xl font-bold mb-1"
                                     :style="{
                                         color: getColor(
-                                            yearData[year].wynik_sredni || 0,
+                                            (
+                                                yearData[
+                                                    year
+                                                ] as WynikE8PublicWithPrzedmiot
+                                            ).wynik_sredni || 0,
                                         ),
                                     }">
                                     {{
                                         Math.round(
-                                            yearData[year].wynik_sredni || 0,
+                                            (
+                                                yearData[
+                                                    year
+                                                ] as WynikE8PublicWithPrzedmiot
+                                            ).wynik_sredni || 0,
                                         )
                                     }}
                                 </div>
@@ -110,44 +120,50 @@ const groupResultsBySubject = (
                 <thead>
                     <tr class="border-b border-gray-300">
                         <th
-                            class="text-left py-2 px-2 font-semibold text-gray-700">
+                            class="text-left py-2 px-1 font-semibold text-gray-700 max-w-30 w-30">
                             Przedmiot
                         </th>
                         <th
-                            v-for="year in groupResultsBySubject(wynikiEm)
-                                .years"
+                            v-for="year in emData.years"
                             :key="`year-${year}`"
-                            class="text-center py-2 px-2 font-semibold text-gray-700">
+                            class="text-center py-2 px-1 font-semibold text-gray-700">
                             {{ year }}
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr
-                        v-for="(yearData, subject) in groupResultsBySubject(
-                            wynikiEm,
-                        ).grouped"
+                        v-for="(yearData, subject) in emData.grouped"
                         :key="`em-${subject}`"
                         class="border-b border-gray-200">
-                        <td class="py-3 px-2 text-gray-900">
-                            <div class="font-medium">{{ subject }}</div>
+                        <td class="py-3 px-1 text-gray-900">
+                            <div class="font-medium" :title="subject">
+                                {{ subject }}
+                            </div>
                         </td>
                         <td
-                            v-for="year in groupResultsBySubject(wynikiEm)
-                                .years"
+                            v-for="year in emData.years"
                             :key="`em-${subject}-${year}`"
-                            class="text-center py-3 px-2">
+                            class="text-center py-3 px-1">
                             <template v-if="yearData[year]">
                                 <div
                                     class="text-2xl font-bold mb-1"
                                     :style="{
                                         color: getColor(
-                                            yearData[year].sredni_wynik || 0,
+                                            (
+                                                yearData[
+                                                    year
+                                                ] as WynikEMPublicWithPrzedmiot
+                                            ).sredni_wynik || 0,
                                         ),
                                     }">
                                     {{
                                         Math.round(
-                                            yearData[year].sredni_wynik || 0,
+                                            (
+                                                yearData[
+                                                    year
+                                                ] as WynikEMPublicWithPrzedmiot
+                                            ).sredni_wynik || 0,
                                         )
                                     }}
                                 </div>

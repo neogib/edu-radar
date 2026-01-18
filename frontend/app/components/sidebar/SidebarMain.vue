@@ -55,7 +55,7 @@ const scoreColor = computed(() => {
         <div v-if="selectedPoint" class="h-full overflow-y-auto pb-20">
             <!-- School Header Section -->
             <div
-                class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-b">
+                class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-b">
                 <h3 class="text-xl font-bold text-gray-900 mb-3">
                     {{ selectedPoint.nazwa }}
                 </h3>
