@@ -2,7 +2,7 @@
     "name": "frontend",
     "type": "module",
     "private": true,
-    "packageManager": "pnpm@10.26.2",
+    "packageManager": "pnpm@10.28.0",
     "scripts": {
         "build": "nuxt build",
         "dev": "nuxt dev",
@@ -17,6 +17,7 @@
     },
     "dependencies": {
         "@indoorequal/vue-maplibre-gl": "^8.4.2",
+        "@maplibre/maplibre-gl-geocoder": "^1.9.4",
         "@nuxt/eslint": "1.12.1",
         "@nuxt/ui": "4.3.0",
         "@pinia/nuxt": "0.11.3",
