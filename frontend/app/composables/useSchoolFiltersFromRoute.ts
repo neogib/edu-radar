@@ -9,6 +9,7 @@ export const useSchoolFiltersFromRoute = () => {
     const vocationalParam = computed(() => route.query.vocational_training)
     const minScoreParam = computed(() => route.query.min_score)
     const maxScoreParam = computed(() => route.query.max_score)
+    const qParam = computed(() => route.query.search || route.query.q)
 
     const parseArray = (v: unknown) => {
         if (!v) return undefined
@@ -25,6 +26,12 @@ export const useSchoolFiltersFromRoute = () => {
         return Number.isFinite(n) ? n : undefined
     }
 
+    const parseString = (v: unknown) => {
+        if (!v) return undefined
+        const s = String(Array.isArray(v) ? v[0] : v)
+        return s.length >= 2 ? s : undefined
+    }
+
     const filters = computed(() => {
         return {
             type: parseArray(typeParam.value),
@@ -33,6 +40,7 @@ export const useSchoolFiltersFromRoute = () => {
             vocational_training: parseArray(vocationalParam.value),
             min_score: parseNumber(minScoreParam.value),
             max_score: parseNumber(maxScoreParam.value),
+            q: parseString(qParam.value),
         }
     })
 

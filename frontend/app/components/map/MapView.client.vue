@@ -28,6 +28,7 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
 
 <template>
     <MglMap
+        map-key="mainMap"
         :map-style="MAP_CONFIG.style"
         :center="MAP_CONFIG.defaultCenter"
         :zoom="MAP_CONFIG.defaultZoom"

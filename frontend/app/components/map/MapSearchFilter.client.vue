@@ -1,16 +1,34 @@
 <script setup lang="ts">
 import { filterConfigs } from "~/constants/filters"
-import type { FiltersResponse } from "~/types/schools"
+import type { FiltersResponse, SzkolaPublicShort } from "~/types/schools"
 import { SELECTION_KEYS, type ActiveSelections } from "~/types/filters"
+import { useMap } from "@indoorequal/vue-maplibre-gl"
 
 // all filter options from api
 const { data: filterOptions } = useApi<FiltersResponse>("/filters/")
+const { map } = useMap("mainMap")
 
 // get filters from route.query
 const { filters } = useSchoolFiltersFromRoute()
 
 // Search state
-const searchQuery = ref("") // later maybe add to filters
+const searchQuery = ref(filters.value.q || "")
+const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
+const showSuggestions = ref(false)
+const searchInputFocused = ref(false)
+let debounceTimer: NodeJS.Timeout | null = null
+
+const handleFocus = () => {
+    searchInputFocused.value = true
+    showSuggestions.value = true
+    isFilterPanelOpen.value = false
+}
+
+const handleBlur = () => {
+    setTimeout(() => {
+        searchInputFocused.value = false
+    }, 200)
+}
 
 // min, max score
 const min_score = ref<number | undefined>(filters.value.min_score)
@@ -32,20 +50,16 @@ const getAvailableItems = (
     key: keyof ActiveSelections,
     currentIndex: number,
 ) => {
-    const allItems = filterOptions.value?.[optionsKey] ?? []
-    const items = allItems.map((option) => ({
+    // Cast to any[] to avoid TS inference issues with union types of different array contents
+    const allItems = (filterOptions.value?.[optionsKey] ?? []) as any[]
+    const items = allItems.map((option: any) => ({
         label: option.nazwa,
         value: option.id,
     }))
-    console.log(
-        `Getting available items for ${key} at index ${currentIndex}, selectedValues: ${
-            activeSelections[key]
-        }`,
-    )
     const selectedValues = activeSelections[key]
     // Keep items not selected, OR the current selection at this index
     return items.filter(
-        (item) =>
+        (item: any) =>
             !selectedValues.includes(item.value) ||
             selectedValues[currentIndex] === item.value,
     )
@@ -97,6 +111,41 @@ const activeFilterCount = computed(() => {
 
 const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 
+const { $api } = useNuxtApp()
+
+const fetchSuggestions = async (query: string) => {
+    if (!query || query.length < 2) {
+        searchSuggestions.value = []
+        return
+    }
+
+    try {
+        const data = await $api<SzkolaPublicShort[]>("/schools/", {
+            query: {
+                ...filters.value,
+                q: query,
+            },
+        })
+        searchSuggestions.value = data
+    } catch (e) {
+        console.error("Error fetching suggestions", e)
+        searchSuggestions.value = []
+    }
+}
+
+watch(searchQuery, (newVal) => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+
+    if (!newVal) {
+        searchSuggestions.value = []
+        return
+    }
+
+    debounceTimer = setTimeout(() => {
+        fetchSuggestions(newVal)
+    }, 400)
+})
+
 // Handle search/filters submit
 const route = useRoute()
 const handleSearch = async () => {
@@ -129,6 +178,26 @@ const handleSearch = async () => {
     })
 }
 
+const handleSelectSuggestion = async (school: SzkolaPublicShort) => {
+    searchQuery.value = school.nazwa
+    showSuggestions.value = false
+
+    // Fly to school
+    if (map) {
+        console.log(`Map: ${map}`)
+        map.flyTo({
+            center: [
+                school.geolokalizacja_longitude,
+                school.geolokalizacja_latitude,
+            ],
+            zoom: 16,
+        })
+    }
+
+    // trigger search with new query
+    await handleSearch()
+}
+
 // toggle filter panel
 const handleFiltersToggle = () => {
     isFilterPanelOpen.value = !isFilterPanelOpen.value
@@ -136,7 +205,7 @@ const handleFiltersToggle = () => {
 }
 
 // Clear all filters
-const handleClearFilters = () => {
+const handleClearFilters = async () => {
     searchQuery.value = ""
     activeSelections.type = []
     activeSelections.status = []
@@ -144,6 +213,7 @@ const handleClearFilters = () => {
     activeSelections.vocational_training = []
     min_score.value = undefined
     max_score.value = undefined
+    searchSuggestions.value = []
 }
 </script>
 
@@ -151,16 +221,46 @@ const handleClearFilters = () => {
     <div class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[95%]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
-            <!-- <form -->
-            <!--     class="flex-1 min-w-60 max-w-100" -->
-            <!--     @submit.prevent="handleSearch"> -->
-            <!--     <UInput -->
-            <!--         v-model="searchQuery" -->
-            <!--         icon="i-mdi-magnify" -->
-            <!--         placeholder="Szukaj szkoły..." -->
-            <!--         size="md" -->
-            <!--         :ui="{ root: 'w-full' }" /> -->
-            <!-- </form> -->
+            <form
+                class="flex-1 min-w-60 max-w-100 relative"
+                @submit.prevent="handleSearch">
+                <UInput
+                    v-model="searchQuery"
+                    icon="i-mdi-magnify"
+                    placeholder="Szukaj szkoły..."
+                    size="md"
+                    :ui="{ root: 'w-full' }"
+                    minlength="2"
+                    @focus="handleFocus"
+                    @blur="handleBlur" />
+
+                <!-- Search Suggestions Dropdown -->
+                <div
+                    v-if="
+                        (showSuggestions || searchInputFocused) &&
+                        searchSuggestions.length > 0 &&
+                        !isFilterPanelOpen
+                    "
+                    class="absolute top-full mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-50 py-1">
+                    <div
+                        v-for="school in searchSuggestions"
+                        :key="school.id"
+                        class="px-3 py-2 hover:bg-gray-50 cursor-pointer flex flex-col gap-0.5"
+                        @click="handleSelectSuggestion(school)">
+                        <span class="text-sm font-medium text-gray-900">{{
+                            school.nazwa
+                        }}</span>
+                        <div
+                            class="flex gap-2 items-center text-xs text-gray-500">
+                            <span>{{
+                                school.status_publicznoprawny.nazwa
+                            }}</span>
+                            <span>•</span>
+                            <span>{{ school.typ.nazwa }}</span>
+                        </div>
+                    </div>
+                </div>
+            </form>
 
             <!-- Filter Toggle Button -->
             <UButton
