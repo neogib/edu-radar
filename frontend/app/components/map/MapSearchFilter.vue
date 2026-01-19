@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { filterConfigs } from "~/constants/filters"
-import type { ActiveSelections } from "~/types/filters"
 import type { FiltersResponse } from "~/types/schools"
+import { SELECTION_KEYS, type ActiveSelections } from "~/types/filters"
 
 // all filter options from api
 const { data: filterOptions } = useApi<FiltersResponse>("/filters/")
@@ -51,6 +51,15 @@ const getAvailableItems = (
     )
 }
 
+// Normalize selections by removing invalid (-1) entries that you can't send to the backend
+const normalize = (v: number[]) => v.filter((n) => n > 0)
+
+const normalizeSelections = () => {
+    for (const key of SELECTION_KEYS) {
+        activeSelections[key] = normalize(activeSelections[key])
+    }
+}
+
 // Check if we can add more selections (has valid selection AND more options available)
 const canAddMore = (
     optionsKey: keyof FiltersResponse,
@@ -70,7 +79,7 @@ const canAddMore = (
 
     const totalOptions = filterOptions.value?.[optionsKey]?.length ?? 0
 
-    const validCount = userSelections.filter((v) => v > 0).length
+    const validCount = normalize(userSelections).length
 
     return validCount > 0 && validCount < totalOptions
 }
@@ -78,10 +87,8 @@ const canAddMore = (
 // Count total active filters
 const activeFilterCount = computed(() => {
     let count = 0
-    for (const key of Object.keys(
-        activeSelections,
-    ) as (keyof ActiveSelections)[]) {
-        count += activeSelections[key].filter((v) => v > 0).length
+    for (const key of SELECTION_KEYS) {
+        count += normalize(activeSelections[key]).length
     }
     if (min_score.value) count++
     if (max_score.value && max_score.value !== 100) count++
@@ -93,28 +100,39 @@ const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 // Handle search/filters submit
 const route = useRoute()
 const handleSearch = async () => {
-    const types_id = activeSelections.type.filter((v) => v > 0)
-    const statuses_id = activeSelections.status.filter((v) => v > 0)
-    const categories_id = activeSelections.category.filter((v) => v > 0)
-    const vocational_trainings_id = activeSelections.vocational_training.filter(
-        (v) => v > 0,
-    )
+    // normalize before navigating to avoid sending invalid values
+    normalizeSelections()
     isFilterPanelOpen.value = false
     await navigateTo({
         query: {
             bbox: route.query.bbox || undefined,
             search: searchQuery.value || undefined,
-            type: types_id.length > 0 ? types_id : undefined,
-            status: statuses_id.length > 0 ? statuses_id : undefined,
-            category: categories_id.length > 0 ? categories_id : undefined,
+            type:
+                activeSelections.type.length > 0
+                    ? activeSelections.type
+                    : undefined,
+            status:
+                activeSelections.status.length > 0
+                    ? activeSelections.status
+                    : undefined,
+            category:
+                activeSelections.category.length > 0
+                    ? activeSelections.category
+                    : undefined,
             vocational_training:
-                vocational_trainings_id.length > 0
-                    ? vocational_trainings_id
+                activeSelections.vocational_training.length > 0
+                    ? activeSelections.vocational_training
                     : undefined,
             min_score: min_score.value || undefined,
             max_score: max_score.value !== 100 ? max_score.value : undefined,
         },
     })
+}
+
+// toggle filter panel
+const handleFiltersToggle = () => {
+    isFilterPanelOpen.value = !isFilterPanelOpen.value
+    normalizeSelections()
 }
 
 // Clear all filters
@@ -134,16 +152,16 @@ const handleClearFilters = () => {
         class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[calc(100vw-2rem)]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
-            <form
-                class="flex-1 min-w-60 max-w-100"
-                @submit.prevent="handleSearch">
-                <UInput
-                    v-model="searchQuery"
-                    icon="i-mdi-magnify"
-                    placeholder="Szukaj szkoły..."
-                    size="md"
-                    :ui="{ root: 'w-full' }" />
-            </form>
+            <!-- <form -->
+            <!--     class="flex-1 min-w-60 max-w-100" -->
+            <!--     @submit.prevent="handleSearch"> -->
+            <!--     <UInput -->
+            <!--         v-model="searchQuery" -->
+            <!--         icon="i-mdi-magnify" -->
+            <!--         placeholder="Szukaj szkoły..." -->
+            <!--         size="md" -->
+            <!--         :ui="{ root: 'w-full' }" /> -->
+            <!-- </form> -->
 
             <!-- Filter Toggle Button -->
             <UButton
@@ -151,7 +169,7 @@ const handleClearFilters = () => {
                 :color="hasActiveFilters ? 'primary' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
-                @click="isFilterPanelOpen = !isFilterPanelOpen">
+                @click="handleFiltersToggle">
                 <template v-if="activeFilterCount > 0">
                     <UBadge color="error" class="ml-1">
                         {{ activeFilterCount }}
@@ -164,7 +182,7 @@ const handleClearFilters = () => {
         <Transition name="slide-fade">
             <div
                 v-if="isFilterPanelOpen"
-                class="backdrop-blur-md bg-white/95 rounded-xl shadow-2xl border border-white/20 p-3 max-w-full overflow-x-auto">
+                class="backdrop-blur-md bg-white/95 rounded-xl shadow-2xl border border-white/20 p-3 max-w-full max-h-[70vh] overflow-x-auto overflow-y-auto">
                 <!-- Filter Options -->
                 <div v-if="filterOptions == undefined">
                     <p>Waiting for filter options...</p>
@@ -202,11 +220,13 @@ const handleClearFilters = () => {
                                             index,
                                         )
                                     "
+                                    :default-open="true"
                                     value-key="value"
                                     :placeholder="config.placeholder"
                                     :search-input="{
                                         placeholder: 'Szukaj...',
                                         icon: 'i-mdi-magnify',
+                                        autofocus: false,
                                     }"
                                     size="sm"
                                     :ui="{
