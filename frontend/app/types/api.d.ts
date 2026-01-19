@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/schools/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search Schools */
+        get: operations["search_schools_schools_search_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/{school_id}": {
         parameters: {
             query?: never;
@@ -338,6 +355,42 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    search_schools_schools_search_get: {
+        parameters: {
+            query: {
+                /** @description Search query for school name */
+                q: string;
+                /** @description List of school IDs to search within */
+                ids?: number[] | null;
+                /** @description Maximum number of results to return */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SzkolaPublicShort"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_school_schools__school_id__get: {
         parameters: {
             query?: never;
@@ -372,6 +425,8 @@ export interface operations {
     read_schools_schools__get: {
         parameters: {
             query?: {
+                /** @description Search query for school name */
+                q?: string | null;
                 /** @description Filter by school type IDs */
                 type?: number[] | null;
                 /** @description Filter by public/private status IDs */
@@ -382,6 +437,7 @@ export interface operations {
                 vocational_training?: number[] | null;
                 min_score?: number | null;
                 max_score?: number | null;
+                limit?: number | null;
                 /**
                  * @description Bounding box: min_lng,min_lat,max_lng,max_lat
                  * @example 19.0,51.9,19.1,52.0
