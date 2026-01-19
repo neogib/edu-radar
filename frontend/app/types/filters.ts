@@ -5,7 +5,7 @@ import type { SchoolFilterParams } from "./schools"
  * Used to make the filter system scalable
  */
 export interface FilterConfig {
-    key: keyof SchoolFilterParams
+    key: keyof NonNullable<SchoolFilterParams>
     queryParam: string
     label: string
     placeholder: string
