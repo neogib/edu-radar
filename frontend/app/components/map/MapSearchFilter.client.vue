@@ -178,7 +178,7 @@ const handleSearch = async () => {
     })
 }
 
-const handleSelectSuggestion = async (school: SzkolaPublicShort) => {
+const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     searchQuery.value = school.nazwa
     showSuggestions.value = false
 
@@ -195,7 +195,7 @@ const handleSelectSuggestion = async (school: SzkolaPublicShort) => {
     }
 
     // trigger search with new query
-    await handleSearch()
+    handleSearch()
 }
 
 // toggle filter panel

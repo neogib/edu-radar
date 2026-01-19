@@ -124,11 +124,12 @@ export const useMapInteractions = (
     }
 
     const setupMapEventHandlers = (map: maplibregl.Map) => {
-        map.on("mousemove", "unclustered-points", (e) =>
-            handleMouseMove(map, e),
-        )
-        map.on("mouseleave", "unclustered-points", () => handleMouseLeave(map))
-        map.on("click", "unclustered-points", handleClick)
+        const sources = ["unclustered-points", "search-unclustered-points"]
+        sources.forEach((layerId) => {
+            map.on("mousemove", layerId, (e) => handleMouseMove(map, e))
+            map.on("mouseleave", layerId, () => handleMouseLeave(map))
+            map.on("click", layerId, handleClick)
+        })
         map.on("click", "clusters", (e) => handleClusterClick(map, e))
         map.on("mouseenter", "clusters", () => {
             map.getCanvas().style.cursor = "pointer"
