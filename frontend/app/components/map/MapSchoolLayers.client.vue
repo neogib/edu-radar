@@ -16,7 +16,7 @@ console.log(`Filters: ${filters.value}`)
 // user messages using toast from nuxt-ui
 const toast = useToast()
 
-let schools = ref<SzkolaPublicShort[]>([])
+const schools = shallowRef<SzkolaPublicShort[]>([])
 const { geoJsonSource } = useSchoolGeoJson(schools)
 const { bbox } = useBoundingBox()
 
@@ -40,6 +40,25 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
         })
 
         schools.value = data
+
+        // get schools for the whole map if bbox is smaller than PolandBounds
+        const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
+
+        if (
+            bb.minLat < minLat &&
+            bb.maxLat > maxLat &&
+            bb.minLon < minLon &&
+            bb.maxLon > maxLon
+        ) {
+            console.log("Bbox is bigger than PolandBounds, skipping...")
+            return
+        }
+
+        console.log("Fetching schools for the whole map with new filters...")
+        const wholeMapData = await $api<SzkolaPublicShort[]>("/schools", {
+            query: schoolFilters,
+        })
+        schools.value = wholeMapData
     } catch (err) {
         toast.add({
             title: "Błąd ładowania danych",
@@ -52,25 +71,6 @@ const handleNewFilters = async (schoolFilters: SchoolFilterParams) => {
     } finally {
         toast.remove("loading-schools-toast")
     }
-
-    // get schools for the whole map if bbox is smaller than PolandBounds
-    const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
-
-    if (
-        bb.minLat < minLat &&
-        bb.maxLat > maxLat &&
-        bb.minLon < minLon &&
-        bb.maxLon > maxLon
-    ) {
-        console.log("Bbox is bigger than PolandBounds, skipping...")
-        return
-    }
-
-    console.log("Fetching schools for the whole map with new filters...")
-    const data = await $api<SzkolaPublicShort[]>("/schools", {
-        query: schoolFilters,
-    })
-    schools.value = data
 }
 let lastKey = ""
 watch(
