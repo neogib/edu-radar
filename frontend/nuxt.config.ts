@@ -11,7 +11,10 @@ export default defineNuxtConfig({
             apiBase: "/api",
         },
     },
-    css: ["~/assets/css/main.css"],
+    css: [
+        "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css",
+        "~/assets/css/main.css",
+    ],
     vite: {
         plugins: [tailwindcss()],
     },
