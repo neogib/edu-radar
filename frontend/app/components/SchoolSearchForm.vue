@@ -46,7 +46,7 @@ const resetForm = () => {
                     Wybierz parametry wyszukiwania
                 </h2>
                 <p class="text-gray-600">
-                    Zacznij od wyboru typu szkoły i województwa na mapie
+                    Zacznij od wyboru rodzaju szkoły i województwa na mapie
                 </p>
             </div>
 
@@ -56,7 +56,7 @@ const resetForm = () => {
                     <label
                         for="school-type"
                         class="block text-sm font-medium text-gray-700 mb-3">
-                        Typ szkoły *
+                        Rodzaj szkoły *
                     </label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div v-if="schoolTypes === undefined">
