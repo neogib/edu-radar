@@ -42,6 +42,10 @@ class FilterParams(BoundingBox):
 async def read_schools(
     session: SessionDep,
     bbox: Annotated[BoundingBox | None, Depends(parse_bbox)],
+    q: Annotated[
+        str | None,
+        Query(min_length=2, description="Search query for school name", alias="q"),
+    ] = None,
     type_id: Annotated[
         list[int] | None, Query(description="Filter by school type IDs", alias="type")
     ] = None,
@@ -61,6 +65,7 @@ async def read_schools(
     ] = None,
     min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
     max_score: Annotated[int | None, Query(ge=0, le=100)] = None,
+    limit: Annotated[int | None, Query(ge=1, le=1000)] = None,
 ):
     """
     Get schools within bounding box with optional filters.
@@ -77,6 +82,10 @@ async def read_schools(
         selectinload(Szkola.typ),  # pyright: ignore [reportArgumentType]
         selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
     )
+
+    if q:
+        statement = statement.where(col(Szkola.nazwa).ilike(f"%{q}%"))
+
     if bbox:
         statement = statement.where(
             (Szkola.geolokalizacja_latitude >= bbox.min_lat)
@@ -113,6 +122,11 @@ async def read_schools(
         statement = statement.where(col(Szkola.score) >= min_score)
     if max_score is not None:
         statement = statement.where(col(Szkola.score) <= max_score)
+
+    if limit:
+        statement = statement.limit(limit)
+    elif q:
+        statement = statement.limit(50)
 
     schools = session.exec(statement).all()
     return schools
