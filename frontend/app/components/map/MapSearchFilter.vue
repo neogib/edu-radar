@@ -148,8 +148,7 @@ const handleClearFilters = () => {
 </script>
 
 <template>
-    <div
-        class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[calc(100vw-2rem)]">
+    <div class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[95%]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
             <!-- <form -->
@@ -220,7 +219,7 @@ const handleClearFilters = () => {
                                             index,
                                         )
                                     "
-                                    :default-open="true"
+                                    :default-open="selection > 0 ? false : true"
                                     value-key="value"
                                     :placeholder="config.placeholder"
                                     :search-input="{
@@ -301,9 +300,9 @@ const handleClearFilters = () => {
                                     v-model="min_score"
                                     :min="0"
                                     :max="100"
-                                    size="xs"
+                                    size="sm"
                                     placeholder="0"
-                                    class="w-20" />
+                                    class="w-25" />
                             </div>
                             <span class="text-neutral-400 text-xs">—</span>
                             <div class="flex items-center gap-1">
@@ -313,10 +312,10 @@ const handleClearFilters = () => {
                                 <UInputNumber
                                     v-model="max_score"
                                     placeholder="100"
-                                    size="xs"
+                                    size="sm"
                                     :min="0"
                                     :max="100"
-                                    class="w-20" />
+                                    class="w-25" />
                             </div>
                         </div>
                     </div>

@@ -20,3 +20,10 @@ export interface ActiveSelections {
     category: number[]
     vocational_training: number[]
 }
+
+export const SELECTION_KEYS: (keyof ActiveSelections)[] = [
+    "type",
+    "status",
+    "category",
+    "vocational_training",
+]
