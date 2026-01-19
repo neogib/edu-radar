@@ -4,30 +4,3 @@
 .content-card {
     @apply bg-white rounded-2xl shadow-xl p-4 md:p-6;
 }
-
-.maplibregl-ctrl-top-right {
-    margin-top: 70px;
-    width: 70%;
-    max-width: 600px;
-    min-width: 100px;
-}
-
-.maplibregl-ctrl-geocoder {
-    width: 100%;
-}
-
-.maplibregl-ctrl-geocoder--result-title {
-    white-space: normal;
-}
-
-/* .maplibregl-ctrl-geocoder--input { */
-/*     height: 36px; */
-/*     padding: 6px 45px; */
-/* } */
-/**/
-/* .maplibregl-ctrl-geocoder--icon-search { */
-/*     top: 7px; */
-/*     left: 13px; */
-/*     width: 20px; */
-/*     height: 20px; */
-/* } */

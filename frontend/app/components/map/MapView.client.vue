@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import type { LngLatBoundsLike } from "maplibre-gl"
-import type { SzkolaPublicShort } from "~/types/schools"
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
-import MaplibreGeocoder from "@maplibre/maplibre-gl-geocoder"
-// import "@maplibre/maplibre-gl-geocoder/dist/maplibre-gl-geocoder.css"
-import maplibregl from "maplibre-gl"
 
 const route = useRoute()
 const emit = defineEmits<{
@@ -23,64 +19,10 @@ const bounds: LngLatBoundsLike | undefined = !route.query.bbox
     ? undefined
     : [bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat]
 
-const { filters } = useSchoolFiltersFromRoute()
-
 const onMapLoaded = (event: { map: maplibregl.Map }) => {
     const map = event.map
     setupMapEventHandlers(map)
     updateQueryBboxParam(map.getBounds())
-    const geocoder = new MaplibreGeocoder(
-        {
-            forwardGeocode: async (config) => {
-                console.log("Geocoding query:", config.query)
-                const text = config.query
-                if (!text || text.length < 2) return { features: [] }
-
-                const { $api } = useNuxtApp()
-                const searchSchools = await $api<SzkolaPublicShort[]>(
-                    "/schools",
-                    {
-                        query: {
-                            ...filters.value,
-                            q: text,
-                            limit: 20,
-                        },
-                    },
-                )
-
-                return {
-                    features: searchSchools.map((s) => ({
-                        type: "Feature",
-                        geometry: {
-                            type: "Point",
-                            coordinates: [
-                                s.geolokalizacja_longitude,
-                                s.geolokalizacja_latitude,
-                            ],
-                        },
-                        properties: s,
-                        place_name: s.nazwa,
-                        place_type: ["place"],
-                        text: s.nazwa,
-                        center: [
-                            s.geolokalizacja_longitude,
-                            s.geolokalizacja_latitude,
-                        ],
-                    })),
-                }
-            },
-        },
-        {
-            maplibregl: maplibregl,
-            limit: 10,
-            marker: false,
-            placeholder: "Szukaj szkół po nazwie...",
-            showResultsWhileTyping: true,
-            debounceSearch: 500,
-        },
-    )
-    // geocoder.addTo(searchInput.value) // maybe modify stryles for .maplibregl-ctrl-geocoder--input
-    map.addControl(geocoder)
 }
 </script>
 
@@ -93,8 +35,6 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
         :fade-duration="0"
         :min-zoom="MAP_CONFIG.minZoom"
         :max-zoom="MAP_CONFIG.maxZoom"
-        :canvasContextAttributes="{ antialias: true }"
-        class="mglmap"
         @map:load="onMapLoaded">
         <MglNavigationControl position="bottom-right" />
         <MglFullscreenControl position="bottom-right" />
