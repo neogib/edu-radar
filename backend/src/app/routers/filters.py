@@ -13,7 +13,8 @@ router = APIRouter(
 @router.get("/")
 async def read_filters(session: SessionDep) -> FiltersResponse:
     options = {
-        key: session.exec(select(model)).all() for key, model in FILTER_MODELS.items()
+        key: session.exec(select(model).order_by(model.nazwa)).all()
+        for key, model in FILTER_MODELS.items()
     }
 
     return FiltersResponse.model_validate(options)
