@@ -32,7 +32,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         coordinates: {
             minLon: 21.52,
             minLat: 50.2,
-            maxLon: 24.25,
+            maxLon: 24.2,
             maxLat: 52.35,
         },
     },
@@ -147,7 +147,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
     "zachodnio-pomorskie": {
         name: "zachodniopomorskie",
         coordinates: {
-            minLon: 13.95,
+            minLon: 14,
             minLat: 52.58,
             maxLon: 17.1,
             maxLat: 54.65,

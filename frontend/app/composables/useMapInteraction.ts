@@ -109,7 +109,7 @@ export const useMapInteractions = (
         // if user moved outside of Poland bounds, reset to default center
         if (lng < minLon || lng > maxLon || lat < minLat || lat > maxLat) {
             map.easeTo({
-                center: MAP_CONFIG.defaultCenter,
+                center: MAP_CONFIG.polandCenter,
             })
             return
         }
