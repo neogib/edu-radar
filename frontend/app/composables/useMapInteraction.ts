@@ -97,12 +97,14 @@ export const useMapInteractions = (
                 number,
             ],
             zoom,
+            duration: 150,
         })
     }
 
     const handleMoveEnd = (map: maplibregl.Map) => {
         const { lng, lat } = map.getCenter()
         const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
+        console.log(`Map zoom: ${map.getZoom()}`)
 
         // if user moved outside of Poland bounds, reset to default center
         if (lng < minLon || lng > maxLon || lat < minLat || lat > maxLat) {

@@ -60,7 +60,7 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
             <div
                 class="bg-linear-to-r rounded-lg from-blue-50 to-indigo-50 px-2 py-1 border-b border-gray-100">
                 <span class="px-2 py-1 text-xs text-blue-800">
-                    {{ JSON.parse(hoveredSchool.status_publicznoprawny).nazwa }}
+                    {{ hoveredSchool.status }}
                 </span>
             </div>
 
@@ -75,7 +75,7 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
                 <div
                     class="bg-gray-50 rounded-lg px-2 py-2 border border-gray-100">
                     <span class="text-xs text-gray-900 font-semibold">
-                        {{ JSON.parse(hoveredSchool.typ).nazwa }}
+                        {{ hoveredSchool.typ }}
                     </span>
                 </div>
             </div>

@@ -30,13 +30,13 @@ export const POINT_LAYER_STYLE = {
         "icon-size": 0.5,
         "icon-image": [
             "case",
-            ["==", ["get", "nazwa", ["get", "typ"]], "Technikum"],
+            ["==", ["get", "typ"], "Technikum"],
             SCHOOL_ICONS.Technikum,
-            ["==", ["get", "nazwa", ["get", "typ"]], "Liceum ogólnokształcące"],
+            ["==", ["get", "typ"], "Liceum ogólnokształcące"],
             SCHOOL_ICONS["Liceum ogólnokształcące"],
-            ["==", ["get", "nazwa", ["get", "typ"]], "Szkoła podstawowa"],
+            ["==", ["get", "typ"], "Szkoła podstawowa"],
             SCHOOL_ICONS["Szkoła podstawowa"],
-            ["==", ["get", "nazwa", ["get", "typ"]], "Przedszkole"],
+            ["==", ["get", "typ"], "Przedszkole"],
             SCHOOL_ICONS["Przedszkole"],
             // Default fallback for any other school types
             SCHOOL_ICONS.default,

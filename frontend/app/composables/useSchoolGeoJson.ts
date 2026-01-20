@@ -12,8 +12,8 @@ export const useSchoolGeoJson = (
             properties: {
                 id: school.id,
                 nazwa: school.nazwa,
-                typ: school.typ,
-                status_publicznoprawny: school.status_publicznoprawny,
+                typ: school.typ.nazwa,
+                status: school.status_publicznoprawny.nazwa,
                 score: school.score ? Number(school.score.toFixed(2)) : null,
             },
             geometry: {
