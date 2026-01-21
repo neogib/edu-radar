@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { VOIVODESHIPS_PATHS } from "~/constants/voivodeships"
 
-const selectedVoivodeship = defineModel<string>()
+const emit = defineEmits<{
+    (e: "redirectToMap", voivodeshipId: string): void
+}>()
 
-// Define a function to handle clicks on the path elements
-function handlePathClick(event: MouseEvent) {
+// Define a function to handle clicks on the path elements of the SVG map
+// emit event to parent component when a voivodeship is selected
+function handlePathClick(event: Event) {
     const target = event.target as SVGPathElement
     const pathId = target.id // Extract the `id` of the clicked path element
 
-    // Toggle selection: deselect if clicking the same one
-    selectedVoivodeship.value =
-        selectedVoivodeship.value === pathId ? "" : pathId
+    emit("redirectToMap", pathId)
 }
 </script>
 
@@ -28,11 +29,10 @@ function handlePathClick(event: MouseEvent) {
                 :key="path.id"
                 :id="path.id"
                 :d="path.d"
-                :class="[
-                    'voivodeship',
-                    { active: selectedVoivodeship === path.id },
-                ]"
-                @click="handlePathClick" />
+                class="voivodeship"
+                tabindex="0"
+                @click="handlePathClick"
+                @keydown.enter.space.prevent="handlePathClick" />
         </svg>
     </div>
 </template>
@@ -41,11 +41,7 @@ function handlePathClick(event: MouseEvent) {
 @reference "tailwindcss";
 
 .voivodeship {
-    @apply cursor-pointer fill-[#94add6] hover:fill-[#5c7caa] hover:drop-shadow-xl hover:stroke-amber-300 hover:scale-[1.03] transition duration-300 ease-in-out stroke-2 stroke-transparent origin-center;
+    @apply cursor-pointer fill-[#94add6] hover:fill-[#5c7caa] hover:drop-shadow-xl hover:stroke-amber-300 hover:scale-[1.03] transition duration-300 ease-in-out stroke-2 stroke-transparent origin-center active:fill-[#3b4a76] active:stroke-amber-300 active:scale-[1.03] focus:fill-[#3b4a76];
     transform-box: fill-box;
-}
-
-.voivodeship.active {
-    @apply fill-[#3b4a76]  drop-shadow-xl;
 }
 </style>
