@@ -85,7 +85,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
         name: "podkarpackie",
         coordinates: {
             minLon: 21.03,
-            minLat: 48.95,
+            minLat: 49,
             maxLon: 23.66,
             maxLat: 50.9,
         },
