@@ -65,7 +65,6 @@ async def read_schools(
     ] = None,
     min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
     max_score: Annotated[int | None, Query(ge=0, le=100)] = None,
-    limit: Annotated[int | None, Query(ge=1, le=1000)] = None,
 ):
     """
     Get schools within bounding box with optional filters.
@@ -123,9 +122,7 @@ async def read_schools(
     if max_score is not None:
         statement = statement.where(col(Szkola.score) <= max_score)
 
-    if limit:
-        statement = statement.limit(limit)
-    elif q:
+    if q:  # for name serach not all results should be returned
         statement = statement.limit(50)
 
     schools = session.exec(statement).all()

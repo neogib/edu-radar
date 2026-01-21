@@ -437,7 +437,6 @@ export interface operations {
                 vocational_training?: number[] | null;
                 min_score?: number | null;
                 max_score?: number | null;
-                limit?: number | null;
                 /**
                  * @description Bounding box: min_lng,min_lat,max_lng,max_lat
                  * @example 19.0,51.9,19.1,52.0

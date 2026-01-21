@@ -1,5 +1,9 @@
 import type { SchoolFilterParams } from "./schools"
 
+export type FiltersParamsWihtoutBbox = Omit<
+    NonNullable<SchoolFilterParams>,
+    "bbox"
+>
 /**
  * Filter configuration for a single filter group
  * Used to make the filter system scalable
