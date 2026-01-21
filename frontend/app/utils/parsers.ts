@@ -1,4 +1,4 @@
-export const parseArray = (v: unknown) => {
+export const parseArrayOfIds = (v: unknown) => {
     if (!v) return undefined
     const arr = (Array.isArray(v) ? v : [v])
         .map(Number)
@@ -13,7 +13,7 @@ export const parseNumber = (v: unknown) => {
     return Number.isFinite(n) ? n : undefined
 }
 
-export const parseString = (v: unknown) => {
+export const parseQueryString = (v: unknown) => {
     if (!v) return undefined
     const s = String(Array.isArray(v) ? v[0] : v)
     return s.length >= 2 ? s : undefined
