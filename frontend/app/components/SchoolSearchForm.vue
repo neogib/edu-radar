@@ -3,6 +3,7 @@ import { mainSchoolTypes } from "~/constants/schoolTypes"
 import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 import type { TypSzkolyPublic } from "~/types/schools"
 
+const mapIntent = useMapIntent()
 const { data: schoolTypes } = await useApi<TypSzkolyPublic[]>(
     "/school_types/",
     {
@@ -33,6 +34,8 @@ const handleSubmit = async (selectedVoivodeship: string) => {
         console.error("Voivodeship not found:", selectedVoivodeship)
         return
     }
+
+    mapIntent.value = selectedVoivodeship
 
     // Default school types if none selected
     let types = selectedSchoolTypes.value
