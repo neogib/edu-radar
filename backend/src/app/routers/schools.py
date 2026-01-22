@@ -1,21 +1,21 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.orm import selectinload
 from sqlmodel import col, exists, select
 
-from src.app.models.bounding_box import BoundingBox
 from src.app.models.exam_results import (
     WynikE8PublicWithPrzedmiot,  # noqa: F401
     WynikEMPublicWithPrzedmiot,  # noqa: F401
 )
+from src.app.models.filters import FilterParams
 from src.app.models.schools import (
     Szkola,
     SzkolaKsztalcenieZawodoweLink,
     SzkolaPublicShort,
     SzkolaPublicWithRelations,
 )
-from src.dependencies import SessionDep, parse_bbox
+from src.dependencies import SessionDep
 
 _ = SzkolaPublicWithRelations.model_rebuild()
 
@@ -34,45 +34,18 @@ async def read_school(school_id: int, session: SessionDep) -> Szkola:
     return school
 
 
-class FilterParams(BoundingBox):
-    type: int | None = None
-
-
 @router.get("/", response_model=list[SzkolaPublicShort])
-async def read_schools(
-    session: SessionDep,
-    bbox: Annotated[BoundingBox | None, Depends(parse_bbox)],
-    q: Annotated[
-        str | None,
-        Query(min_length=2, description="Search query for school name", alias="q"),
-    ] = None,
-    type_id: Annotated[
-        list[int] | None, Query(description="Filter by school type IDs", alias="type")
-    ] = None,
-    status_id: Annotated[
-        list[int] | None,
-        Query(description="Filter by public/private status IDs", alias="status"),
-    ] = None,
-    category_id: Annotated[
-        list[int] | None,
-        Query(description="Filter by student category IDs", alias="category"),
-    ] = None,
-    vocational_training_id: Annotated[
-        list[int] | None,
-        Query(
-            description="Filter by vocational training IDs", alias="vocational_training"
-        ),
-    ] = None,
-    min_score: Annotated[int | None, Query(ge=0, le=100)] = None,
-    max_score: Annotated[int | None, Query(ge=0, le=100)] = None,
-):
+async def read_schools(session: SessionDep, filters: Annotated[FilterParams, Query()]):
     """
-    Get schools within bounding box with optional filters.
+    Get schools with optional filters.
+
+    _**Note:**
+    This endpoint should only be used for smaller amounts of data. To get all schools consider using `/school/stream` endpoint with StreamingResponse._
 
     ## Filter Logic
     - Filters are combined with AND logic between different filter types
     - Multiple values within the same filter use OR logic
-    - Example: `typ_id=1&typ_id=2&status_id=1` means
+    - Example: `type=1&typeid=2&status=1` means
       (type 1 OR type 2) AND (status 1)
     """
 
@@ -82,48 +55,62 @@ async def read_schools(
         selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
     )
 
-    if q:
-        statement = statement.where(col(Szkola.nazwa).ilike(f"%{q}%"))
-
-    if bbox:
+    # bounding box filters
+    if filters.min_lng:
         statement = statement.where(
-            (Szkola.geolokalizacja_latitude >= bbox.min_lat)
-            & (Szkola.geolokalizacja_latitude <= bbox.max_lat)
-            & (Szkola.geolokalizacja_longitude >= bbox.min_lng)
-            & (Szkola.geolokalizacja_longitude <= bbox.max_lng)
+            col(Szkola.geolokalizacja_longitude) >= filters.min_lng
         )
-
+    if filters.max_lng:
+        statement = statement.where(
+            col(Szkola.geolokalizacja_latitude) <= filters.max_lng
+        )
+    if filters.min_lat:
+        statement = statement.where(
+            col(Szkola.geolokalizacja_longitude) >= filters.min_lat
+        )
+    if filters.max_lat:
+        statement = statement.where(
+            col(Szkola.geolokalizacja_latitude) <= filters.max_lat
+        )
     # Apply filters based on query parameters
-    if type_id:
-        statement = statement.where(col(Szkola.typ_id).in_(type_id))
+    if filters.type_id:
+        statement = statement.where(col(Szkola.typ_id).in_(filters.type_id))
 
-    if status_id:
+    if filters.status_id:
         statement = statement.where(
-            col(Szkola.status_publicznoprawny_id).in_(status_id)
+            col(Szkola.status_publicznoprawny_id).in_(filters.status_id)
         )
 
-    if category_id:
-        statement = statement.where(col(Szkola.kategoria_uczniow_id).in_(category_id))
+    if filters.category_id:
+        statement = statement.where(
+            col(Szkola.kategoria_uczniow_id).in_(filters.category_id)
+        )
 
-    if vocational_training_id:
+    if filters.vocational_training_id:
         statement = statement.where(
             exists(
                 select(1).where(
                     SzkolaKsztalcenieZawodoweLink.szkola_id == Szkola.id,
                     col(SzkolaKsztalcenieZawodoweLink.ksztalcenie_zawodowe_id).in_(
-                        vocational_training_id
+                        filters.vocational_training_id
                     ),
                 )
             )
         )
 
-    if min_score is not None:
-        statement = statement.where(col(Szkola.score) >= min_score)
-    if max_score is not None:
-        statement = statement.where(col(Szkola.score) <= max_score)
+    if filters.min_score is not None:
+        statement = statement.where(col(Szkola.score) >= filters.min_score)
+    if filters.max_score is not None:
+        statement = statement.where(col(Szkola.score) <= filters.max_score)
 
-    if q:  # for name serach not all results should be returned
-        statement = statement.limit(50)
+    # query search for school name
+    if filters.q:
+        statement = statement.where(col(Szkola.nazwa).ilike(f"%{filters.q}%"))
+
+    if filters.limit:
+        statement = statement.limit(
+            filters.limit
+        )  # for autocompletion not all results should be returned
 
     schools = session.exec(statement).all()
     return schools
