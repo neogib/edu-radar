@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/schools/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Schools Stream */
+        get: operations["read_schools_stream_schools_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/schools/{school_id}": {
         parameters: {
             query?: never;
@@ -30,12 +47,15 @@ export interface paths {
         };
         /**
          * Read Schools
-         * @description Get schools within bounding box with optional filters.
+         * @description Get schools with optional filters.
+         *
+         *     _**Note:**
+         *     This endpoint should only be used for smaller amounts of data. To get all schools consider using `/school/stream` endpoint with StreamingResponse._
          *
          *     ## Filter Logic
          *     - Filters are combined with AND logic between different filter types
          *     - Multiple values within the same filter use OR logic
-         *     - Example: `typ_id=1&typ_id=2&status_id=1` means
+         *     - Example: `type=1&typeid=2&status=1` means
          *       (type 1 OR type 2) AND (status 1)
          */
         get: operations["read_schools_schools__get"];
@@ -338,6 +358,53 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    read_schools_stream_schools_stream_get: {
+        parameters: {
+            query?: {
+                min_lng?: number | null;
+                min_lat?: number | null;
+                max_lng?: number | null;
+                max_lat?: number | null;
+                /** @description Search query for school name */
+                q?: string | null;
+                /** @description Filter by school type IDs */
+                type?: number[] | null;
+                /** @description Filter by public/private status IDs */
+                status?: number[] | null;
+                /** @description Filter by student category IDs */
+                category?: number[] | null;
+                /** @description Filter by vocational training IDs */
+                career?: number[] | null;
+                min_score?: number | null;
+                max_score?: number | null;
+                limit?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_school_schools__school_id__get: {
         parameters: {
             query?: never;
@@ -372,6 +439,10 @@ export interface operations {
     read_schools_schools__get: {
         parameters: {
             query?: {
+                min_lng?: number | null;
+                min_lat?: number | null;
+                max_lng?: number | null;
+                max_lat?: number | null;
                 /** @description Search query for school name */
                 q?: string | null;
                 /** @description Filter by school type IDs */
@@ -381,14 +452,10 @@ export interface operations {
                 /** @description Filter by student category IDs */
                 category?: number[] | null;
                 /** @description Filter by vocational training IDs */
-                vocational_training?: number[] | null;
+                career?: number[] | null;
                 min_score?: number | null;
                 max_score?: number | null;
-                /**
-                 * @description Bounding box: min_lng,min_lat,max_lng,max_lat
-                 * @example 19.0,51.9,19.1,52.0
-                 */
-                bbox?: string | null;
+                limit?: number | null;
             };
             header?: never;
             path?: never;
