@@ -1,4 +1,4 @@
-import type { SchoolFilterParams } from "./schools"
+import type { FiltersOptions, SchoolFilterParams } from "./schools"
 
 export type FiltersParamsWihtoutBbox = Omit<
     NonNullable<SchoolFilterParams>,
@@ -9,10 +9,12 @@ export type FiltersParamsWihtoutBbox = Omit<
  * Used to make the filter system scalable
  */
 export interface FilterConfig {
-    key: keyof NonNullable<SchoolFilterParams>
-    queryParam: string
+    key: keyof ActiveSelections
+    queryParam: Ref<number[] | undefined>
     label: string
     placeholder: string
+    options: FiltersOptions
+    addingsState: boolean
 }
 
 /**

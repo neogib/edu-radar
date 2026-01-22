@@ -10,6 +10,9 @@ type schemas = components["schemas"]
 export type SzkolaPublicShort = schemas["SzkolaPublicShort"]
 export type SzkolaPublicWithRelations = schemas["SzkolaPublicWithRelations"]
 export type TypSzkolyPublic = schemas["TypSzkolyPublic"]
+export type StatusPublicznoprawnyPublic = schemas["StatusPublicznoprawnyPublic"]
+export type KategoriaUczniowPublic = schemas["KategoriaUczniowPublic"]
+export type KsztalcenieZawodowePublic = schemas["KsztalcenieZawodowePublic"]
 
 export type SzkolaPublicShortFromGeoJsonFeatures = Omit<
     SzkolaPublicShort,
@@ -23,6 +26,11 @@ export type WynikE8PublicWithPrzedmiot = schemas["WynikE8PublicWithPrzedmiot"]
 export type WynikEMPublicWithPrzedmiot = schemas["WynikEMPublicWithPrzedmiot"]
 
 export type FiltersResponse = schemas["FiltersResponse"]
+export type FiltersOptions =
+    | TypSzkolyPublic[]
+    | KategoriaUczniowPublic[]
+    | StatusPublicznoprawnyPublic[]
+    | KsztalcenieZawodowePublic[]
 
 export type SchoolFilterParams =
     paths["/schools/"]["get"]["parameters"]["query"]
