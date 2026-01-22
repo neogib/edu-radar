@@ -1,8 +1,9 @@
+import json
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
-from sqlmodel import select
+from sqlmodel import Session
 
 from src.app.models.exam_results import (
     WynikE8PublicWithPrzedmiot,  # noqa: F401
@@ -24,6 +25,44 @@ router = APIRouter(
     prefix="/schools",
     tags=["schools"],
 )
+
+
+CHUNK_SIZE = 1000
+
+
+@router.get("/stream")
+async def read_schools_stream(
+    session: SessionDep, request: Request, filters: Annotated[FilterParams, Query()]
+):
+    filters.limit = CHUNK_SIZE  # to control chunk size in streaming
+    return StreamingResponse(
+        stream_schools(request, session, filters),
+        media_type="application/x-ndjson",
+    )
+
+
+async def stream_schools(
+    request: Request,
+    session: Session,
+    filters: FilterParams,
+):
+    offset = 0
+
+    while True:
+        stmt = apply_filters(filters).limit(CHUNK_SIZE).offset(offset)
+
+        schools = session.exec(stmt).all()
+        if not schools:
+            break
+
+        batch = [SzkolaPublicShort.model_validate(s).model_dump() for s in schools]
+        yield json.dumps(batch) + "\n"
+
+        offset += CHUNK_SIZE
+
+        # 🔴 abort ONLY when client disconnects
+        if await request.is_disconnected():
+            break
 
 
 @router.get("/{school_id}", response_model=SzkolaPublicWithRelations)
