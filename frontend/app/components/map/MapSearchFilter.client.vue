@@ -1,117 +1,77 @@
 <script setup lang="ts">
-import { filterConfigs } from "~/constants/filters"
-import type { FiltersResponse, SzkolaPublicShort } from "~/types/schools"
-import { SELECTION_KEYS, type ActiveSelections } from "~/types/filters"
+import type { FiltersOptions, SzkolaPublicShort } from "~/types/schools"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
+import { watchDebounced } from "@vueuse/core"
 
-// all filter options from api
-const { data: filterOptions } = useApi<FiltersResponse>("/filters/")
 const { map } = useMap("mainMap")
 
+const { filterData } = useFilterData()
+
 // get filters from route.query
-const { filters } = useSchoolFiltersFromRoute()
-
-// Search state
-const searchQuery = ref(filters.value.q || "")
-const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
-const showSuggestions = ref(false)
-const searchInputFocused = ref(false)
-let debounceTimer: NodeJS.Timeout | null = null
-
-const handleFocus = () => {
-    searchInputFocused.value = true
-    showSuggestions.value = true
-    isFilterPanelOpen.value = false
-}
-
-const handleBlur = () => {
-    setTimeout(() => {
-        searchInputFocused.value = false
-    }, 200)
-}
-
-// min, max score
-const min_score = ref<number | undefined>(filters.value.min_score)
-const max_score = ref<number | undefined>(filters.value.max_score)
+const {
+    q,
+    min_score,
+    max_score,
+    filters,
+    hasActiveFilters,
+    totalActiveFilters,
+    resetFilters,
+} = useSchoolFilters()
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
 
-const activeSelections = reactive<ActiveSelections>({
-    type: filters.value.type ?? [],
-    status: filters.value.status ?? [],
-    category: filters.value.category ?? [],
-    vocational_training: filters.value.vocational_training ?? [],
-})
-
 // Get available items (not already selected) for a filter
 const getAvailableItems = (
-    optionsKey: keyof NonNullable<typeof filterOptions.value>,
-    key: keyof ActiveSelections,
-    currentIndex: number,
+    options: FiltersOptions,
+    selectedValues: number[] | undefined,
+    currentIndex?: number,
 ) => {
-    // Cast to any[] to avoid TS inference issues with union types of different array contents
-    const allItems = (filterOptions.value?.[optionsKey] ?? []) as any[]
-    const items = allItems.map((option: any) => ({
+    const allItems = options ?? []
+    const items = allItems.map((option) => ({
         label: option.nazwa,
         value: option.id,
-    }))
-    const selectedValues = activeSelections[key]
+    })) // for select menu component
+
+    if (!selectedValues || selectedValues.length === 0) {
+        return items
+    }
+
     // Keep items not selected, OR the current selection at this index
     return items.filter(
-        (item: any) =>
+        (item) =>
             !selectedValues.includes(item.value) ||
-            selectedValues[currentIndex] === item.value,
+            (currentIndex !== undefined &&
+                selectedValues[currentIndex] === item.value),
     )
 }
 
-// Normalize selections by removing invalid (-1) entries that you can't send to the backend
-const normalize = (v: number[]) => v.filter((n) => n > 0)
-
-const normalizeSelections = () => {
-    for (const key of SELECTION_KEYS) {
-        activeSelections[key] = normalize(activeSelections[key])
-    }
-}
-
-// Check if we can add more selections (has valid selection AND more options available)
+// Check if we can add more selections (more options available)
 const canAddMore = (
-    optionsKey: keyof FiltersResponse,
-    key: keyof ActiveSelections,
+    optionsKey: FiltersOptions,
+    userSelections: number[] | undefined,
 ) => {
-    const userSelections = activeSelections[key]
-
-    // 1. hard fail on invalid values (there is already select box not filled)
-    if (userSelections.some((v) => v < 0)) {
-        return false
-    }
-
-    // 2. no selections → can add
-    if (userSelections.length === 0) {
+    if (!userSelections || userSelections.length === 0) {
         return true
     }
+    const numberOfTotalOptions = optionsKey.length
 
-    const totalOptions = filterOptions.value?.[optionsKey]?.length ?? 0
-
-    const validCount = normalize(userSelections).length
-
-    return validCount > 0 && validCount < totalOptions
+    return userSelections.length < numberOfTotalOptions
 }
 
-// Count total active filters
-const activeFilterCount = computed(() => {
-    let count = 0
-    for (const key of SELECTION_KEYS) {
-        count += normalize(activeSelections[key]).length
-    }
-    if (min_score.value) count++
-    if (max_score.value && max_score.value !== 100) count++
-    return count
+// Search state
+const searchQuery = ref(filters.value.q || "")
+const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
+const searchInputFocused = ref(false)
+
+const handleFocus = () => {
+    searchInputFocused.value = true
+    isFilterPanelOpen.value = false
+}
+
+watchDebounced(searchQuery, (newSearch) => {
+    fetchSuggestions(newSearch)
 })
-
-const hasActiveFilters = computed(() => activeFilterCount.value > 0)
-
-const { $api } = useNuxtApp()
 
 const fetchSuggestions = async (query: string) => {
     if (!query || query.length < 2) {
@@ -120,67 +80,28 @@ const fetchSuggestions = async (query: string) => {
     }
 
     try {
-        const data = await $api<SzkolaPublicShort[]>("/schools/", {
+        const { fetchSchools } = useSchools()
+        searchSuggestions.value = await fetchSchools({
             query: {
                 ...filters.value,
                 q: query,
             },
         })
-        searchSuggestions.value = data
     } catch (e) {
         console.error("Error fetching suggestions", e)
         searchSuggestions.value = []
     }
 }
 
-watch(searchQuery, (newVal) => {
-    if (debounceTimer) clearTimeout(debounceTimer)
-
-    if (!newVal) {
-        searchSuggestions.value = []
-        return
-    }
-
-    debounceTimer = setTimeout(() => {
-        fetchSuggestions(newVal)
-    }, 400)
-})
-
 // Handle search/filters submit
-const route = useRoute()
 const handleSearch = async () => {
-    // normalize before navigating to avoid sending invalid values
-    normalizeSelections()
     isFilterPanelOpen.value = false
-    await navigateTo({
-        query: {
-            bbox: route.query.bbox || undefined,
-            search: searchQuery.value || undefined,
-            type:
-                activeSelections.type.length > 0
-                    ? activeSelections.type
-                    : undefined,
-            status:
-                activeSelections.status.length > 0
-                    ? activeSelections.status
-                    : undefined,
-            category:
-                activeSelections.category.length > 0
-                    ? activeSelections.category
-                    : undefined,
-            vocational_training:
-                activeSelections.vocational_training.length > 0
-                    ? activeSelections.vocational_training
-                    : undefined,
-            min_score: min_score.value || undefined,
-            max_score: max_score.value !== 100 ? max_score.value : undefined,
-        },
-    })
+    q.value = searchQuery.value.trim() || undefined
+    // get new schools for the whole map area
 }
 
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     searchQuery.value = school.nazwa
-    showSuggestions.value = false
 
     // Fly to school
     if (map) {
@@ -196,24 +117,6 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
 
     // trigger search with new query
     handleSearch()
-}
-
-// toggle filter panel
-const handleFiltersToggle = () => {
-    isFilterPanelOpen.value = !isFilterPanelOpen.value
-    normalizeSelections()
-}
-
-// Clear all filters
-const handleClearFilters = async () => {
-    searchQuery.value = ""
-    activeSelections.type = []
-    activeSelections.status = []
-    activeSelections.category = []
-    activeSelections.vocational_training = []
-    min_score.value = undefined
-    max_score.value = undefined
-    searchSuggestions.value = []
 }
 </script>
 
@@ -232,12 +135,12 @@ const handleClearFilters = async () => {
                     :ui="{ root: 'w-full' }"
                     minlength="2"
                     @focus="handleFocus"
-                    @blur="handleBlur" />
+                    @blur="searchInputFocused = false" />
 
                 <!-- Search Suggestions Dropdown -->
                 <div
                     v-if="
-                        (showSuggestions || searchInputFocused) &&
+                        searchInputFocused &&
                         searchSuggestions.length > 0 &&
                         !isFilterPanelOpen
                     "
@@ -268,10 +171,10 @@ const handleClearFilters = async () => {
                 :color="hasActiveFilters ? 'primary' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
-                @click="handleFiltersToggle">
-                <template v-if="activeFilterCount > 0">
+                @click="isFilterPanelOpen = !isFilterPanelOpen">
+                <template v-if="totalActiveFilters > 0">
                     <UBadge color="error" class="ml-1">
-                        {{ activeFilterCount }}
+                        {{ totalActiveFilters }}
                     </UBadge>
                 </template>
             </UButton>
@@ -283,14 +186,11 @@ const handleClearFilters = async () => {
                 v-if="isFilterPanelOpen"
                 class="backdrop-blur-md bg-white/95 rounded-xl shadow-2xl border border-white/20 p-3 max-w-full max-h-[70vh] overflow-x-auto overflow-y-auto">
                 <!-- Filter Options -->
-                <div v-if="filterOptions == undefined">
-                    <p>Waiting for filter options...</p>
-                </div>
-                <div class="flex flex-col gap-2" v-else>
+                <div class="flex flex-col gap-2">
                     <!-- Dynamic Filter Selects -->
                     <div class="flex flex-wrap gap-4">
                         <div
-                            v-for="config in filterConfigs"
+                            v-for="config in filterData"
                             :key="config.key"
                             class="flex flex-col gap-2 min-w-50 flex-1 max-w-70">
                             <label class="text-xs font-medium text-neutral-600">
@@ -299,9 +199,8 @@ const handleClearFilters = async () => {
 
                             <!-- Existing selections -->
                             <div
-                                v-for="(selection, index) in activeSelections[
-                                    config.key as keyof ActiveSelections
-                                ]"
+                                v-for="(selection, index) in config.queryParam
+                                    .value ?? []"
                                 :key="`${config.key}-${index}`"
                                 class="flex gap-2 items-center">
                                 <USelectMenu
@@ -309,19 +208,15 @@ const handleClearFilters = async () => {
                                         estimateSize: 48, // estimated height per item
                                         overscan: 12, // items to render outside viewport
                                     }"
-                                    :model-value="
-                                        selection > 0 ? selection : undefined
-                                    "
+                                    :model-value="selection"
                                     :items="
                                         getAvailableItems(
-                                            config.optionsKey,
-                                            config.key as keyof ActiveSelections,
+                                            config.options,
+                                            config.queryParam.value,
                                             index,
                                         )
                                     "
-                                    :default-open="selection > 0 ? false : true"
                                     value-key="value"
-                                    :placeholder="config.placeholder"
                                     :search-input="{
                                         placeholder: 'Szukaj...',
                                         icon: 'i-mdi-magnify',
@@ -336,9 +231,11 @@ const handleClearFilters = async () => {
                                     class="flex-1 w-96"
                                     @update:model-value="
                                         (val: number) =>
-                                            (activeSelections[
-                                                config.key as keyof ActiveSelections
-                                            ][index] = val)
+                                            ((
+                                                config.queryParam
+                                                    .value as number[]
+                                            )[index] = // config.queryparam can't be undefined when this selctmenu shows up
+                                                val)
                                     " />
                                 <UButton
                                     icon="i-mdi-close"
@@ -346,25 +243,55 @@ const handleClearFilters = async () => {
                                     variant="ghost"
                                     size="xs"
                                     @click="
-                                        activeSelections[
-                                            config.key as keyof ActiveSelections
-                                        ].splice(index, 1)
+                                        (
+                                            config.queryParam.value as number[]
+                                        ).splice(index, 1)
                                     " />
                             </div>
 
+                            <div
+                                v-if="config.addingsState"
+                                class="flex gap-2 items-center">
+                                <USelectMenu
+                                    :model-value="undefined"
+                                    :items="
+                                        getAvailableItems(
+                                            config.options,
+                                            config.queryParam.value,
+                                        )
+                                    "
+                                    value-key="value"
+                                    placeholder="Wybierz z listy..."
+                                    searchable
+                                    default-open
+                                    class="flex-1 w-96"
+                                    @update:model-value="
+                                        (val) => {
+                                            config.queryParam.value =
+                                                config.queryParam.value ?? []
+                                            config.queryParam.value.push(val)
+                                            config.addingsState = false
+                                        }
+                                    " />
+                                <UButton
+                                    icon="i-mdi-close"
+                                    color="neutral"
+                                    variant="ghost"
+                                    size="xs"
+                                    @click="config.addingsState = false" />
+                            </div>
                             <!-- Add button -->
                             <UButton
                                 v-if="
+                                    !config.addingsState &&
                                     canAddMore(
-                                        config.optionsKey,
-                                        config.key as keyof ActiveSelections,
+                                        config.options,
+                                        config.queryParam.value,
                                     )
                                 "
                                 icon="i-mdi-plus"
                                 :label="
-                                    activeSelections[
-                                        config.key as keyof ActiveSelections
-                                    ].length === 0
+                                    config.queryParam.value?.length === 0
                                         ? config.placeholder
                                         : 'Dodaj kolejny'
                                 "
@@ -372,11 +299,7 @@ const handleClearFilters = async () => {
                                 variant="ghost"
                                 size="sm"
                                 class="w-full"
-                                @click="
-                                    activeSelections[
-                                        config.key as keyof ActiveSelections
-                                    ].push(-1)
-                                " />
+                                @click="config.addingsState = true" />
                         </div>
                     </div>
 
@@ -430,7 +353,7 @@ const handleClearFilters = async () => {
                             color="error"
                             variant="ghost"
                             size="md"
-                            @click="handleClearFilters" />
+                            @click="resetFilters" />
                         <div v-else />
 
                         <UButton
