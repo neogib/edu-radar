@@ -48,7 +48,7 @@ export const useSchoolFilters = () => {
         },
     })
 
-    // only for read
+    // all in one just for reading
     const filters = computed<FiltersParamsWihtoutBbox>(() => ({
         type: type.value,
         status: status.value,
@@ -58,17 +58,6 @@ export const useSchoolFilters = () => {
         max_score: max_score.value,
         q: q.value,
     }))
-
-    const hasActiveFilters = computed(
-        () =>
-            type.value?.length ||
-            status.value?.length ||
-            category.value?.length ||
-            vocational_training.value?.length ||
-            min_score.value !== undefined ||
-            max_score.value !== undefined ||
-            q.value,
-    )
 
     // Count total active filters excluding search query
     const totalActiveFilters = computed(() => {
@@ -82,6 +71,8 @@ export const useSchoolFilters = () => {
         if (filters.value.max_score !== undefined) count++
         return count
     })
+
+    const hasActiveFilters = computed(() => totalActiveFilters.value > 0)
 
     const resetFilters = () => {
         type.value = undefined
