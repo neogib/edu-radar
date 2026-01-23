@@ -1,5 +1,5 @@
 import type { Point } from "geojson"
-import type { LngLatBounds } from "maplibre-gl"
+import type { LngLat, LngLatBounds } from "maplibre-gl"
 import type maplibregl from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import type { MapMouseLayerEvent } from "~/types/map"
@@ -18,6 +18,8 @@ export const useMapInteractions = (
         ref(null)
     const { $api } = useNuxtApp()
     const route = useRoute()
+
+    const { mapZoom, isUnderZoomThreshold } = useMapState()
 
     const handleMouseMove = (map: maplibregl.Map, e: MapMouseLayerEvent) => {
         const feature_collection = e.features?.[0]
@@ -87,9 +89,7 @@ export const useMapInteractions = (
             return
 
         const clusterId = firstFeature.properties.cluster_id
-        const source = map.getSource(
-            "schools-source",
-        ) as maplibregl.GeoJSONSource
+        const source = map.getSource("schools") as maplibregl.GeoJSONSource
         const zoom = await source.getClusterExpansionZoom(clusterId)
         map.easeTo({
             center: (firstFeature.geometry as Point).coordinates as [
@@ -103,8 +103,13 @@ export const useMapInteractions = (
 
     const handleMoveEnd = (map: maplibregl.Map) => {
         const { lng, lat } = map.getCenter()
+        const zoom = map.getZoom()
         const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
-        console.log(`Map zoom: ${map.getZoom()}`)
+
+        // Update local state immediately for snappy UI
+        mapZoom.value = zoom
+
+        console.log(`Map zoom: ${zoom}`)
 
         // if user moved outside of Poland bounds, reset to default center
         if (lng < minLon || lng > maxLon || lat < minLat || lat > maxLat) {
@@ -121,17 +126,16 @@ export const useMapInteractions = (
 
         // Set a new timeout to update the bbox after a delay
         debounceTimeout = setTimeout(() => {
-            updateQueryBboxParam(map.getBounds())
+            updateQueryCenterZoom(lng, lat, zoom)
         }, 300) // Wait for 300ms of inactivity before fetching
     }
 
     const setupMapEventHandlers = (map: maplibregl.Map) => {
-        const sources = ["unclustered-points", "search-unclustered-points"]
-        sources.forEach((layerId) => {
-            map.on("mousemove", layerId, (e) => handleMouseMove(map, e))
-            map.on("mouseleave", layerId, () => handleMouseLeave(map))
-            map.on("click", layerId, handleClick)
-        })
+        map.on("mousemove", "unclustered-points", (e) =>
+            handleMouseMove(map, e),
+        )
+        map.on("mouseleave", "unclustered-points", () => handleMouseLeave(map))
+        map.on("click", "unclustered-points", handleClick)
         map.on("click", "clusters", (e) => handleClusterClick(map, e))
         map.on("mouseenter", "clusters", () => {
             map.getCanvas().style.cursor = "pointer"
@@ -143,15 +147,27 @@ export const useMapInteractions = (
     }
 
     // Update bbox in URL
-    const updateQueryBboxParam = async (bounds: LngLatBounds) => {
-        const round = (val: number) => val.toFixed(6)
-        await navigateTo({
-            query: {
-                ...route.query,
-                bbox: `${round(bounds.getWest())},${round(bounds.getSouth())},${round(bounds.getEast())},${round(bounds.getNorth())}`,
+    const updateQueryCenterZoom = async (
+        x: number,
+        y: number,
+        zoom: number,
+    ) => {
+        await navigateTo(
+            {
+                query: {
+                    ...route.query,
+                    x: x.toFixed(6),
+                    y: y.toFixed(6),
+                    z: zoom.toFixed(2),
+                },
             },
-        })
+            { replace: true },
+        )
     }
 
-    return { setupMapEventHandlers, hoveredSchool, updateQueryBboxParam }
+    return {
+        setupMapEventHandlers,
+        hoveredSchool,
+        updateQueryBboxParam: updateQueryCenterZoom,
+    }
 }
