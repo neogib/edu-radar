@@ -15,23 +15,24 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
         selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
     )
 
-    # bounding box filters
-    if filters.min_lng:
-        statement = statement.where(
-            col(Szkola.geolokalizacja_longitude) >= filters.min_lng
-        )
-    if filters.max_lng:
-        statement = statement.where(
-            col(Szkola.geolokalizacja_longitude) <= filters.max_lng
-        )
-    if filters.min_lat:
-        statement = statement.where(
-            col(Szkola.geolokalizacja_latitude) >= filters.min_lat
-        )
-    if filters.max_lat:
-        statement = statement.where(
-            col(Szkola.geolokalizacja_latitude) <= filters.max_lat
-        )
+    present = [filters.min_lng, filters.min_lat, filters.max_lng, filters.max_lat]
+    # bounding box filters allow getting schools within or outside the box
+    if all(present):  # all four bbox parameters are provided
+        if filters.bbox_mode == "within":
+            statement = statement.where(
+                col(Szkola.geolokalizacja_longitude) >= filters.min_lng,
+                col(Szkola.geolokalizacja_longitude) <= filters.max_lng,
+                col(Szkola.geolokalizacja_latitude) >= filters.min_lat,
+                col(Szkola.geolokalizacja_latitude) <= filters.max_lat,
+            )
+        elif filters.bbox_mode == "outside":
+            statement = statement.where(
+                (col(Szkola.geolokalizacja_longitude) < filters.min_lng)
+                | (col(Szkola.geolokalizacja_longitude) > filters.max_lng)
+                | (col(Szkola.geolokalizacja_latitude) < filters.min_lat)
+                | (col(Szkola.geolokalizacja_latitude) > filters.max_lat)
+            )
+
     # Apply filters based on query parameters
     if filters.type_id:
         statement = statement.where(col(Szkola.typ_id).in_(filters.type_id))
