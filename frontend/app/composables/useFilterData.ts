@@ -1,7 +1,7 @@
 import type { ActiveSelections, FilterConfig } from "~/types/filters"
 import type { FiltersOptions, FiltersResponse } from "~/types/schools"
 
-export const useFilterData = () => {
+export const useFilterData = async () => {
     const createFilterData = (
         key: keyof ActiveSelections,
         queryParam: Ref<number[] | undefined>,
@@ -20,7 +20,7 @@ export const useFilterData = () => {
     }
 
     const { type, status, category, vocational_training } = useSchoolFilters()
-    const { data: filterOptions } = useApi<FiltersResponse>("/filters/")
+    const { data: filterOptions } = await useApi<FiltersResponse>("/filters")
 
     const filterData: FilterConfig[] = [
         createFilterData(
