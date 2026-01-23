@@ -1,6 +1,6 @@
-from typing import Literal, Self, cast
+from typing import ClassVar, Literal, Self, cast
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from src.app.models.schools import (
     KategoriaUczniow,
@@ -30,10 +30,13 @@ FILTER_MODELS = {
 
 
 class FilterParams(BaseModel):
-    min_lng: float | None = Field(None, ge=-180, le=180)
-    min_lat: float | None = Field(None, ge=-90, le=90)
-    max_lng: float | None = Field(None, ge=-180, le=180)
-    max_lat: float | None = Field(None, ge=-90, le=90)
+    model_config: ClassVar[ConfigDict] = ConfigDict(
+        validate_by_name=True, validate_by_alias=True
+    )
+    min_lng: float | None = Field(None, ge=-180, le=180, alias="minLng")
+    min_lat: float | None = Field(None, ge=-90, le=90, alias="minLat")
+    max_lng: float | None = Field(None, ge=-180, le=180, alias="maxLng")
+    max_lat: float | None = Field(None, ge=-90, le=90, alias="maxLat")
     bbox_mode: Literal["within", "outside"] = "within"
     q: str | None = Field(
         None, min_length=2, description="Search query for school name"
