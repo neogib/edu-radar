@@ -22,11 +22,11 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
         )
     if filters.max_lng:
         statement = statement.where(
-            col(Szkola.geolokalizacja_latitude) <= filters.max_lng
+            col(Szkola.geolokalizacja_longitude) <= filters.max_lng
         )
     if filters.min_lat:
         statement = statement.where(
-            col(Szkola.geolokalizacja_longitude) >= filters.min_lat
+            col(Szkola.geolokalizacja_latitude) >= filters.min_lat
         )
     if filters.max_lat:
         statement = statement.where(
