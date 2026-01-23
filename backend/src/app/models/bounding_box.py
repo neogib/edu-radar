@@ -6,10 +6,10 @@ from pydantic import BaseModel, Field, model_validator
 class BoundingBox(BaseModel):
     """Bounding box model with validation"""
 
-    min_lng: float = Field(..., ge=-180, le=180, description="Minimum longitude")
-    min_lat: float = Field(..., ge=-90, le=90, description="Minimum latitude")
-    max_lng: float = Field(..., ge=-180, le=180, description="Maximum longitude")
-    max_lat: float = Field(..., ge=-90, le=90, description="Maximum latitude")
+    min_lng: float = Field(ge=-180, le=180, description="Minimum longitude")
+    min_lat: float = Field(ge=-90, le=90, description="Minimum latitude")
+    max_lng: float = Field(ge=-180, le=180, description="Maximum longitude")
+    max_lat: float = Field(ge=-90, le=90, description="Maximum latitude")
 
     @model_validator(mode="after")
     def check_lat_lng(self) -> Self:
