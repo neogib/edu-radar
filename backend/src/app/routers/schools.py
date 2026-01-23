@@ -1,8 +1,9 @@
-import json
+import time
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
+from pydantic import TypeAdapter
 from sqlmodel import Session
 
 from src.app.models.exam_results import (
@@ -27,6 +28,8 @@ router = APIRouter(
 )
 
 
+# Setup
+school_list_adapter = TypeAdapter(list[SzkolaPublicShort])
 CHUNK_SIZE = 1000
 
 
@@ -55,8 +58,8 @@ async def stream_schools(
         if not schools:
             break
 
-        batch = [SzkolaPublicShort.model_validate(s).model_dump() for s in schools]
-        yield json.dumps(batch) + "\n"
+        batch = school_list_adapter.validate_python(schools, from_attributes=True)
+        yield school_list_adapter.dump_json(batch) + b"\n"
 
         offset += CHUNK_SIZE
 
