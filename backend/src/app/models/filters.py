@@ -1,4 +1,6 @@
-from pydantic import BaseModel, Field
+from typing import Literal, Self, cast
+
+from pydantic import BaseModel, Field, model_validator
 
 from src.app.models.schools import (
     KategoriaUczniow,
@@ -32,6 +34,7 @@ class FilterParams(BaseModel):
     min_lat: float | None = Field(None, ge=-90, le=90)
     max_lng: float | None = Field(None, ge=-180, le=180)
     max_lat: float | None = Field(None, ge=-90, le=90)
+    bbox_mode: Literal["within", "outside"] = "within"
     q: str | None = Field(
         None, min_length=2, description="Search query for school name"
     )
@@ -50,3 +53,15 @@ class FilterParams(BaseModel):
     min_score: int | None = Field(None, ge=0, le=100)
     max_score: int | None = Field(None, ge=0, le=100)
     limit: int | None = Field(None, ge=1, le=1000)
+
+    @model_validator(mode="after")
+    def validate_bbox(self) -> Self:
+        present = [self.min_lng, self.min_lat, self.max_lng, self.max_lat]
+        if any(present) and not all(present):
+            raise ValueError("All bbox parameters must be provided together")
+        if all(present):
+            if cast(float, self.min_lat) >= cast(float, self.max_lat):
+                raise ValueError("max_lat must be greater than min_lat")
+            if cast(float, self.min_lng) >= cast(float, self.max_lng):
+                raise ValueError("max_lng must be greater than min_lng")
+        return self
