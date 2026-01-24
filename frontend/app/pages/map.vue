@@ -2,6 +2,7 @@
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 definePageMeta({
     colorMode: "light",
+    middleware: "redirect-map",
 })
 
 // Reactive state for sidebar
