@@ -1,5 +1,9 @@
 import { SELECTION_KEYS, type FiltersParamsWihtoutBbox } from "~/types/filters"
 import { useRouteQuery } from "@vueuse/router"
+import type { LocationQueryValue } from "vue-router"
+import { parseArrayOfIds, parseNumber, parseQueryString } from "~/utils/parsers"
+
+type RawQueryValue = any // Using any for the route-side to avoid complex vue-router type mismatches, while keeping the local-side strictly typed
 
 // normalize array to filter values lower than 1
 const normalizeArray = (arr: number[] | undefined): string[] | undefined => {
@@ -10,21 +14,22 @@ const normalizeArray = (arr: number[] | undefined): string[] | undefined => {
 
 // Helper for array filters (like type, status, category)
 const createArrayFilter = (key: string) => {
-    return useRouteQuery<string[] | undefined, number[] | undefined>(
-        key,
-        undefined,
-        {
-            transform: {
-                get: (value) => parseArrayOfIds(value),
-                set: (value) => normalizeArray(value),
-            },
+    return useRouteQuery<RawQueryValue, number[] | undefined>(key, undefined, {
+        transform: {
+            get: (value) => parseArrayOfIds(value),
+            set: (value) => normalizeArray(value),
         },
-    )
+    })
 }
 
 // Helper for number filters (like scores)
 const useNumberFilter = (key: string) => {
-    return useRouteQuery<number | undefined>(key, undefined)
+    return useRouteQuery<RawQueryValue, number | undefined>(key, undefined, {
+        transform: {
+            get: (value) => parseNumber(value),
+            set: (value) => (value !== undefined ? String(value) : undefined),
+        },
+    })
 }
 
 export const useSchoolFilters = () => {
@@ -32,19 +37,17 @@ export const useSchoolFilters = () => {
     const type = createArrayFilter("type")
     const status = createArrayFilter("status")
     const category = createArrayFilter("category")
-    const vocational_training = createArrayFilter("vocational_training")
+    const career = createArrayFilter("career")
 
     // Number filters
     const min_score = useNumberFilter("min_score")
     const max_score = useNumberFilter("max_score")
 
     // Search query z minLength = 2
-    const q = useRouteQuery<string | undefined>("q", undefined, {
+    const q = useRouteQuery<RawQueryValue, string | undefined>("q", undefined, {
         transform: {
-            set: (value) => {
-                if (!value || value.trim().length < 2) return undefined
-                return value.trim()
-            },
+            get: (value) => parseQueryString(value),
+            set: (value) => parseQueryString(value), // reusing parser for cleaning
         },
     })
 
@@ -53,7 +56,7 @@ export const useSchoolFilters = () => {
         type: type.value,
         status: status.value,
         category: category.value,
-        vocational_training: vocational_training.value,
+        career: career.value,
         min_score: min_score.value,
         max_score: max_score.value,
         q: q.value,
@@ -78,7 +81,7 @@ export const useSchoolFilters = () => {
         type.value = undefined
         status.value = undefined
         category.value = undefined
-        vocational_training.value = undefined
+        career.value = undefined
         min_score.value = undefined
         max_score.value = undefined
         q.value = undefined
@@ -88,7 +91,7 @@ export const useSchoolFilters = () => {
         type,
         status,
         category,
-        vocational_training,
+        career,
         min_score,
         max_score,
         q,
