@@ -1,9 +1,5 @@
 import { SELECTION_KEYS, type FiltersParamsWihtoutBbox } from "~/types/filters"
-import { useRouteQuery } from "@vueuse/router"
-import type { LocationQueryValue } from "vue-router"
 import { parseArrayOfIds, parseNumber, parseQueryString } from "~/utils/parsers"
-
-type RawQueryValue = any // Using any for the route-side to avoid complex vue-router type mismatches, while keeping the local-side strictly typed
 
 // normalize array to filter values lower than 1
 const normalizeArray = (arr: number[] | undefined): string[] | undefined => {
@@ -12,44 +8,70 @@ const normalizeArray = (arr: number[] | undefined): string[] | undefined => {
     return normalized.length > 0 ? normalized : undefined
 }
 
-// Helper for array filters (like type, status, category)
-const createArrayFilter = (key: string) => {
-    return useRouteQuery<RawQueryValue, number[] | undefined>(key, undefined, {
-        transform: {
-            get: (value) => parseArrayOfIds(value),
-            set: (value) => normalizeArray(value),
-        },
-    })
-}
-
-// Helper for number filters (like scores)
-const useNumberFilter = (key: string) => {
-    return useRouteQuery<RawQueryValue, number | undefined>(key, undefined, {
-        transform: {
-            get: (value) => parseNumber(value),
-            set: (value) => (value !== undefined ? String(value) : undefined),
-        },
-    })
-}
-
 export const useSchoolFilters = () => {
+    const route = useRoute()
+
+    const updateQuery = async (
+        updates: Record<string, string | string[] | undefined>,
+    ) => {
+        const query = { ...route.query, ...updates }
+
+        // Remove undefined keys
+        Object.keys(updates).forEach((key) => {
+            if (updates[key] === undefined) {
+                delete query[key]
+            }
+        })
+
+        await navigateTo({ query })
+    }
+
+    const createComputedFilter = <T, S extends string | string[] | undefined>(
+        key: string,
+        parser: (v: any) => T,
+        serializer: (v: T) => S,
+    ) =>
+        computed({
+            get: () => parser(route.query[key]),
+            set: (v) => updateQuery({ [key]: serializer(v) }),
+        })
+
     // Array filters
-    const type = createArrayFilter("type")
-    const status = createArrayFilter("status")
-    const category = createArrayFilter("category")
-    const career = createArrayFilter("career")
+    const type = createComputedFilter("type", parseArrayOfIds, normalizeArray)
+    const status = createComputedFilter(
+        "status",
+        parseArrayOfIds,
+        normalizeArray,
+    )
+    const category = createComputedFilter(
+        "category",
+        parseArrayOfIds,
+        normalizeArray,
+    )
+    const career = createComputedFilter(
+        "career",
+        parseArrayOfIds,
+        normalizeArray,
+    )
 
     // Number filters
-    const min_score = useNumberFilter("min_score")
-    const max_score = useNumberFilter("max_score")
+    const numberSerializer = (v: number | undefined) =>
+        v !== undefined ? String(v) : undefined
+    const min_score = createComputedFilter(
+        "min_score",
+        parseNumber,
+        numberSerializer,
+    )
+    const max_score = createComputedFilter(
+        "max_score",
+        parseNumber,
+        numberSerializer,
+    )
 
-    // Search query z minLength = 2
-    const q = useRouteQuery<RawQueryValue, string | undefined>("q", undefined, {
-        transform: {
-            get: (value) => parseQueryString(value),
-            set: (value) => parseQueryString(value), // reusing parser for cleaning
-        },
-    })
+    // Search query
+    const q = createComputedFilter("q", parseQueryString, (v) =>
+        parseQueryString(v),
+    )
 
     // all in one just for reading
     const filters = computed<FiltersParamsWihtoutBbox>(() => ({
@@ -77,14 +99,18 @@ export const useSchoolFilters = () => {
 
     const hasActiveFilters = computed(() => totalActiveFilters.value > 0)
 
+    const filterKey = computed(() => JSON.stringify(filters.value))
+
     const resetFilters = () => {
-        type.value = undefined
-        status.value = undefined
-        category.value = undefined
-        career.value = undefined
-        min_score.value = undefined
-        max_score.value = undefined
-        q.value = undefined
+        updateQuery({
+            type: undefined,
+            status: undefined,
+            category: undefined,
+            career: undefined,
+            min_score: undefined,
+            max_score: undefined,
+            q: undefined,
+        })
     }
 
     return {
@@ -98,6 +124,7 @@ export const useSchoolFilters = () => {
 
         // Computed
         filters,
+        filterKey,
         hasActiveFilters,
         totalActiveFilters,
 
