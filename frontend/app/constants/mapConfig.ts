@@ -18,6 +18,7 @@ export const MAP_CONFIG = {
     } as BoundingBox,
     defaultCenter: [21.008333, 52.232222] as [number, number],
     defaultZoom: 12,
+    voivodeshipZoom: 10,
     maxZoom: 19,
     minZoom: 5,
     zoomThreshold: 8,

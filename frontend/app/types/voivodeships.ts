@@ -6,4 +6,5 @@ import type { BoundingBox } from "./boundingBox"
 export interface VoivodeshipData {
     name: string
     coordinates: BoundingBox
+    center: [number, number]
 }

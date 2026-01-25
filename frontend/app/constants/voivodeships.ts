@@ -17,6 +17,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 17.91,
             maxLat: 51.91,
         },
+        center: [16.38, 51.08],
     },
     kujawsko_pomorskie: {
         name: "kujawsko-pomorskie",
@@ -26,6 +27,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 19.88,
             maxLat: 53.83,
         },
+        center: [18.48, 53.07],
     },
     lubelskie: {
         name: "lubelskie",
@@ -35,6 +37,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 24.2,
             maxLat: 52.35,
         },
+        center: [22.90, 51.22],
     },
     lubuskie: {
         name: "lubuskie",
@@ -44,6 +47,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 16.6,
             maxLat: 53.18,
         },
+        center: [15.33, 52.18],
     },
     lodzkie: {
         name: "łódzkie",
@@ -53,6 +57,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 20.75,
             maxLat: 52.45,
         },
+        center: [19.42, 51.60],
     },
     malopolskie: {
         name: "małopolskie",
@@ -62,6 +67,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 21.55,
             maxLat: 50.59,
         },
+        center: [20.27, 49.85],
     },
     mazowieckie: {
         name: "mazowieckie",
@@ -71,6 +77,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 23.25,
             maxLat: 53.55,
         },
+        center: [21.00, 52.24],
     },
     opolskie: {
         name: "opolskie",
@@ -80,6 +87,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 18.8073,
             maxLat: 51.2778,
         },
+        center: [17.90, 50.63],
     },
     podkarpackie: {
         name: "podkarpackie",
@@ -89,6 +97,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 23.66,
             maxLat: 50.9,
         },
+        center: [22.17, 49.95],
     },
     podlaskie: {
         name: "podlaskie",
@@ -98,6 +107,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 24.1,
             maxLat: 54.5,
         },
+        center: [22.93, 53.27],
     },
     pomorskie: {
         name: "pomorskie",
@@ -107,6 +117,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 19.75,
             maxLat: 54.92,
         },
+        center: [18.00, 54.18],
     },
     slaskie: {
         name: "śląskie",
@@ -116,6 +127,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 20.0559,
             maxLat: 51.1617,
         },
+        center: [19.00, 50.33],
     },
     swietokrzyskie: {
         name: "świętokrzyskie",
@@ -125,6 +137,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 22.0,
             maxLat: 51.4,
         },
+        center: [20.77, 50.75],
     },
     "warminsko-mazurskie": {
         name: "warmińsko-mazurskie",
@@ -134,6 +147,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 22.95,
             maxLat: 54.52,
         },
+        center: [20.82, 53.85],
     },
     wielkopolskie: {
         name: "wielkopolskie",
@@ -143,6 +157,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 19.19,
             maxLat: 53.7,
         },
+        center: [17.23, 52.33],
     },
     "zachodnio-pomorskie": {
         name: "zachodniopomorskie",
@@ -152,6 +167,7 @@ export const VOIVODESHIP_NAMES: Record<string, VoivodeshipData> = {
             maxLng: 17.1,
             maxLat: 54.65,
         },
+        center: [15.53, 53.60],
     },
 }
 

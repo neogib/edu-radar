@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { MAP_CONFIG } from "~/constants/mapConfig"
 import { mainSchoolTypes } from "~/constants/schoolTypes"
 import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 import type { TypSzkolyPublic } from "~/types/schools"
 
-const mapIntent = useMapIntent()
+const initialBbox = useInitialBbox()
 const { data: schoolTypes } = await useApi<TypSzkolyPublic[]>(
     "/school_types/",
     {
@@ -35,20 +36,19 @@ const handleSubmit = async (selectedVoivodeship: string) => {
         return
     }
 
-    mapIntent.value = selectedVoivodeship
+    initialBbox.value = voivodeshipData.coordinates
 
     // Default school types if none selected
     let types = selectedSchoolTypes.value
     if (types.length === 0 && schoolTypes.value) {
         types = getDefaultSchoolTypes(schoolTypes.value as TypSzkolyPublic[])
     }
-    const coordinates = voivodeshipData.coordinates
-    const bbox = `${coordinates.minLon},${coordinates.minLat},${coordinates.maxLon},${coordinates.maxLat}`
-
     await navigateTo({
         path: "/map",
         query: {
-            bbox: bbox,
+            x: voivodeshipData.center[0],
+            y: voivodeshipData.center[1],
+            z: MAP_CONFIG.voivodeshipZoom,
             type: types,
         },
     })
