@@ -2,10 +2,12 @@
 import type { FiltersOptions, SzkolaPublicShort } from "~/types/schools"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
 import { watchDebounced } from "@vueuse/core"
+import type { Map } from "maplibre-gl"
 
-const { map } = useMap("mainMap")
+const map = useMap("mainMap")
 
-const { filterData } = useFilterData()
+const { filterData } = await useFilterData()
+console.log("Filter data:", filterData)
 
 // get filters from route.query
 const {
@@ -13,13 +15,18 @@ const {
     min_score,
     max_score,
     filters,
+    filterKey,
     hasActiveFilters,
     totalActiveFilters,
     resetFilters,
 } = useSchoolFilters()
 
+const { loadSchoolsStreaming } = useSchoolGeoJSONSource()
+const { isUnderZoomThreshold } = useMapState()
+
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
+const initialFilterKey = ref("")
 
 // Get available items (not already selected) for a filter
 const getAvailableItems = (
@@ -46,7 +53,7 @@ const getAvailableItems = (
     )
 }
 
-// Check if we can add more selections (more options available)
+// Check if we can add more selections (more options still available)
 const canAddMore = (
     optionsKey: FiltersOptions,
     userSelections: number[] | undefined,
@@ -69,9 +76,13 @@ const handleFocus = () => {
     isFilterPanelOpen.value = false
 }
 
-watchDebounced(searchQuery, (newSearch) => {
-    fetchSuggestions(newSearch)
-})
+watchDebounced(
+    searchQuery,
+    (newSearch) => {
+        fetchSuggestions(newSearch)
+    },
+    { debounce: 300, immediate: true },
+)
 
 const fetchSuggestions = async (query: string) => {
     if (!query || query.length < 2) {
@@ -81,10 +92,11 @@ const fetchSuggestions = async (query: string) => {
 
     try {
         const { fetchSchools } = useSchools()
+        // when fetching suggestions, don't include other filters, because it can be confusing for users
         searchSuggestions.value = await fetchSchools({
             query: {
-                ...filters.value,
-                q: query,
+                q: searchQuery.value,
+                limit: 50, // options are in dropdown, so limit to reasonable number
             },
         })
     } catch (e) {
@@ -93,30 +105,55 @@ const fetchSuggestions = async (query: string) => {
     }
 }
 
-// Handle search/filters submit
-const handleSearch = async () => {
-    isFilterPanelOpen.value = false
-    q.value = searchQuery.value.trim() || undefined
-    // get new schools for the whole map area
+const handleFilterPanelToggle = () => {
+    isFilterPanelOpen.value = !isFilterPanelOpen.value
+    console.log(
+        `Filter panel closed, checking for filter changes..., map loaded ${map.isLoaded}, map: ${map.map}`,
+    )
+    if (isFilterPanelOpen.value) {
+        initialFilterKey.value = filterKey.value
+        return
+    }
+
+    // panel closed, set addingState to false for all filters
+    filterData.forEach((filter) => {
+        filter.addingState = false
+    })
+
+    // trigger search if filters changed
+    if (initialFilterKey.value !== filterKey.value && map.isLoaded) {
+        // get all schols with new filters for poland map
+        if (isUnderZoomThreshold.value) {
+            console.log(
+                "Filters changed, under zoom threshold, loading all schools via streaming",
+            )
+            loadSchoolsStreaming()
+            return
+        }
+        // there was live-filtering while panel was open, so just load schools from outside current bounds
+        const loadedMap = map.map as Map
+        const bounds = loadedMap.getBounds()
+        loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
+    }
 }
 
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
+    console.log("Selected school:", school)
     searchQuery.value = school.nazwa
 
     // Fly to school
-    if (map) {
-        console.log(`Map: ${map}`)
-        map.flyTo({
+    if (map.isLoaded) {
+        const loadedMap = map.map as Map
+        loadedMap.flyTo({
             center: [
                 school.geolokalizacja_longitude,
                 school.geolokalizacja_latitude,
             ],
             zoom: 16,
         })
+        // trigger search with new query
+        q.value = school.nazwa
     }
-
-    // trigger search with new query
-    handleSearch()
 }
 </script>
 
@@ -126,7 +163,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
         <div class="flex gap-2 items-center">
             <form
                 class="flex-1 min-w-60 max-w-100 relative"
-                @submit.prevent="handleSearch">
+                @submit.prevent="q = searchQuery.trim()">
                 <UInput
                     v-model="searchQuery"
                     icon="i-mdi-magnify"
@@ -134,16 +171,14 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                     size="md"
                     :ui="{ root: 'w-full' }"
                     minlength="2"
-                    @focus="handleFocus"
+                    @focus="
+                        handleFocus // collapse filter panel
+                    "
                     @blur="searchInputFocused = false" />
 
                 <!-- Search Suggestions Dropdown -->
                 <div
-                    v-if="
-                        searchInputFocused &&
-                        searchSuggestions.length > 0 &&
-                        !isFilterPanelOpen
-                    "
+                    v-if="searchInputFocused && searchSuggestions.length > 0"
                     class="absolute top-full mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-50 py-1">
                     <div
                         v-for="school in searchSuggestions"
@@ -171,7 +206,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                 :color="hasActiveFilters ? 'primary' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
-                @click="isFilterPanelOpen = !isFilterPanelOpen">
+                @click="handleFilterPanelToggle">
                 <template v-if="totalActiveFilters > 0">
                     <UBadge color="error" class="ml-1">
                         {{ totalActiveFilters }}
@@ -190,18 +225,19 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                     <!-- Dynamic Filter Selects -->
                     <div class="flex flex-wrap gap-4">
                         <div
-                            v-for="config in filterData"
-                            :key="config.key"
+                            v-for="filtersData in filterData"
+                            :key="filtersData.key"
                             class="flex flex-col gap-2 min-w-50 flex-1 max-w-70">
                             <label class="text-xs font-medium text-neutral-600">
-                                {{ config.label }}
+                                {{ filtersData.label }}
                             </label>
 
                             <!-- Existing selections -->
                             <div
-                                v-for="(selection, index) in config.queryParam
-                                    .value ?? []"
-                                :key="`${config.key}-${index}`"
+                                v-for="(
+                                    selection, index
+                                ) in filtersData.queryParam ?? []"
+                                :key="`${filtersData.key}-${index}`"
                                 class="flex gap-2 items-center">
                                 <USelectMenu
                                     :virtualize="{
@@ -211,8 +247,8 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     :model-value="selection"
                                     :items="
                                         getAvailableItems(
-                                            config.options,
-                                            config.queryParam.value,
+                                            filtersData.options,
+                                            filtersData.queryParam,
                                             index,
                                         )
                                     "
@@ -230,12 +266,13 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     }"
                                     class="flex-1 w-96"
                                     @update:model-value="
-                                        (val: number) =>
-                                            ((
-                                                config.queryParam
-                                                    .value as number[]
-                                            )[index] = // config.queryparam can't be undefined when this selctmenu shows up
-                                                val)
+                                        (val: number) => {
+                                            const current = [
+                                                ...(filtersData.queryParam as number[]),
+                                            ]
+                                            current[index] = val
+                                            filtersData.queryParam = current
+                                        }
                                     " />
                                 <UButton
                                     icon="i-mdi-close"
@@ -243,23 +280,43 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     variant="ghost"
                                     size="xs"
                                     @click="
-                                        (
-                                            config.queryParam.value as number[]
-                                        ).splice(index, 1)
+                                        () => {
+                                            const current = [
+                                                ...(filtersData.queryParam as number[]),
+                                            ]
+                                            current.splice(index, 1)
+                                            filtersData.queryParam = current
+                                        }
                                     " />
                             </div>
 
                             <div
-                                v-if="config.addingsState"
+                                v-if="filtersData.addingState"
                                 class="flex gap-2 items-center">
                                 <USelectMenu
-                                    :model-value="undefined"
+                                    :virtualize="{
+                                        estimateSize: 48, // estimated height per item
+                                        overscan: 12, // items to render outside viewport
+                                    }"
                                     :items="
                                         getAvailableItems(
-                                            config.options,
-                                            config.queryParam.value,
+                                            filtersData.options,
+                                            filtersData.queryParam,
+                                            index,
                                         )
                                     "
+                                    :search-input="{
+                                        placeholder: 'Szukaj...',
+                                        icon: 'i-mdi-magnify',
+                                        autofocus: false,
+                                    }"
+                                    size="sm"
+                                    :ui="{
+                                        content: 'min-w-[300px]',
+                                        itemLabel: 'whitespace-normal',
+                                        item: 'items-start',
+                                    }"
+                                    :model-value="undefined"
                                     value-key="value"
                                     placeholder="Wybierz z listy..."
                                     searchable
@@ -267,10 +324,13 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     class="flex-1 w-96"
                                     @update:model-value="
                                         (val) => {
-                                            config.queryParam.value =
-                                                config.queryParam.value ?? []
-                                            config.queryParam.value.push(val)
-                                            config.addingsState = false
+                                            const current = [
+                                                ...(filtersData.queryParam ??
+                                                    []),
+                                            ]
+                                            current.push(val)
+                                            filtersData.queryParam = current
+                                            filtersData.addingState = false
                                         }
                                     " />
                                 <UButton
@@ -278,28 +338,29 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     color="neutral"
                                     variant="ghost"
                                     size="xs"
-                                    @click="config.addingsState = false" />
+                                    @click="filtersData.addingState = false" />
                             </div>
                             <!-- Add button -->
                             <UButton
                                 v-if="
-                                    !config.addingsState &&
+                                    !filtersData.addingState &&
                                     canAddMore(
-                                        config.options,
-                                        config.queryParam.value,
+                                        filtersData.options,
+                                        filtersData.queryParam,
                                     )
                                 "
                                 icon="i-mdi-plus"
                                 :label="
-                                    config.queryParam.value?.length === 0
-                                        ? config.placeholder
+                                    !filtersData.queryParam ||
+                                    filtersData.queryParam.length === 0
+                                        ? filtersData.placeholder
                                         : 'Dodaj kolejny'
                                 "
                                 color="neutral"
                                 variant="ghost"
                                 size="sm"
                                 class="w-full"
-                                @click="config.addingsState = true" />
+                                @click="filtersData.addingState = true" />
                         </div>
                     </div>
 
@@ -359,18 +420,18 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                         <UButton
                             icon="i-mdi-magnify"
                             size="md"
-                            label="Szukaj"
+                            label="Pokaż wyniki"
                             color="primary"
-                            @click="handleSearch" />
+                            @click="handleFilterPanelToggle" />
                     </div>
                 </div>
             </div>
         </Transition>
     </div>
     <div
-        v-if="isFilterPanelOpen"
-        class="fixed inset-0 bg-black opacity-25 z-10 md:hidden"
-        @click="isFilterPanelOpen = false" />
+        v-if="isFilterPanelOpen || searchInputFocused"
+        class="fixed inset-0 bg-black opacity-25 md:opacity-15 z-10"
+        @click="handleFilterPanelToggle" />
 </template>
 
 <style scoped>

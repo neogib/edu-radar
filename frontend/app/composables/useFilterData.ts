@@ -2,6 +2,13 @@ import type { ActiveSelections, FilterConfig } from "~/types/filters"
 import type { FiltersOptions, FiltersResponse } from "~/types/schools"
 
 export const useFilterData = async () => {
+    const { $api } = useNuxtApp()
+    const { type, status, category, career } = useSchoolFilters()
+
+    // Use $api instead of useApi to ensure data is fetched and available directly
+    // This avoids potential issues with useFetch/useApi reactivity when used inside an async composable
+    const filterOptions = await $api<FiltersResponse>("/filters/")
+
     const createFilterData = (
         key: keyof ActiveSelections,
         queryParam: Ref<number[] | undefined>,
@@ -15,43 +22,40 @@ export const useFilterData = async () => {
             label,
             placeholder,
             options,
-            addingsState: false,
+            addingState: false,
         }
     }
 
-    const { type, status, category, vocational_training } = useSchoolFilters()
-    const { data: filterOptions } = await useApi<FiltersResponse>("/filters")
-
-    const filterData: FilterConfig[] = [
+    const filterData = reactive<FilterConfig[]>([
         createFilterData(
             "type",
             type,
             "Rodzaj szkoły",
             "Wybierz typ szkoły...",
-            filterOptions.value?.school_types || [],
+            filterOptions.school_types || [],
         ),
         createFilterData(
             "status",
             status,
             "Publiczna / niepubliczna",
             "Wybierz status...",
-            filterOptions.value?.public_statuses || [],
+            filterOptions.public_statuses || [],
         ),
         createFilterData(
             "category",
             category,
             "Wiek uczniów",
             "Wybierz kategorię...",
-            filterOptions.value?.student_categories || [],
+            filterOptions.student_categories || [],
         ),
         createFilterData(
-            "vocational_training",
-            vocational_training,
+            "career",
+            career,
             "Kierunki zawodowe",
             "Wybierz zawód...",
-            filterOptions.value?.vocational_training || [],
+            filterOptions.vocational_training || [],
         ),
-    ]
+    ])
 
     return {
         filterData,
