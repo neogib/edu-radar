@@ -2,7 +2,7 @@ import type { FiltersOptions, SchoolFilterParams } from "./schools"
 
 export type FiltersParamsWihtoutBbox = Omit<
     NonNullable<SchoolFilterParams>,
-    "bbox"
+    "min_lng" | "min_lat" | "max_lng" | "max_lat" | "limit"
 >
 /**
  * Filter configuration for a single filter group
@@ -14,22 +14,24 @@ export interface FilterConfig {
     label: string
     placeholder: string
     options: FiltersOptions
-    addingsState: boolean
+    addingState: boolean
 }
 
 /**
  * track active selections for each filter group
+ * derived from SchoolFilterParams to ensure synchronization with backend
  */
-export interface ActiveSelections {
-    type: number[]
-    status: number[]
-    category: number[]
-    vocational_training: number[]
+export type ActiveSelections = {
+    [K in keyof NonNullable<SchoolFilterParams> as NonNullable<
+        SchoolFilterParams
+    >[K] extends number[] | null | undefined
+        ? K
+        : never]: number[]
 }
 
 export const SELECTION_KEYS: (keyof ActiveSelections)[] = [
     "type",
     "status",
     "category",
-    "vocational_training",
+    "career",
 ]

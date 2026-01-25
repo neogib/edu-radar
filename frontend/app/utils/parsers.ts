@@ -1,6 +1,3 @@
-import { MAP_CONFIG } from "~/constants/mapConfig"
-import type { BoundingBox } from "~/types/boundingBox"
-
 export const parseArrayOfIds = (
     v: string | (string | null)[] | null | undefined,
 ): number[] | undefined => {

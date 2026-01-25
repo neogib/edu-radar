@@ -20,7 +20,7 @@ export const MAP_CONFIG = {
     defaultZoom: 12,
     maxZoom: 19,
     minZoom: 5,
-    zoomThreshold: 9,
+    zoomThreshold: 8,
 }
 
 export const SCHOOL_ICONS = {
