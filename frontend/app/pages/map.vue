@@ -19,6 +19,12 @@ const handleSidebarClose = () => {
     isSidebarOpen.value = false
     selectedSchool.value = null
 }
+
+// Reset initialBbox when leaving map page
+const initialBbox = useInitialBbox()
+onUnmounted(() => {
+    initialBbox.value = undefined
+})
 </script>
 
 <template>
