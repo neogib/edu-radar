@@ -227,7 +227,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                         <div
                             v-for="filtersData in filterData"
                             :key="filtersData.key"
-                            class="flex flex-col gap-2 min-w-50 flex-1 max-w-70">
+                            class="flex flex-col gap-2 min-w-50 flex-1 max-w-75">
                             <label class="text-xs font-medium text-neutral-600">
                                 {{ filtersData.label }}
                             </label>
@@ -260,11 +260,11 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     }"
                                     size="sm"
                                     :ui="{
-                                        content: 'min-w-[300px]',
+                                        content: 'min-w-[320px]',
                                         itemLabel: 'whitespace-normal',
                                         item: 'items-start',
                                     }"
-                                    class="flex-1 w-96"
+                                    class="flex-1 min-w-0"
                                     @update:model-value="
                                         (val: number) => {
                                             const current = [
