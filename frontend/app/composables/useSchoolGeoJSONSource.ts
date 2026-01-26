@@ -1,7 +1,7 @@
 import { watchDebounced } from "@vueuse/core"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
-import type { GeoJSONSource, Map } from "maplibre-gl"
+import { GeoJSONSource, type Map } from "maplibre-gl"
 import type { BoundingBox } from "~/types/boundingBox"
 import { useToast } from "#ui/composables/useToast"
 
@@ -13,32 +13,32 @@ export type LoadSchoolsResult =
 
 export const useSchoolGeoJSONSource = () => {
     // computed filters which update when url changes or user modifies them
-    const { filters } = useSchoolFilters()
+    const { filters, filterKey } = useSchoolFilters()
     const route = useRoute()
 
-    const map = useMap("mainMap")
+    const mapInstance = useMap("mainMap")
     const { schoolsGeoJSONFeatures } = useSchools()
     const updateSchoolsFeatures = useSchoolsFeaturesUpdater()
     const toast = useToast()
 
-    const schoolsSource = shallowRef<GeoJSON.FeatureCollection>({
+    const schoolsSource = ref<GeoJSON.FeatureCollection>({
         type: "FeatureCollection",
         features: [],
     })
+
+    // controllers for aborting previous requests
+    const { bboxController, streamingController } = useControllers()
 
     const { isUnderZoomThreshold } = useMapState()
 
     const startFiltersWatcher = () => {
         watchDebounced(
-            filters,
+            filterKey,
             async () => {
-                // controller used for aborting previous requests
-                const controller = new AbortController()
+                console.log("Filters changed, reloading schools...")
+                toast.clear()
 
-                const result = await loadSchoolsFromBbox(
-                    undefined,
-                    controller.signal,
-                )
+                const result = await loadSchoolsFromBbox()
 
                 if (result.status === "zoom_too_low") {
                     toast.add({
@@ -49,18 +49,32 @@ export const useSchoolGeoJSONSource = () => {
                         icon: "i-mdi-magnify-plus",
                     })
                 }
-
-                onWatcherCleanup(() => controller.abort())
             },
             { debounce: 300 },
         )
     }
     async function loadSchoolsFromBbox(
         bbox?: BoundingBox,
-        signal?: AbortSignal,
     ): Promise<LoadSchoolsResult> {
-        if (!map.isLoaded) {
+        if (isUnderZoomThreshold.value) {
+            return {
+                status: "zoom_too_low",
+                threshold: MAP_CONFIG.zoomThreshold,
+            }
+        }
+
+        // abort previous bbox request and create a new controller
+        bboxController.value?.abort()
+        bboxController.value = new AbortController()
+        const signal = bboxController.value.signal
+
+        // bbox load invalidates streaming
+        streamingController.value?.abort()
+
+        if (!mapInstance.isLoaded) {
+            // initial load
             if (!bbox) {
+                // bbox is required on initial load
                 return { status: "map_not_loaded" }
             }
 
@@ -70,6 +84,7 @@ export const useSchoolGeoJSONSource = () => {
                     ...filters.value,
                     ...bbox,
                 },
+                signal,
             })
             schoolsSource.value = {
                 type: "FeatureCollection",
@@ -78,63 +93,75 @@ export const useSchoolGeoJSONSource = () => {
             return { status: "success" }
         }
 
-        const loadedMap = map.map as Map
+        const map = mapInstance.map as Map
 
-        if (isUnderZoomThreshold.value) {
-            return {
-                status: "zoom_too_low",
-                threshold: MAP_CONFIG.zoomThreshold,
-            }
-        }
-
-        const bounds = loadedMap.getBounds()
+        const bounds = map.getBounds()
 
         // fetch schools within current map bounds
         const schools = await schoolsGeoJSONFeatures({
             query: {
                 ...filters.value,
-                min_lng: bounds.getWest(),
-                min_lat: bounds.getSouth(),
-                max_lng: bounds.getEast(),
-                max_lat: bounds.getNorth(),
+                ...getBoundingBoxFromBounds(bounds),
             },
             signal,
         })
 
-        schoolsSource.value = {
-            type: "FeatureCollection",
-            features: schools,
-        }
-
-        const source = loadedMap.getSource("schools") as GeoJSONSource
+        const source = map.getSource("schools") as GeoJSONSource
+        console.log(`source ${source}`)
         if (source) {
-            source.setData(schoolsSource.value)
+            source.setData({
+                type: "FeatureCollection",
+                features: schools,
+            })
         }
 
         return { status: "success" }
     }
 
-    async function loadSchoolsStreaming(
-        bbox?: BoundingBox,
-        signal?: AbortSignal,
-    ) {
+    async function loadSchoolsStreaming(bbox?: BoundingBox) {
         // map needs to be loaded
-        if (!map.isLoaded) {
+        if (!mapInstance.isLoaded) {
             return
         }
+        console.log(
+            "Checking source in loadSchoolsStreaming",
+            mapInstance.map?.getSource("schools"),
+        )
 
-        const loadedMap = map.map as Map
+        // abort previous streaming
+        streamingController.value?.abort()
+        streamingController.value = new AbortController()
+        const signal = streamingController.value.signal
+
+        const map = mapInstance.map as Map
+        const source = map.getSource("schools") as GeoJSONSource
+
         const { x, y, z, ...otherParams } = route.query
-        const params = new URLSearchParams(otherParams as any)
+        const params = new URLSearchParams()
+
+        Object.entries(otherParams).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+                value.forEach((v) => params.append(key, String(v)))
+            } else if (value !== undefined && value !== null) {
+                params.append(key, String(value))
+            }
+        })
 
         if (bbox) {
             Object.entries(bbox).forEach(([key, value]) => {
                 params.append(key, value.toString())
             })
             params.append("bbox_mode", "outside")
+        } else {
+            // clear features if no bbox so that after updates we don't show old data
+            await source.updateData(
+                {
+                    removeAll: true,
+                },
+                true,
+            )
         }
-        console.log(`source : ${loadedMap.getSource("schools")}`)
-        await updateSchoolsFeatures(params, loadedMap, "schools")
+        await updateSchoolsFeatures(params, signal, source)
     }
 
     return {

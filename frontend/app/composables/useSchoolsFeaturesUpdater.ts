@@ -1,3 +1,4 @@
+import type { GeoJSONSource } from "maplibre-gl"
 import type { SzkolaPublicShort } from "~/types/schools"
 
 /**
@@ -6,15 +7,11 @@ import type { SzkolaPublicShort } from "~/types/schools"
  * This composable implements a buffering and batching mechanism to feed data to the map source in manageable chunks.
  */
 export const useSchoolsFeaturesUpdater = () => {
-    // inside useSchoolGeoJSONSource.ts or where updateSchoolsFeatures is defined
-
     const updateSchoolsFeatures = async (
         urlQueryParams: URLSearchParams,
-        map: maplibregl.Map, // pass map, not source, so we can ensure source exists
-        sourceId: string,
+        signal: AbortSignal,
+        source: GeoJSONSource,
     ) => {
-        // wait until source is actually created
-        const source = await useMapSource(map, sourceId)
         const { streamFetch } = useStreamFetch()
 
         // setup a Buffer and a Processing Flag
@@ -28,11 +25,11 @@ export const useSchoolsFeaturesUpdater = () => {
 
             isMapUpdating = true
 
-            // Take EVERYTHING currently in the buffer
-            // This is auto-batching. If the stream is fast, this array is huge.
-            // If the stream is slow, this array is small.
+            // take everything currently in the buffer
+            // this is auto-batching, if the stream is fast, this array is huge
+            // if the stream is slow, this array is small.
             const featuresBatch = [...featureBuffer]
-            featureBuffer = [] // Clear global buffer immediately
+            featureBuffer = [] // clear global buffer immediately
 
             try {
                 // await here so not to send the next batch until this one renders.
@@ -48,25 +45,24 @@ export const useSchoolsFeaturesUpdater = () => {
             }
         }
 
-        // 4. Start the Stream
-        // We do NOT await processBuffer inside here. We just push and trigger.
+        // start the Stream
         await streamFetch<SzkolaPublicShort[]>(
             `/schools/stream?${urlQueryParams.toString()}`,
             {
+                signal,
                 onChunk: (chunk) => {
                     const features = transformSchoolsToFeatures(chunk)
 
-                    // Add to buffer
                     featureBuffer.push(...features)
 
-                    // Trigger processing
+                    // trigger processing evry time new data arrives
                     processBuffer()
                 },
             },
         )
 
-        // check to ensure nothing is left behind
-        if (featureBuffer.length > 0) {
+        // final flush if not aborted
+        if (!signal.aborted && featureBuffer.length > 0) {
             processBuffer()
         }
     }
