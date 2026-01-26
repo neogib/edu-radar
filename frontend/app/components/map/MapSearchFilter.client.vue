@@ -107,13 +107,13 @@ const fetchSuggestions = async (query: string) => {
 
 const handleFilterPanelToggle = () => {
     isFilterPanelOpen.value = !isFilterPanelOpen.value
-    console.log(
-        `Filter panel closed, checking for filter changes..., map loaded ${map.isLoaded}, map: ${map.map}`,
-    )
     if (isFilterPanelOpen.value) {
         initialFilterKey.value = filterKey.value
         return
     }
+    console.log(
+        `Filter panel closed, checking for filter changes..., map loaded ${map.isLoaded}, map: ${map.map}`,
+    )
 
     // panel closed, set addingState to false for all filters
     filterData.forEach((filter) => {
@@ -124,9 +124,6 @@ const handleFilterPanelToggle = () => {
     if (initialFilterKey.value !== filterKey.value && map.isLoaded) {
         // get all schols with new filters for poland map
         if (isUnderZoomThreshold.value) {
-            console.log(
-                "Filters changed, under zoom threshold, loading all schools via streaming",
-            )
             loadSchoolsStreaming()
             return
         }
@@ -138,7 +135,6 @@ const handleFilterPanelToggle = () => {
 }
 
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
-    console.log("Selected school:", school)
     searchQuery.value = school.nazwa
 
     // Fly to school

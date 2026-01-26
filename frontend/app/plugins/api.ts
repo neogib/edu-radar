@@ -11,10 +11,6 @@ export default defineNuxtPlugin(() => {
         onResponse({ response }) {
             console.log("API response:", response._data)
         },
-
-        onResponseError({ response }) {
-            console.error("API error:", response.status)
-        },
     })
 
     return {
