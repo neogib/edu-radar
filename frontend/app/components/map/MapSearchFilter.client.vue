@@ -262,7 +262,6 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     :ui="{
                                         content: 'min-w-[320px]',
                                         itemLabel: 'whitespace-normal',
-                                        item: 'items-start',
                                     }"
                                     class="flex-1 min-w-0"
                                     @update:model-value="
@@ -302,7 +301,6 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                         getAvailableItems(
                                             filtersData.options,
                                             filtersData.queryParam,
-                                            index,
                                         )
                                     "
                                     :search-input="{
@@ -312,16 +310,14 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                                     }"
                                     size="sm"
                                     :ui="{
-                                        content: 'min-w-[300px]',
+                                        content: 'min-w-[320px]',
                                         itemLabel: 'whitespace-normal',
-                                        item: 'items-start',
                                     }"
                                     :model-value="undefined"
                                     value-key="value"
                                     placeholder="Wybierz z listy..."
-                                    searchable
                                     default-open
-                                    class="flex-1 w-96"
+                                    class="flex-1 min-w-0"
                                     @update:model-value="
                                         (val) => {
                                             const current = [
