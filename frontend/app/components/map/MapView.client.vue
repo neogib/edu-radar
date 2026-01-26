@@ -34,7 +34,6 @@ const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     // wait for source to be ready
     // sourcedata event will be fired when schools source loads
     map.once("sourcedata", async (e: MapSourceDataEvent) => {
-        console.log("Source ready:", e)
         if (e.sourceId === "schools") {
             await initializeWithSource(map)
         }

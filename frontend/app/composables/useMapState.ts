@@ -3,17 +3,13 @@ import { MAP_CONFIG } from "~/constants/mapConfig"
 export const useMapState = () => {
     const route = useRoute()
 
-    const mapZoom = useState<number>("mapZoom", () => {
+    const isUnderZoomThreshold = computed(() => {
         const z = Number(route.query.z)
-        return isNaN(z) ? MAP_CONFIG.defaultZoom : z
+        const currentZoom = isNaN(z) ? MAP_CONFIG.defaultZoom : z
+        return currentZoom < MAP_CONFIG.zoomThreshold
     })
 
-    const isUnderZoomThreshold = computed(
-        () => mapZoom.value < MAP_CONFIG.zoomThreshold,
-    )
-
     return {
-        mapZoom,
         isUnderZoomThreshold,
     }
 }
