@@ -28,11 +28,17 @@ const { fetchSchools } = useSchools()
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
 const initialFilterKey = ref("")
+const filterKeyChanged = ref(false)
 
 // Search state
 const searchQuery = ref(filters.value.q || "")
 const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInputFocused = ref(false)
+
+watch(totalActiveFilters, (newVal, oldVal) => {
+    console.log(`Total active filters changed from ${oldVal} to ${newVal}`)
+    filterKeyChanged.value = true
+})
 
 // Get available items (not already selected) for a filter
 const getAvailableItems = (
@@ -73,44 +79,53 @@ const canAddMore = (
 }
 
 const handlePanelToggle = () => {
-    if (searchInputFocused.value) {
-        searchInputFocused.value = false
-    } else {
-        isFilterPanelOpen.value = !isFilterPanelOpen.value
-    }
+    isFilterPanelOpen.value = !isFilterPanelOpen.value
 
-    // if opening filters, just set initialFilterKey
+    // set search focus to false to hide suggestions
+    searchInputFocused.value = false
+
     if (isFilterPanelOpen.value) {
-        initialFilterKey.value = filterKey.value
         return
     }
-    console.log(
-        `Panel closed, checking for filter changes..., map loaded ${mapInstance.isLoaded}, map: ${mapInstance.map}`,
-    )
+
+    handlePanelClose()
+}
+
+const handlePanelClose = () => {
+    isFilterPanelOpen.value = false
+    searchInputFocused.value = false
 
     // panel closed, set addingState to false for all filters
     filterData.forEach((filter) => {
         filter.addingState = false
     })
+
     handlePanelSubmit()
 }
 
 const handleFocus = () => {
     searchInputFocused.value = true
-    // if filters were closed, create new initialFilterKey
-    if (!isFilterPanelOpen.value) {
-        initialFilterKey.value = filterKey.value
-        return
-    }
-    // if filters were opened, close them and don't change initialFilterKey
+
+    // if filters were opened, close them
     isFilterPanelOpen.value = false
 }
 
-// const handleBlur = () => {
-//     searchInputFocused.value = false
-//     // fix filterkey after clicking on filters directly from search{}
-//     handleSearchFilterSubmit()
-// }
+const clearSearchQuery = () => {
+    searchQuery.value = ""
+    searchSuggestions.value = []
+    if (q.value) {
+        q.value = ""
+    }
+}
+
+const submitQuery = () => {
+    console.log("Submitting search query:", searchQuery.value)
+    // trigger search with new query
+    q.value = searchQuery.value.trim()
+
+    // note the change
+    filterKeyChanged.value = true
+}
 
 watchDebounced(
     searchQuery,
@@ -164,9 +179,10 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
 
 const handlePanelSubmit = () => {
     // trigger search if filters changed
-    if (initialFilterKey.value === filterKey.value) {
+    if (!filterKeyChanged.value) {
         return
     }
+    filterKeyChanged.value = false
     console.log("Loading schools for current bounds...")
 
     loadSchoolsWithDebounce()
@@ -193,17 +209,24 @@ const loadRestOfSchools = () => {
     <div class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[95%]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
-            <form
-                class="flex-1 min-w-60 max-w-100 relative"
-                @submit.prevent="q = searchQuery.trim()">
+            <form class="relative" @submit.prevent="submitQuery">
                 <UInput
                     v-model="searchQuery"
                     icon="i-mdi-magnify"
                     placeholder="Szukaj szkoły..."
                     size="md"
-                    :ui="{ root: 'w-full' }"
                     minlength="2"
-                    @focus="handleFocus" />
+                    @focus="handleFocus">
+                    <template v-if="searchQuery?.length" #trailing>
+                        <UButton
+                            color="neutral"
+                            variant="link"
+                            size="sm"
+                            icon="i-lucide-circle-x"
+                            aria-label="Clear input"
+                            @click="clearSearchQuery" />
+                    </template>
+                </UInput>
 
                 <!-- Search Suggestions Dropdown -->
                 <div
@@ -438,16 +461,16 @@ const loadRestOfSchools = () => {
                             label="Wyczyść filtry"
                             color="error"
                             variant="ghost"
-                            size="md"
+                            size="sm"
                             @click="resetFilters" />
                         <div v-else />
 
                         <UButton
                             icon="i-mdi-magnify"
-                            size="md"
+                            size="sm"
                             label="Pokaż wyniki"
                             color="primary"
-                            @click="handlePanelToggle" />
+                            @click="handlePanelClose" />
                     </div>
                 </div>
             </div>
@@ -456,7 +479,7 @@ const loadRestOfSchools = () => {
     <div
         v-if="isFilterPanelOpen || searchInputFocused"
         class="fixed inset-0 bg-black opacity-25 md:opacity-15 z-10"
-        @click="handlePanelToggle" />
+        @click="handlePanelClose" />
 </template>
 
 <style scoped>
