@@ -3,41 +3,52 @@ export const useStreamFetch = () => {
 
     const streamFetch = async <T>(
         url: string,
-        options?: {
-            onChunk?: (chunk: T) => void
-            signal?: AbortSignal
+        options: {
+            signal: AbortSignal
+            onChunk: (chunk: T) => void
         },
     ) => {
-        const response = await fetch(`${config.public.apiBase}${url}`, {
-            ...options,
-            headers: {
-                Accept: "application/x-ndjson", // NDJSON for streaming
-            },
-        })
+        try {
+            const response = await fetch(`${config.public.apiBase}${url}`, {
+                signal: options.signal,
+                headers: {
+                    Accept: "application/x-ndjson", // NDJSON for streaming
+                },
+            })
 
-        const reader = response.body?.getReader()
-        if (!reader) throw new Error("No response body")
+            const reader = response.body?.getReader()
+            if (!reader) throw new Error("No response body")
 
-        const decoder = new TextDecoder()
+            const decoder = new TextDecoder()
 
-        let buffer = ""
+            let buffer = ""
 
-        while (true) {
-            const { value, done } = await reader.read()
-            if (done) break
+            while (true) {
+                const { value, done } = await reader.read()
+                if (done || options.signal.aborted) break
 
-            buffer += decoder.decode(value, { stream: true })
+                buffer += decoder.decode(value, { stream: true })
 
-            // NDJSON: one JSON object per line
-            const lines = buffer.split("\n")
+                // NDJSON: one JSON object per line
+                const lines = buffer.split("\n")
 
-            buffer = lines.pop() ?? ""
+                buffer = lines.pop() ?? ""
 
-            for (const line of lines) {
-                if (!line.trim()) continue
-                const parsed = JSON.parse(line)
-                options?.onChunk?.(parsed)
+                for (const line of lines) {
+                    if (!line.trim()) continue
+                    const parsed = JSON.parse(line)
+                    options.onChunk(parsed)
+                }
             }
+        } catch (error) {
+            // handle abort error separately, it is caused by another request
+            if (error instanceof DOMException && error.name === "AbortError") {
+                console.log("Fetch aborted by signal")
+                return
+            }
+
+            console.error("Stream fetch error:", error)
+            throw error
         }
     }
 
