@@ -22,9 +22,10 @@ export interface FilterConfig {
  * derived from SchoolFilterParams to ensure synchronization with backend
  */
 export type ActiveSelections = {
-    [K in keyof NonNullable<SchoolFilterParams> as NonNullable<
-        SchoolFilterParams
-    >[K] extends number[] | null | undefined
+    [K in keyof NonNullable<SchoolFilterParams> as NonNullable<SchoolFilterParams>[K] extends
+        | number[]
+        | null
+        | undefined
         ? K
         : never]: number[]
 }
