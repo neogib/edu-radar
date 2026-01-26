@@ -9,7 +9,6 @@ export default defineNuxtRouteMiddleware((to) => {
     const y = Number(to.query.y)
     const z = Number(to.query.z)
 
-    console.log(x, y, z)
     const validX = !isNaN(x) && x >= -90 && x <= 90
     const validY = !isNaN(y) && y >= -180 && y <= 180
     const validZ =

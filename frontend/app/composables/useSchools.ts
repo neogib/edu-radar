@@ -1,3 +1,4 @@
+import { transition } from "@vueuse/core"
 import type { SzkolaPublicShort } from "~/types/schools"
 
 export const useSchools = () => {
@@ -10,16 +11,17 @@ export const useSchools = () => {
         ).catch((error) => {
             if (error.name === "FetchError") {
                 console.log("Fetch schools aborted by signal in useSchools.ts")
-                return []
+                return [] as SzkolaPublicShort[]
             }
             console.error("Error fetching schools:", error)
+            throw error
         })
         return data
     }
 
     const schoolsGeoJSONFeatures = async (options?: any) => {
         const schools = await fetchSchools(options)
-        return transformSchoolsToFeatures(schools as SzkolaPublicShort[])
+        return transformSchoolsToFeatures(schools)
     }
 
     return { fetchSchools, schoolsGeoJSONFeatures }

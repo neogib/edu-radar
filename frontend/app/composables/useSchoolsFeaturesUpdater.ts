@@ -34,6 +34,7 @@ export const useSchoolsFeaturesUpdater = () => {
             try {
                 // await here so not to send the next batch until this one renders.
                 await source.updateData({ add: featuresBatch }, true)
+                console.log("Updated map with", featuresBatch.length)
             } catch (e) {
                 console.error("Error updating map data", e)
             } finally {
