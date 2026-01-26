@@ -5,21 +5,28 @@ export default defineNuxtRouteMiddleware((to) => {
     // run only on entering /map
     if (to.path !== "/map" && to.path !== "/map/") return
 
-    const hasViewport =
-        typeof to.query.x === "string" &&
-        typeof to.query.y === "string" &&
-        typeof to.query.z === "string"
+    const x = Number(to.query.x)
+    const y = Number(to.query.y)
+    const z = Number(to.query.z)
 
-    if (hasViewport) return
+    console.log(x, y, z)
+    const validX = !isNaN(x) && x >= -90 && x <= 90
+    const validY = !isNaN(y) && y >= -180 && y <= 180
+    const validZ =
+        !isNaN(z) && z >= MAP_CONFIG.minZoom && z <= MAP_CONFIG.maxZoom
+
+    if (validX && validY && validZ) {
+        return // all good
+    }
 
     return navigateTo(
         {
             path: "/map",
             query: {
-                x: MAP_CONFIG.defaultCenter[0],
-                y: MAP_CONFIG.defaultCenter[1],
-                z: MAP_CONFIG.defaultZoom,
                 ...to.query, // preserve filters if any
+                x: validX ? x : MAP_CONFIG.defaultCenter[0],
+                y: validY ? y : MAP_CONFIG.defaultCenter[1],
+                z: validZ ? z : MAP_CONFIG.defaultZoom,
             },
         },
         { replace: true },
