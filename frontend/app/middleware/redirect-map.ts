@@ -16,9 +16,9 @@ export default defineNuxtRouteMiddleware((to) => {
         {
             path: "/map",
             query: {
-                x: MAP_CONFIG.defaultCenter[0].toFixed(6),
-                y: MAP_CONFIG.defaultCenter[1].toFixed(6),
-                z: MAP_CONFIG.defaultZoom.toFixed(2),
+                x: MAP_CONFIG.defaultCenter[0],
+                y: MAP_CONFIG.defaultCenter[1],
+                z: MAP_CONFIG.defaultZoom,
                 ...to.query, // preserve filters if any
             },
         },

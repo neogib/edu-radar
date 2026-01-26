@@ -6,9 +6,9 @@ import type { BoundingBox } from "~/types/boundingBox"
  */
 export const getBoundingBoxFromBounds = (bounds: LngLatBounds): BoundingBox => {
     return {
-        minLng: bounds.getWest(),
-        minLat: bounds.getSouth(),
-        maxLng: bounds.getEast(),
-        maxLat: bounds.getNorth(),
+        minLng: parseFloat(bounds.getWest().toFixed(6)),
+        minLat: parseFloat(bounds.getSouth().toFixed(6)),
+        maxLng: parseFloat(bounds.getEast().toFixed(6)),
+        maxLat: parseFloat(bounds.getNorth().toFixed(6)),
     }
 }
