@@ -1,28 +1,64 @@
 <script setup lang="ts">
-import type { LngLatBoundsLike } from "maplibre-gl"
+import type { MapSourceDataEvent } from "maplibre-gl"
+import { useSchoolGeoJSONSource } from "~/composables/useSchoolGeoJSONSource"
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
 const route = useRoute()
+const [x, y, z] = [
+    Number(route.query.x),
+    Number(route.query.y),
+    Number(route.query.z),
+]
 const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations]
 }>()
 
-const { parseBbox } = useBoundingBox()
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
-const { setupMapEventHandlers, hoveredSchool, updateQueryBboxParam } =
-    useMapInteractions(emit, popupCoordinates)
+const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
+    emit,
+    popupCoordinates,
+)
 
-const bbox = parseBbox((route.query.bbox as string) ?? undefined)
+// for map data loading
+const initialBbox = useInitialBbox()
+const { isUnderZoomThreshold } = useMapState()
+const { startFiltersWatcher, loadSchoolsFromBbox, loadSchoolsStreaming } =
+    useSchoolGeoJSONSource()
 
-const bounds: LngLatBoundsLike | undefined = !route.query.bbox
-    ? undefined
-    : [bbox.minLon, bbox.minLat, bbox.maxLon, bbox.maxLat]
-
-const onMapLoaded = (event: { map: maplibregl.Map }) => {
+const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     const map = event.map
     setupMapEventHandlers(map)
-    updateQueryBboxParam(map.getBounds())
+    startFiltersWatcher()
+
+    // wait for source to be ready
+    // sourcedata event will be fired when schools source loads
+    map.once("sourcedata", async (e: MapSourceDataEvent) => {
+        console.log("Source ready:", e)
+        if (e.sourceId === "schools") {
+            await initializeWithSource(map)
+        }
+    })
+}
+
+const initializeWithSource = async (map: maplibregl.Map) => {
+    if (initialBbox.value) {
+        // when there is an initial bbox, on map load we need to only get schools outside this bbox becaues schools inside bbox are already loaded
+        await loadSchoolsStreaming(initialBbox.value)
+        return
+    } else if (isUnderZoomThreshold.value) {
+        // if under zoom threshold, just load all schools via streaming
+        // no need to load by bbox first
+        await loadSchoolsStreaming()
+        return
+    }
+
+    // no initial bbox, load schools for current map bounds when zoom is greater than threshold
+    const bbox = getBoundingBoxFromBounds(map.getBounds())
+    await loadSchoolsFromBbox(bbox)
+
+    // then load schools outside current bounds via streaming
+    await loadSchoolsStreaming(bbox)
 }
 </script>
 
@@ -30,9 +66,8 @@ const onMapLoaded = (event: { map: maplibregl.Map }) => {
     <MglMap
         map-key="mainMap"
         :map-style="MAP_CONFIG.style"
-        :center="MAP_CONFIG.defaultCenter"
-        :zoom="MAP_CONFIG.defaultZoom"
-        :bounds="bounds"
+        :center="[x, y]"
+        :zoom="z"
         :fade-duration="0"
         :min-zoom="MAP_CONFIG.minZoom"
         :max-zoom="MAP_CONFIG.maxZoom"
