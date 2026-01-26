@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { FiltersOptions, SzkolaPublicShort } from "~/types/schools"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
-import { watchDebounced } from "@vueuse/core"
+import { useDebounceFn, watchDebounced } from "@vueuse/core"
 import type { Map } from "maplibre-gl"
 
-const map = useMap("mainMap")
+const mapInstance = useMap("mainMap")
 
 const { filterData } = await useFilterData()
 console.log("Filter data:", filterData)
@@ -23,10 +23,16 @@ const {
 
 const { loadSchoolsStreaming } = useSchoolGeoJSONSource()
 const { isUnderZoomThreshold } = useMapState()
+const { fetchSchools } = useSchools()
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
 const initialFilterKey = ref("")
+
+// Search state
+const searchQuery = ref(filters.value.q || "")
+const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
+const searchInputFocused = ref(false)
 
 // Get available items (not already selected) for a filter
 const getAvailableItems = (
@@ -66,15 +72,45 @@ const canAddMore = (
     return userSelections.length < numberOfTotalOptions
 }
 
-// Search state
-const searchQuery = ref(filters.value.q || "")
-const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
-const searchInputFocused = ref(false)
+const handlePanelToggle = () => {
+    if (searchInputFocused.value) {
+        searchInputFocused.value = false
+    } else {
+        isFilterPanelOpen.value = !isFilterPanelOpen.value
+    }
+
+    // if opening filters, just set initialFilterKey
+    if (isFilterPanelOpen.value) {
+        initialFilterKey.value = filterKey.value
+        return
+    }
+    console.log(
+        `Panel closed, checking for filter changes..., map loaded ${mapInstance.isLoaded}, map: ${mapInstance.map}`,
+    )
+
+    // panel closed, set addingState to false for all filters
+    filterData.forEach((filter) => {
+        filter.addingState = false
+    })
+    handlePanelSubmit()
+}
 
 const handleFocus = () => {
     searchInputFocused.value = true
+    // if filters were closed, create new initialFilterKey
+    if (!isFilterPanelOpen.value) {
+        initialFilterKey.value = filterKey.value
+        return
+    }
+    // if filters were opened, close them and don't change initialFilterKey
     isFilterPanelOpen.value = false
 }
+
+// const handleBlur = () => {
+//     searchInputFocused.value = false
+//     // fix filterkey after clicking on filters directly from search{}
+//     handleSearchFilterSubmit()
+// }
 
 watchDebounced(
     searchQuery,
@@ -91,7 +127,6 @@ const fetchSuggestions = async (query: string) => {
     }
 
     try {
-        const { fetchSchools } = useSchools()
         // when fetching suggestions, don't include other filters, because it can be confusing for users
         searchSuggestions.value = await fetchSchools({
             query: {
@@ -105,51 +140,52 @@ const fetchSuggestions = async (query: string) => {
     }
 }
 
-const handleFilterPanelToggle = () => {
-    isFilterPanelOpen.value = !isFilterPanelOpen.value
-    if (isFilterPanelOpen.value) {
-        initialFilterKey.value = filterKey.value
-        return
-    }
-    console.log(
-        `Filter panel closed, checking for filter changes..., map loaded ${map.isLoaded}, map: ${map.map}`,
-    )
-
-    // panel closed, set addingState to false for all filters
-    filterData.forEach((filter) => {
-        filter.addingState = false
-    })
-
-    // trigger search if filters changed
-    if (initialFilterKey.value !== filterKey.value && map.isLoaded) {
-        // get all schols with new filters for poland map
-        if (isUnderZoomThreshold.value) {
-            loadSchoolsStreaming()
-            return
-        }
-        // there was live-filtering while panel was open, so just load schools from outside current bounds
-        const loadedMap = map.map as Map
-        const bounds = loadedMap.getBounds()
-        loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
-    }
-}
-
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
+    console.log("Selected school:", school)
+    // trigger search with new query
+    q.value = school.nazwa
     searchQuery.value = school.nazwa
 
+    searchInputFocused.value = false
+
+    // if schools was not within bounds, we need one more request
+    loadSchoolsWithDebounce()
+
     // Fly to school
-    if (map.isLoaded) {
-        const loadedMap = map.map as Map
-        loadedMap.flyTo({
-            center: [
-                school.geolokalizacja_longitude,
-                school.geolokalizacja_latitude,
-            ],
-            zoom: 16,
-        })
-        // trigger search with new query
-        q.value = school.nazwa
+    const map = mapInstance.map as Map
+    map.flyTo({
+        center: [
+            school.geolokalizacja_longitude,
+            school.geolokalizacja_latitude,
+        ],
+        zoom: 16,
+    })
+}
+
+const handlePanelSubmit = () => {
+    // trigger search if filters changed
+    if (initialFilterKey.value === filterKey.value) {
+        return
     }
+    console.log("Loading schools for current bounds...")
+
+    loadSchoolsWithDebounce()
+}
+
+const loadSchoolsWithDebounce = useDebounceFn(() => {
+    loadRestOfSchools()
+}, 100)
+
+const loadRestOfSchools = () => {
+    // get all schols with new filters for poland map
+    if (isUnderZoomThreshold.value) {
+        loadSchoolsStreaming()
+        return
+    }
+    // there was live-filtering while panel was open, so just load schools from outside current bounds
+    const map = mapInstance.map as Map
+    const bounds = map.getBounds()
+    loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
 }
 </script>
 
@@ -167,10 +203,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                     size="md"
                     :ui="{ root: 'w-full' }"
                     minlength="2"
-                    @focus="
-                        handleFocus // collapse filter panel
-                    "
-                    @blur="searchInputFocused = false" />
+                    @focus="handleFocus" />
 
                 <!-- Search Suggestions Dropdown -->
                 <div
@@ -202,7 +235,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                 :color="hasActiveFilters ? 'primary' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
-                @click="handleFilterPanelToggle">
+                @click="handlePanelToggle">
                 <template v-if="totalActiveFilters > 0">
                     <UBadge color="error" class="ml-1">
                         {{ totalActiveFilters }}
@@ -414,7 +447,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
                             size="md"
                             label="Pokaż wyniki"
                             color="primary"
-                            @click="handleFilterPanelToggle" />
+                            @click="handlePanelToggle" />
                     </div>
                 </div>
             </div>
@@ -423,7 +456,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     <div
         v-if="isFilterPanelOpen || searchInputFocused"
         class="fixed inset-0 bg-black opacity-25 md:opacity-15 z-10"
-        @click="handleFilterPanelToggle" />
+        @click="handlePanelToggle" />
 </template>
 
 <style scoped>

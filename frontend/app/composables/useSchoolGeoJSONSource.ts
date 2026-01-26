@@ -1,15 +1,9 @@
-import { watchDebounced } from "@vueuse/core"
+import { useDebounceFn, watchDebounced } from "@vueuse/core"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
 import { GeoJSONSource, type Map } from "maplibre-gl"
 import type { BoundingBox } from "~/types/boundingBox"
 import { useToast } from "#ui/composables/useToast"
-
-export type LoadSchoolsResult =
-    | { status: "success" }
-    | { status: "zoom_too_low"; threshold: number }
-    | { status: "map_not_loaded" }
-    | { status: "aborted" }
 
 export const useSchoolGeoJSONSource = () => {
     // computed filters which update when url changes or user modifies them
@@ -32,50 +26,62 @@ export const useSchoolGeoJSONSource = () => {
     const { isUnderZoomThreshold } = useMapState()
 
     const startFiltersWatcher = () => {
-        watchDebounced(
-            filterKey,
-            async () => {
-                console.log("Filters changed, reloading schools...")
-                toast.clear()
+        watch(filterKey, async () => {
+            // this logic is to prevent only schools from bbox appearing on the map after user chnages filters and immediately closes them
+            // it only happens when zoom is higher than threshold and user changes filters quickly
 
-                const result = await loadSchoolsFromBbox()
-
-                if (result.status === "zoom_too_low") {
-                    toast.add({
-                        title: "Mapa jest zbyt oddalona",
-                        description: `Przybliż mapę do poziomu ${result.threshold}, aby zobaczyć wyniki filtrowania.`,
-                        id: "zoom-threshold-warning", // unique ID to prevent multiples
-                        color: "warning",
-                        icon: "i-mdi-magnify-plus",
-                    })
-                }
-            },
-            { debounce: 300 },
-        )
-    }
-    async function loadSchoolsFromBbox(
-        bbox?: BoundingBox,
-    ): Promise<LoadSchoolsResult> {
-        if (isUnderZoomThreshold.value) {
-            return {
-                status: "zoom_too_low",
-                threshold: MAP_CONFIG.zoomThreshold,
+            toast.clear()
+            if (isUnderZoomThreshold.value) {
+                // if under zoom threshold, no need to abort anything, just show the message
+                toast.add({
+                    title: "Mapa jest zbyt oddalona",
+                    description: `Przybliż mapę do poziomu ${MAP_CONFIG.zoomThreshold}, aby zobaczyć wyniki filtrowania.`,
+                    id: "zoom-threshold-warning", // unique ID to prevent multiples
+                    color: "warning",
+                    icon: "i-mdi-magnify-plus",
+                    duration: 2000,
+                })
+                return
             }
-        }
+            // first abort previous streaming
+            streamingController.value?.abort()
 
+            // then clear the map
+            const map = mapInstance.map as Map
+            const source = map.getSource("schools") as GeoJSONSource
+            if (source) {
+                source.setData({
+                    type: "FeatureCollection",
+                    features: [],
+                })
+            }
+
+            // now we can safely reload schools with debounce
+            // and schools already streamed for new filters won't be interrupted
+            deobounceReload()
+        })
+    }
+    const deobounceReload = useDebounceFn(
+        async () => {
+            console.log("Filters changed, reloading schools...")
+
+            await loadSchoolsFromBbox()
+        },
+        300,
+        { maxWait: 1000 },
+    )
+
+    async function loadSchoolsFromBbox(bbox?: BoundingBox) {
         // abort previous bbox request and create a new controller
         bboxController.value?.abort()
         bboxController.value = new AbortController()
         const signal = bboxController.value.signal
 
-        // bbox load invalidates streaming
-        streamingController.value?.abort()
-
         if (!mapInstance.isLoaded) {
             // initial load
             if (!bbox) {
                 // bbox is required on initial load
-                return { status: "map_not_loaded" }
+                return
             }
 
             // on initial load of the map fetch from default or voivodeship bbox
@@ -90,7 +96,7 @@ export const useSchoolGeoJSONSource = () => {
                 type: "FeatureCollection",
                 features: schools,
             }
-            return { status: "success" }
+            return
         }
 
         const map = mapInstance.map as Map
@@ -108,14 +114,12 @@ export const useSchoolGeoJSONSource = () => {
 
         const source = map.getSource("schools") as GeoJSONSource
         console.log(`source ${source}`)
-        if (source) {
-            source.setData({
-                type: "FeatureCollection",
-                features: schools,
-            })
-        }
-
-        return { status: "success" }
+        await source.updateData(
+            {
+                add: schools,
+            },
+            true,
+        )
     }
 
     async function loadSchoolsStreaming(bbox?: BoundingBox) {
