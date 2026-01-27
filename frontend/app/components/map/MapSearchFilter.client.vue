@@ -14,27 +14,31 @@ const {
     min_score,
     max_score,
     filters,
-    filterKey,
     hasActiveFilters,
     totalActiveFilters,
     resetFilters,
 } = useSchoolFilters()
 
 const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
-const { isUnderZoomThreshold } = useMapState()
 const { fetchSchools } = useSchools()
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
-const initialFilterKey = ref("")
 const filterKeyChanged = ref(false)
 
 // Search state
 const searchQuery = ref(filters.value.q || "")
 const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInputFocused = ref(false)
+const searchInput = useTemplateRef("searchInput")
 
-watch(totalActiveFilters, (newVal, oldVal) => {
+defineShortcuts({
+    "/": () => {
+        searchInput.value?.inputRef?.focus()
+    },
+})
+
+watch(totalActiveFilters, () => {
     filterKeyChanged.value = true
 })
 
@@ -110,10 +114,12 @@ const handleFocus = () => {
 
 const clearSearchQuery = () => {
     searchQuery.value = ""
-    searchSuggestions.value = []
     if (q.value) {
         q.value = ""
     }
+
+    // load rest of schools
+    debouncedLoadRemainingSchools()
 }
 
 const submitQuery = () => {
@@ -142,6 +148,7 @@ const fetchSuggestions = async (query: string) => {
         // when fetching suggestions, don't include other filters, because it can be confusing for users
         searchSuggestions.value = await fetchSchools({
             query: {
+                ...filters.value,
                 q: searchQuery.value,
                 limit: 50, // options are in dropdown, so limit to reasonable number
             },
@@ -153,7 +160,6 @@ const fetchSuggestions = async (query: string) => {
 }
 
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
-    console.log("Selected school:", school)
     // trigger search with new query
     q.value = school.nazwa
     searchQuery.value = school.nazwa
@@ -161,7 +167,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     searchInputFocused.value = false
 
     // if schools was not within bounds, we need one more request
-    loadSchoolsWithDebounce()
+    debouncedLoadRemainingSchools()
 
     // Fly to school
     const map = mapInstance.map as Map
@@ -180,14 +186,9 @@ const handlePanelSubmit = () => {
         return
     }
     filterKeyChanged.value = false
-    console.log("Loading schools for current bounds...")
 
-    loadSchoolsWithDebounce()
-}
-
-const loadSchoolsWithDebounce = useDebounceFn(() => {
     debouncedLoadRemainingSchools()
-}, 100)
+}
 </script>
 
 <template>
@@ -197,19 +198,23 @@ const loadSchoolsWithDebounce = useDebounceFn(() => {
             <form class="relative" @submit.prevent="submitQuery">
                 <UInput
                     v-model="searchQuery"
+                    ref="searchInput"
                     icon="i-mdi-magnify"
                     placeholder="Szukaj szkoły..."
                     size="md"
                     minlength="2"
+                    :ui="{ base: 'pe-13', trailing: 'pe-2' }"
                     @focus="handleFocus">
-                    <template v-if="searchQuery?.length" #trailing>
+                    <template #trailing>
                         <UButton
+                            v-if="searchQuery?.length"
                             color="neutral"
                             variant="link"
                             size="sm"
                             icon="i-lucide-circle-x"
                             aria-label="Clear input"
                             @click="clearSearchQuery" />
+                        <UKbd value="/" />
                     </template>
                 </UInput>
 
