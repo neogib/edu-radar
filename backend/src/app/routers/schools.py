@@ -63,7 +63,7 @@ async def stream_schools(
 
         offset += CHUNK_SIZE
 
-        # 🔴 abort ONLY when client disconnects
+        # abort when client disconnects
         if await request.is_disconnected():
             break
 

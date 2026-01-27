@@ -15,11 +15,6 @@ export const useSchoolGeoJSONSource = () => {
     const updateSchoolsFeatures = useSchoolsFeaturesUpdater()
     const toast = useToast()
 
-    const schoolsSource = ref<GeoJSON.FeatureCollection>({
-        type: "FeatureCollection",
-        features: [],
-    })
-
     // controllers for aborting previous requests
     const { bboxController, streamingController } = useControllers()
 
@@ -27,7 +22,6 @@ export const useSchoolGeoJSONSource = () => {
 
     const startFiltersWatcher = () => {
         watch(filterKey, async () => {
-            console.log("Filters changed, handling update...")
             // this logic is to prevent only schools from bbox appearing on the map after user chnages filters and immediately closes them
             // it only happens when zoom is higher than threshold and user changes filters quickly
 
@@ -72,36 +66,17 @@ export const useSchoolGeoJSONSource = () => {
         { maxWait: 1000 },
     )
 
-    async function loadSchoolsFromBbox(bbox?: BoundingBox) {
+    async function loadSchoolsFromBbox() {
         // abort previous bbox request and create a new controller
         bboxController.value?.abort()
         bboxController.value = new AbortController()
-        const signal = bboxController.value.signal
 
+        // map needs to be loaded
         if (!mapInstance.isLoaded) {
-            // initial load
-            if (!bbox) {
-                // bbox is required on initial load
-                return
-            }
-
-            // on initial load of the map fetch from default or voivodeship bbox
-            const schools = await schoolsGeoJSONFeatures({
-                query: {
-                    ...filters.value,
-                    ...bbox,
-                },
-                signal,
-            })
-            schoolsSource.value = {
-                type: "FeatureCollection",
-                features: schools,
-            }
             return
         }
 
         const map = mapInstance.map as Map
-
         const bounds = map.getBounds()
 
         // fetch schools within current map bounds
@@ -110,11 +85,15 @@ export const useSchoolGeoJSONSource = () => {
                 ...filters.value,
                 ...getBoundingBoxFromBounds(bounds),
             },
-            signal,
+            signal: bboxController.value.signal,
         })
 
+        // no schools retrieved or fetch aborted
+        if (schools.length === 0) {
+            return
+        }
+
         const source = map.getSource("schools") as GeoJSONSource
-        console.log(`source ${source}`)
         await source.updateData(
             {
                 add: schools,
@@ -128,10 +107,6 @@ export const useSchoolGeoJSONSource = () => {
         if (!mapInstance.isLoaded) {
             return
         }
-        console.log(
-            "Checking source in loadSchoolsStreaming",
-            mapInstance.map?.getSource("schools"),
-        )
 
         // abort previous streaming
         streamingController.value?.abort()
@@ -191,7 +166,6 @@ export const useSchoolGeoJSONSource = () => {
     return {
         startFiltersWatcher,
         loadSchoolsFromBbox,
-        schoolsSource,
         loadSchoolsStreaming,
         debouncedLoadRemainingSchools,
     }

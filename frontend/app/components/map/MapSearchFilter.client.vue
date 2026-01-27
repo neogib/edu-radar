@@ -7,7 +7,6 @@ import type { Map } from "maplibre-gl"
 const mapInstance = useMap("mainMap")
 
 const { filterData } = await useFilterData()
-console.log("Filter data:", filterData)
 
 // get filters from route.query
 const {
@@ -36,7 +35,6 @@ const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInputFocused = ref(false)
 
 watch(totalActiveFilters, (newVal, oldVal) => {
-    console.log(`Total active filters changed from ${oldVal} to ${newVal}`)
     filterKeyChanged.value = true
 })
 
@@ -119,7 +117,6 @@ const clearSearchQuery = () => {
 }
 
 const submitQuery = () => {
-    console.log("Submitting search query:", searchQuery.value)
     // trigger search with new query
     q.value = searchQuery.value.trim()
 

@@ -4,7 +4,6 @@ export const useHistoryState = () => {
     const mapInstance = useMap("mainMap")
     const handleHistoryNavigation = () => {
         // only handle naviagtion to map page
-        console.log("handling history navigation", window.location.pathname)
         if (window.location.pathname !== "/map") return
 
         // map needs to be loaded
@@ -31,7 +30,7 @@ export const useHistoryState = () => {
         window.addEventListener("popstate", handleHistoryNavigation)
     })
 
-    onBeforeUnmount(() => {
+    onUnmounted(() => {
         console.log("unmounted mapview")
         window.removeEventListener("popstate", handleHistoryNavigation)
     })

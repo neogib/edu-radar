@@ -4,24 +4,50 @@ import {
     POINT_LAYER_STYLE,
 } from "~/constants/mapLayerStyles"
 import { MAP_CONFIG } from "~/constants/mapConfig"
-const route = useRoute()
 
+const route = useRoute()
 let initialBbox = useInitialBbox()
+const { schoolsGeoJSONFeatures } = useSchools()
+const { filters } = useSchoolFilters()
+const { bboxController } = useControllers()
+
+const schoolsSource = shallowRef<GeoJSON.FeatureCollection>({
+    type: "FeatureCollection",
+    features: [],
+})
 
 // set to default bbox if default map view is used
-// we can't always set bbox because map is not yet loaded
-if (
-    initialBbox.value == null &&
-    Number(route.query.x) === MAP_CONFIG.defaultCenter[0] && // default center already has 6 decimal places
+const shouldUseDefaultBbox = () =>
+    !initialBbox.value &&
+    Number(route.query.x) === MAP_CONFIG.defaultCenter[0] &&
     Number(route.query.y) === MAP_CONFIG.defaultCenter[1] &&
     Number(route.query.z) === MAP_CONFIG.defaultZoom
-) {
+
+const loadSchools = async () => {
+    // load initial schools only when initialBbox exists
+    if (!initialBbox.value) return
+
+    // abort previous bbox request and create a new controller
+    bboxController.value?.abort()
+    bboxController.value = new AbortController()
+
+    const schools = await schoolsGeoJSONFeatures({
+        query: {
+            ...filters.value,
+            ...initialBbox.value!,
+        },
+        signal: bboxController.value.signal,
+    })
+    schoolsSource.value = {
+        type: "FeatureCollection",
+        features: schools,
+    }
+}
+
+if (shouldUseDefaultBbox()) {
     initialBbox.value = MAP_CONFIG.defaultBbox
 }
-const { loadSchoolsFromBbox, schoolsSource } = useSchoolGeoJSONSource()
-console.log("Initial bbox:", initialBbox.value)
-await loadSchoolsFromBbox(initialBbox.value)
-console.log(`number of schools loaded: ${schoolsSource.value.features.length}`)
+await loadSchools()
 </script>
 
 <template>

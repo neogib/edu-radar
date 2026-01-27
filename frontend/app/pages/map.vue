@@ -23,7 +23,6 @@ const handleSidebarClose = () => {
 const initialBbox = useInitialBbox()
 const { bboxController, streamingController } = useControllers()
 onUnmounted(() => {
-    console.log("unmounted map")
     // Reset initialBbox when leaving map page
     initialBbox.value = undefined
     // abort controllers
