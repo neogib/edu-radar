@@ -137,6 +137,9 @@ export const useMapInteractions = (
     // Update bbox in URL
     const updateQueryCenterZoomDebounced = useDebounceFn(
         async (x: number, y: number, zoom: number) => {
+            // only handle naviagtion to map page
+            // sometimes debounced function is called after leaving the page
+            if (window.location.pathname !== "/map") return
             await navigateTo(
                 {
                     query: {

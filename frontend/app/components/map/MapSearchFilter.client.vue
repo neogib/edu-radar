@@ -21,7 +21,7 @@ const {
     resetFilters,
 } = useSchoolFilters()
 
-const { loadSchoolsStreaming } = useSchoolGeoJSONSource()
+const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
 const { isUnderZoomThreshold } = useMapState()
 const { fetchSchools } = useSchools()
 
@@ -189,20 +189,8 @@ const handlePanelSubmit = () => {
 }
 
 const loadSchoolsWithDebounce = useDebounceFn(() => {
-    loadRestOfSchools()
+    debouncedLoadRemainingSchools()
 }, 100)
-
-const loadRestOfSchools = () => {
-    // get all schols with new filters for poland map
-    if (isUnderZoomThreshold.value) {
-        loadSchoolsStreaming()
-        return
-    }
-    // there was live-filtering while panel was open, so just load schools from outside current bounds
-    const map = mapInstance.map as Map
-    const bounds = map.getBounds()
-    loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
-}
 </script>
 
 <template>

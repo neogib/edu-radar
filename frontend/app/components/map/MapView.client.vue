@@ -4,6 +4,7 @@ import { useSchoolGeoJSONSource } from "~/composables/useSchoolGeoJSONSource"
 import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
+useHistoryState()
 const route = useRoute()
 const [x, y, z] = [
     Number(route.query.x),
@@ -45,7 +46,8 @@ const initializeWithSource = async (map: maplibregl.Map) => {
         // when there is an initial bbox, on map load we need to only get schools outside this bbox becaues schools inside bbox are already loaded
         await loadSchoolsStreaming(initialBbox.value)
         return
-    } else if (isUnderZoomThreshold.value) {
+    }
+    if (isUnderZoomThreshold.value) {
         // if under zoom threshold, just load all schools via streaming
         // no need to load by bbox first
         await loadSchoolsStreaming()

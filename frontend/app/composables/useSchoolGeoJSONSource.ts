@@ -27,6 +27,7 @@ export const useSchoolGeoJSONSource = () => {
 
     const startFiltersWatcher = () => {
         watch(filterKey, async () => {
+            console.log("Filters changed, handling update...")
             // this logic is to prevent only schools from bbox appearing on the map after user chnages filters and immediately closes them
             // it only happens when zoom is higher than threshold and user changes filters quickly
 
@@ -168,10 +169,30 @@ export const useSchoolGeoJSONSource = () => {
         await updateSchoolsFeatures(params, signal, source)
     }
 
+    const debouncedLoadRemainingSchools = useDebounceFn(async () => {
+        // map needs to be loaded
+        if (!mapInstance.isLoaded) {
+            return
+        }
+
+        // get all schols with new filters for poland map view
+        // but only if zoomed out beyond threshold
+        if (isUnderZoomThreshold.value) {
+            loadSchoolsStreaming()
+            return
+        }
+
+        // schools in bounds were retrieved already on filterKey change
+        const map = mapInstance.map as Map
+        const bounds = map.getBounds()
+        loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
+    }, 100)
+
     return {
         startFiltersWatcher,
         loadSchoolsFromBbox,
         schoolsSource,
         loadSchoolsStreaming,
+        debouncedLoadRemainingSchools,
     }
 }
