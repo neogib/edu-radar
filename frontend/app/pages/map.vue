@@ -20,10 +20,15 @@ const handleSidebarClose = () => {
     selectedSchool.value = null
 }
 
-// Reset initialBbox when leaving map page
 const initialBbox = useInitialBbox()
+const { bboxController, streamingController } = useControllers()
 onUnmounted(() => {
+    console.log("unmounted map")
+    // Reset initialBbox when leaving map page
     initialBbox.value = undefined
+    // abort controllers
+    bboxController.value?.abort()
+    streamingController.value?.abort()
 })
 </script>
 
