@@ -3,47 +3,7 @@ import {
     CLUSTER_LAYER_STYLE,
     POINT_LAYER_STYLE,
 } from "~/constants/mapLayerStyles"
-import type { SchoolFilterParams, SzkolaPublicShort } from "~/types/schools"
-import { useMap } from "@indoorequal/vue-maplibre-gl"
-import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 import { MAP_CONFIG } from "~/constants/mapConfig"
-import type { BoundingBox } from "~/types/boundingBox"
-
-// filters shared state initialized from route query params
-// const { filters } = useSchoolFilters()
-
-// const schools = shallowRef<SzkolaPublicShort[]>([])
-// const searchSchools = shallowRef<SzkolaPublicShort[]>([])
-// const { calculateBounds } = useMapBounds()
-
-// const isSearchActive = computed(() => {
-//     return !!filters.value.q
-// })
-
-// Auto-fit bounds when GeoJSON data changes
-// const autoFitBounds = async (geoJson: any) => {
-//     const bounds = calculateBounds(geoJson)
-//     if (bounds) {
-//         const map = useMap("mainMap").map
-//         map?.fitBounds(bounds, {
-//             padding: 50,
-//             maxZoom: 14,
-//             animate: true,
-//         })
-//     }
-// }
-
-// Watch for changes in search results and fit bounds
-// watch(
-//     searchGeoJsonSource,
-//     (newGeoJson) => {
-//         if (isSearchActive.value && newGeoJson?.features?.length) {
-//             autoFitBounds(newGeoJson)
-//         }
-//     },
-//     { deep: true },
-// )
-
 const route = useRoute()
 
 let initialBbox = useInitialBbox()
