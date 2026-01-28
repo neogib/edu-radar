@@ -1,5 +1,6 @@
 import { useDebounceFn } from "@vueuse/core"
 import type { Point } from "geojson"
+import type { GeoJSONFeature } from "maplibre-gl"
 import type maplibregl from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import type { MapMouseLayerEvent } from "~/types/map"
@@ -18,10 +19,59 @@ export const useMapInteractions = (
     const { $api } = useNuxtApp()
     const route = useRoute()
 
+    // Track hovered feature IDs for feature-state
+    let hoveredClusterId: number | null = null
+
     const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
 
     const inPoland = (lng: number, lat: number) =>
         lng >= minLon && lng <= maxLon && lat >= minLat && lat <= maxLat
+
+    const setupMapEventHandlers = (map: maplibregl.Map) => {
+        // Map move end to update URL
+        map.on("moveend", () => handleMoveEnd(map))
+
+        // Unclustered point hover and click
+        map.on("mousemove", "unclustered-points", (e) =>
+            handleMouseMove(map, e),
+        )
+        map.on("mouseleave", "unclustered-points", () => handleMouseLeave(map))
+        map.on("click", "unclustered-points", handleClick)
+
+        // Cluster click to zoom in
+        map.on("click", "clusters", (e) => handleClusterClick(map, e))
+
+        // Cluster hover effect
+        map.on("mousemove", "clusters", (e) => {
+            if (e.features && e.features.length > 0) {
+                if (hoveredClusterId !== null) {
+                    map.setFeatureState(
+                        { source: MAP_CONFIG.sourceId, id: hoveredClusterId },
+                        { hover: false },
+                    )
+                }
+                hoveredClusterId = (e.features[0] as GeoJSONFeature)
+                    .id as number
+                map.setFeatureState(
+                    { source: MAP_CONFIG.sourceId, id: hoveredClusterId },
+                    { hover: true },
+                )
+            }
+        })
+        map.on("mouseleave", "clusters", () => {
+            map.getCanvas().style.cursor = ""
+            if (hoveredClusterId !== null) {
+                map.setFeatureState(
+                    { source: MAP_CONFIG.sourceId, id: hoveredClusterId },
+                    { hover: false },
+                )
+                hoveredClusterId = null
+            }
+        })
+        map.on("mouseenter", "clusters", () => {
+            map.getCanvas().style.cursor = "pointer"
+        })
+    }
 
     const handleMoveEnd = (map: maplibregl.Map) => {
         const { lng, lat } = map.getCenter()
@@ -117,22 +167,6 @@ export const useMapInteractions = (
             zoom,
             duration: 150,
         })
-    }
-
-    const setupMapEventHandlers = (map: maplibregl.Map) => {
-        map.on("mousemove", "unclustered-points", (e) =>
-            handleMouseMove(map, e),
-        )
-        map.on("mouseleave", "unclustered-points", () => handleMouseLeave(map))
-        map.on("click", "unclustered-points", handleClick)
-        map.on("click", "clusters", (e) => handleClusterClick(map, e))
-        map.on("mouseenter", "clusters", () => {
-            map.getCanvas().style.cursor = "pointer"
-        })
-        map.on("mouseleave", "clusters", () => {
-            map.getCanvas().style.cursor = ""
-        })
-        map.on("moveend", () => handleMoveEnd(map))
     }
 
     // Update bbox in URL

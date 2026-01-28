@@ -6,7 +6,12 @@ import type {
 
 export const POINT_LAYER_STYLE = {
     paint: {
-        "icon-opacity": 0.75,
+        "icon-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            1,
+            0.7,
+        ],
         "icon-halo-color": "#000000", // black border
         "icon-halo-width": 1, // szerokość w px
         "icon-color": [
@@ -47,7 +52,12 @@ export const POINT_LAYER_STYLE = {
 
 export const CLUSTER_LAYER_STYLE = {
     paint: {
-        "circle-opacity": 0.75,
+        "circle-opacity": [
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            1,
+            0.7,
+        ],
         "circle-stroke-width": 1,
         "circle-stroke-opacity": 0.75,
         "circle-color": [
@@ -67,13 +77,10 @@ export const CLUSTER_LAYER_STYLE = {
             ],
         ] as DataDrivenPropertyValueSpecification<string>,
         "circle-radius": [
-            "step",
-            ["get", "point_count"],
-            20,
-            100,
-            30,
-            750,
-            40,
+            "case",
+            ["boolean", ["feature-state", "hover"], false],
+            ["*", ["step", ["get", "point_count"], 20, 100, 30, 750, 40], 1.1],
+            ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
         ] as DataDrivenPropertyValueSpecification<number>,
     },
     layout: {

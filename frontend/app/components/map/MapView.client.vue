@@ -99,6 +99,7 @@ const initializeWithSource = async (map: maplibregl.Map) => {
             v-if="hoveredSchool"
             :close-button="false"
             :close-on-click="false"
+            :offset="20"
             :coordinates="popupCoordinates">
             <div
                 class="min-w-55 max-w-70 overflow-hidden rounded-xl shadow-2xl">
