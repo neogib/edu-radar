@@ -54,8 +54,7 @@ const scoreColor = computed(() => {
         <!-- Sidebar Content - Scrollable -->
         <div v-if="selectedPoint" class="h-full overflow-y-auto pb-20">
             <!-- School Header Section -->
-            <div
-                class="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-b">
+            <div class="p-4 bg-linear-to-br from-blue-50 to-indigo-50 border-b">
                 <h3 class="text-xl font-bold text-gray-900 mb-3">
                     {{ selectedPoint.nazwa }}
                 </h3>
@@ -93,7 +92,10 @@ const scoreColor = computed(() => {
 
                 <!-- Score Display -->
                 <div
-                    v-if="selectedPoint.score !== null"
+                    v-if="
+                        selectedPoint.score !== null &&
+                        selectedPoint.score !== undefined
+                    "
                     class="bg-white rounded-xl p-4 shadow-sm">
                     <div class="flex items-center justify-between">
                         <div>
@@ -107,7 +109,7 @@ const scoreColor = computed(() => {
                                     :style="{
                                         color: scoreColor,
                                     }">
-                                    {{ Math.round(selectedPoint.score) }}
+                                    {{ selectedPoint.score.toFixed(2) }}
                                 </span>
                                 <span class="text-sm text-gray-500 ml-1"
                                     >/ 100</span

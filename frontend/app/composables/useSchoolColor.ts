@@ -1,6 +1,6 @@
 export const useScoreColor = () => {
-    const getColor = (score: number | null) => {
-        if (score === null) {
+    const getColor = (score: number | null | undefined) => {
+        if (score === null || score === undefined) {
             return "#87CEFA" // Light Blue for null scores
         }
         if (score <= 50) {
