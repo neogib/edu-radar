@@ -7,7 +7,7 @@ const execAsync = promisify(exec)
 
 const API_URL = process.env.NUXT_PUBLIC_API_BASE || "http://localhost:8000"
 const OUTPUT_PATH = "./app/types/api.d.ts"
-const SPEC_PATH = "./openapi.json"
+const SPEC_PATH = "openapi/openapi.json"
 
 async function generate() {
     try {
