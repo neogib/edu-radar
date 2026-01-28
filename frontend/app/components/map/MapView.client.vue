@@ -55,10 +55,10 @@ const initializeWithSource = async (map: maplibregl.Map) => {
     }
 
     // no initial bbox, load schools for current map bounds when zoom is greater than threshold
-    const bbox = getBoundingBoxFromBounds(map.getBounds())
-    await loadSchoolsFromBbox(bbox)
+    await loadSchoolsFromBbox()
 
     // then load schools outside current bounds via streaming
+    const bbox = getBoundingBoxFromBounds(map.getBounds())
     await loadSchoolsStreaming(bbox)
 }
 </script>

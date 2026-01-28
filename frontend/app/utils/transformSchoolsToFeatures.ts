@@ -1,8 +1,8 @@
-import type { SzkolaPublicShort } from "~/types/schools"
+import type { SchoolFeature, SzkolaPublicShort } from "~/types/schools"
 
 export const transformSchoolsToFeatures = (
     schools: SzkolaPublicShort[],
-): GeoJSON.Feature<GeoJSON.Point>[] => {
+): SchoolFeature[] => {
     return schools.map((school) => ({
         type: "Feature",
         properties: {

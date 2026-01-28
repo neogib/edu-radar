@@ -5,7 +5,8 @@ import { MAP_CONFIG } from "~/constants/mapConfig"
 import type { MapMouseLayerEvent } from "~/types/map"
 import type {
     SzkolaPublicWithRelations,
-    SzkolaPublicShortFromGeoJsonFeatures,
+    SchoolFeatureProperties,
+    SchoolFeature,
 } from "~/types/schools"
 
 export const useMapInteractions = (
@@ -13,8 +14,7 @@ export const useMapInteractions = (
     popupCoordinates: Ref<[number, number] | undefined>,
 ) => {
     let currentFeatureCoordinates: string | undefined = undefined
-    const hoveredSchool: Ref<SzkolaPublicShortFromGeoJsonFeatures | null> =
-        ref(null)
+    const hoveredSchool: Ref<SchoolFeatureProperties | null> = ref(null)
     const { $api } = useNuxtApp()
     const route = useRoute()
 
@@ -39,10 +39,10 @@ export const useMapInteractions = (
     }
 
     const handleMouseMove = (map: maplibregl.Map, e: MapMouseLayerEvent) => {
-        const feature_collection = e.features?.[0]
-        if (!feature_collection) return
+        const feature = e.features?.[0] as SchoolFeature | undefined
+        if (!feature) return
 
-        const pointGeometry = feature_collection.geometry as Point
+        const pointGeometry = feature.geometry
         const featureCoordinates = pointGeometry.coordinates.toString()
         if (currentFeatureCoordinates !== featureCoordinates) {
             currentFeatureCoordinates = featureCoordinates
@@ -55,8 +55,7 @@ export const useMapInteractions = (
                 number,
             ]
             // Update the hovered school data
-            hoveredSchool.value =
-                feature_collection.properties as SzkolaPublicShortFromGeoJsonFeatures
+            hoveredSchool.value = feature.properties
 
             // Ensure that if the map is zoomed out such that multiple
             // copies of the feature are visible, the popup appears

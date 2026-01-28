@@ -14,14 +14,6 @@ export type StatusPublicznoprawnyPublic = schemas["StatusPublicznoprawnyPublic"]
 export type KategoriaUczniowPublic = schemas["KategoriaUczniowPublic"]
 export type KsztalcenieZawodowePublic = schemas["KsztalcenieZawodowePublic"]
 
-export type SzkolaPublicShortFromGeoJsonFeatures = Omit<
-    SzkolaPublicShort,
-    "typ" | "status_publicznoprawny"
-> & {
-    typ: string
-    status_publicznoprawny: string
-}
-
 export type WynikE8PublicWithPrzedmiot = schemas["WynikE8PublicWithPrzedmiot"]
 export type WynikEMPublicWithPrzedmiot = schemas["WynikEMPublicWithPrzedmiot"]
 
@@ -34,3 +26,15 @@ export type FiltersOptions =
 
 export type SchoolFilterParams =
     paths["/schools/"]["get"]["parameters"]["query"]
+
+export type SchoolFeatureProperties = {
+    id: number
+    nazwa: string
+    typ: string
+    status: string
+    score: number | null
+}
+export type SchoolFeature = GeoJSON.Feature<
+    GeoJSON.Point,
+    SchoolFeatureProperties
+>

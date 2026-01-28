@@ -1,4 +1,3 @@
-import { transition } from "@vueuse/core"
 import type { SzkolaPublicShort } from "~/types/schools"
 
 export const useSchools = () => {

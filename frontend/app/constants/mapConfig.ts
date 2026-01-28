@@ -32,7 +32,7 @@ export const SCHOOL_ICONS = {
     "Szkoła podstawowa": "square_sdf",
     Przedszkole: "triangle_sdf",
     default: "star_sdf",
-}
+} as const
 
 export const ICON_URLS = [
     triangleIconUrl,
@@ -40,4 +40,4 @@ export const ICON_URLS = [
     squareIconUrl,
     starIconUrl,
     hexagonIconUrl,
-]
+] as const
