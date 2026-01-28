@@ -21,6 +21,14 @@ const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     popupCoordinates,
 )
 
+const statusIcon = computed(() => {
+    if (!hoveredSchool.value) return "i-mdi-shield-check"
+    if (hoveredSchool.value.status === "publiczna") return "i-mdi-earth"
+    if (hoveredSchool.value.status === "niepubliczna")
+        return "i-material-symbols-public-off"
+    return "i-mdi-shield-check"
+})
+
 // for map data loading
 const initialBbox = useInitialBbox()
 const { isUnderZoomThreshold } = useMapState()
@@ -99,7 +107,7 @@ const initializeWithSource = async (map: maplibregl.Map) => {
                     class="bg-linear-to-r from-blue-500 to-indigo-600 px-2 py-1.5">
                     <div class="flex items-center gap-2">
                         <UIcon
-                            name="i-mdi-earth"
+                            :name="statusIcon"
                             class="text-white text-lg shrink-0" />
                         <span class="text-xs text-white font-medium">
                             {{ hoveredSchool.status }}
