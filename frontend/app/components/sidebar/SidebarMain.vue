@@ -17,6 +17,46 @@ const closeSidebar = () => {
     emit("close")
 }
 
+// Swipe gesture handling
+const touchStartX = ref(0)
+const touchEndX = ref(0)
+const isDragging = ref(false)
+const dragOffset = ref(0)
+
+const handleTouchStart = (e: TouchEvent) => {
+    const touch = e.touches[0]
+    if (!touch) return
+    touchStartX.value = touch.clientX
+    isDragging.value = true
+    dragOffset.value = 0
+}
+
+const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging.value) return
+    const touch = e.touches[0]
+    if (!touch) return
+    touchEndX.value = touch.clientX
+    const diff = touchEndX.value - touchStartX.value
+    // Only allow left swipe (negative diff)
+    if (diff < 0) {
+        dragOffset.value = diff
+    }
+}
+
+const handleTouchEnd = () => {
+    if (!isDragging.value) return
+    const swipeDistance = touchEndX.value - touchStartX.value
+    // If swiped left more than 100px, close sidebar
+    if (swipeDistance < -100) {
+        closeSidebar()
+    }
+    // Reset
+    isDragging.value = false
+    dragOffset.value = 0
+    touchStartX.value = 0
+    touchEndX.value = 0
+}
+
 // Helper function to determine if school is public
 const isPublicSchool = (status: string) => {
     return !status.toLowerCase().includes("nie")
@@ -33,10 +73,18 @@ const scoreColor = computed(() => {
 <template>
     <div
         :class="[
-            'fixed top-0 left-0 h-full bg-white shadow-2xl transition-transform duration-300 z-70',
-            'max-w-md min-w-xs  border-r border-gray-200',
-            isOpen ? 'transform translate-x-0' : 'transform -translate-x-full',
-        ]">
+            'fixed top-0 left-0 h-full bg-white shadow-2xl z-70',
+            'max-w-md min-w-xs border-r border-gray-200',
+            isDragging ? '' : 'transition-transform duration-300',
+        ]"
+        :style="{
+            transform: isOpen
+                ? `translateX(${dragOffset}px)`
+                : 'translateX(-100%)',
+        }"
+        @touchstart="handleTouchStart"
+        @touchmove="handleTouchMove"
+        @touchend="handleTouchEnd">
         <!-- Sidebar Header -->
         <div
             class="sticky top-0 bg-white border-b border-gray-200 flex items-center justify-between p-4">
@@ -111,9 +159,6 @@ const scoreColor = computed(() => {
                                     }">
                                     {{ selectedPoint.score.toFixed(2) }}
                                 </span>
-                                <span class="text-sm text-gray-500 ml-1"
-                                    >/ 100</span
-                                >
                             </div>
                         </div>
                     </div>
