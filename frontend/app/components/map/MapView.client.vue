@@ -92,27 +92,38 @@ const initializeWithSource = async (map: maplibregl.Map) => {
             :close-button="false"
             :close-on-click="false"
             :coordinates="popupCoordinates">
-            <!-- Status Publicznoprawny - Top -->
             <div
-                class="bg-linear-to-r rounded-lg from-blue-50 to-indigo-50 px-2 py-1 border-b border-gray-100">
-                <span class="px-2 py-1 text-xs text-blue-800">
-                    {{ hoveredSchool.status }}
-                </span>
-            </div>
-
-            <!-- School Name - Middle -->
-            <div class="px-2 py-2">
-                <h4
-                    class="font-semibold text-xs text-gray-900 leading-tight mb-2">
-                    {{ hoveredSchool.nazwa }}
-                </h4>
-
-                <!-- School Type - Bottom -->
+                class="min-w-55 max-w-70 overflow-hidden rounded-xl shadow-2xl">
+                <!-- Status -->
                 <div
-                    class="bg-gray-50 rounded-lg px-2 py-2 border border-gray-100">
-                    <span class="text-xs text-gray-900 font-semibold">
-                        {{ hoveredSchool.typ }}
-                    </span>
+                    class="bg-linear-to-r from-blue-500 to-indigo-600 px-3 py-2.5">
+                    <div class="flex items-center gap-2">
+                        <UIcon
+                            name="i-mdi-shield-check"
+                            class="text-white text-lg shrink-0" />
+                        <span class="text-xs text-white font-medium">
+                            {{ hoveredSchool.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- School Name -->
+                <div class="bg-white px-3 py-3">
+                    <h4 class="font-semibold text-gray-900 text-xs">
+                        {{ hoveredSchool.nazwa }}
+                    </h4>
+                </div>
+
+                <!-- School Type -->
+                <div class="bg-gray-50 px-3 py-2.5 border-t border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <UIcon
+                            name="i-mdi-school"
+                            class="text-gray-500 text-lg shrink-0" />
+                        <span class="text-xs text-gray-700 font-medium">
+                            {{ hoveredSchool.typ }}
+                        </span>
+                    </div>
                 </div>
             </div>
         </MglPopup>

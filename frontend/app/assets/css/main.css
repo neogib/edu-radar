@@ -1,2 +1,13 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/* MapLibre popup custom styling - remove default padding and background */
+.maplibregl-popup-content {
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.maplibregl-popup-tip {
+    display: none;
+}
