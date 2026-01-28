@@ -53,7 +53,7 @@ await loadSchools()
 <template>
     <!-- Default Source -->
     <MglGeoJsonSource
-        source-id="schools"
+        :source-id="MAP_CONFIG.sourceId"
         :data="schoolsSource"
         :cluster="true"
         :cluster-max-zoom="14"
@@ -67,7 +67,7 @@ await loadSchools()
         }">
         <MglSymbolLayer
             layer-id="unclustered-points"
-            source="schools"
+            :source="MAP_CONFIG.sourceId"
             :filter="['!', ['has', 'point_count']]"
             :paint="POINT_LAYER_STYLE.paint"
             :layout="{
@@ -76,13 +76,13 @@ await loadSchools()
 
         <MglCircleLayer
             layer-id="clusters"
-            source="schools"
+            :source="MAP_CONFIG.sourceId"
             :filter="['has', 'cluster']"
             :paint="CLUSTER_LAYER_STYLE.paint" />
 
         <MglSymbolLayer
             layer-id="cluster-count"
-            source="schools"
+            :source="MAP_CONFIG.sourceId"
             :filter="['has', 'cluster']"
             :layout="{
                 ...CLUSTER_LAYER_STYLE.layout,

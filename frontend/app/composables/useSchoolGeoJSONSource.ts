@@ -10,7 +10,7 @@ export const useSchoolGeoJSONSource = () => {
     const { filters, filterKey } = useSchoolFilters()
     const route = useRoute()
 
-    const mapInstance = useMap("mainMap")
+    const mapInstance = useMap(MAP_CONFIG.mapKey)
     const { schoolsGeoJSONFeatures } = useSchools()
     const updateSchoolsFeatures = useSchoolsFeaturesUpdater()
     const toast = useToast()
@@ -43,7 +43,7 @@ export const useSchoolGeoJSONSource = () => {
 
             // then clear the map
             const map = mapInstance.map as Map
-            const source = map.getSource("schools") as GeoJSONSource
+            const source = map.getSource(MAP_CONFIG.sourceId) as GeoJSONSource
             if (source) {
                 source.setData({
                     type: "FeatureCollection",
@@ -93,7 +93,7 @@ export const useSchoolGeoJSONSource = () => {
             return
         }
 
-        const source = map.getSource("schools") as GeoJSONSource
+        const source = map.getSource(MAP_CONFIG.sourceId) as GeoJSONSource
         await source.updateData(
             {
                 add: schools,
@@ -114,7 +114,7 @@ export const useSchoolGeoJSONSource = () => {
         const signal = streamingController.value.signal
 
         const map = mapInstance.map as Map
-        const source = map.getSource("schools") as GeoJSONSource
+        const source = map.getSource(MAP_CONFIG.sourceId) as GeoJSONSource
 
         const { x, y, z, ...otherParams } = route.query
         const params = new URLSearchParams()
@@ -144,7 +144,7 @@ export const useSchoolGeoJSONSource = () => {
         await updateSchoolsFeatures(params, signal, source)
     }
 
-    const debouncedLoadRemainingSchools = useDebounceFn(async () => {
+    const loadRemainingSchools = async () => {
         // map needs to be loaded
         if (!mapInstance.isLoaded) {
             return
@@ -153,7 +153,7 @@ export const useSchoolGeoJSONSource = () => {
         // get all schols with new filters for poland map view
         // but only if zoomed out beyond threshold
         if (isUnderZoomThreshold.value) {
-            loadSchoolsStreaming()
+            await loadSchoolsStreaming()
             return
         }
 

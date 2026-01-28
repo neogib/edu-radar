@@ -106,7 +106,9 @@ export const useMapInteractions = (
             return
 
         const clusterId = firstFeature.properties.cluster_id
-        const source = map.getSource("schools") as maplibregl.GeoJSONSource
+        const source = map.getSource(
+            MAP_CONFIG.sourceId,
+        ) as maplibregl.GeoJSONSource
         const zoom = await source.getClusterExpansionZoom(clusterId)
         map.easeTo({
             center: (firstFeature.geometry as Point).coordinates as [

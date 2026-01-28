@@ -1,7 +1,8 @@
 import { useMap } from "@indoorequal/vue-maplibre-gl"
+import { MAP_CONFIG } from "~/constants/mapConfig"
 export const useHistoryState = () => {
     const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
-    const mapInstance = useMap("mainMap")
+    const mapInstance = useMap(MAP_CONFIG.mapKey)
     const handleHistoryNavigation = () => {
         // only handle naviagtion to map page
         if (window.location.pathname !== "/map") return
@@ -31,7 +32,6 @@ export const useHistoryState = () => {
     })
 
     onUnmounted(() => {
-        console.log("unmounted mapview")
         window.removeEventListener("popstate", handleHistoryNavigation)
     })
 }

@@ -22,6 +22,8 @@ export const MAP_CONFIG = {
     maxZoom: 19,
     minZoom: 5,
     zoomThreshold: 8,
+    mapKey: "mainMap",
+    sourceId: "schools",
 }
 
 export const SCHOOL_ICONS = {

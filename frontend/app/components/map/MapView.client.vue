@@ -35,7 +35,7 @@ const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     // wait for source to be ready
     // sourcedata event will be fired when schools source loads
     map.once("sourcedata", async (e: MapSourceDataEvent) => {
-        if (e.sourceId === "schools") {
+        if (e.sourceId === MAP_CONFIG.sourceId) {
             await initializeWithSource(map)
         }
     })
@@ -65,7 +65,7 @@ const initializeWithSource = async (map: maplibregl.Map) => {
 
 <template>
     <MglMap
-        map-key="mainMap"
+        :map-key="MAP_CONFIG.mapKey"
         :map-style="MAP_CONFIG.style"
         :center="[x, y]"
         :zoom="z"

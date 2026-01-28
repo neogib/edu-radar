@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { FiltersOptions, SzkolaPublicShort } from "~/types/schools"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
-import { useDebounceFn, watchDebounced } from "@vueuse/core"
-import type { Map } from "maplibre-gl"
+import { watchDebounced } from "@vueuse/core"
+import { GeoJSONSource, type Map } from "maplibre-gl"
+import { MAP_CONFIG } from "~/constants/mapConfig"
 
-const mapInstance = useMap("mainMap")
+const mapInstance = useMap(MAP_CONFIG.mapKey)
 
 const { filterData } = await useFilterData()
 
