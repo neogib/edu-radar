@@ -18,43 +18,49 @@ const closeSidebar = () => {
 }
 
 // Swipe gesture handling
-const touchStartX = ref(0)
-const touchEndX = ref(0)
+const pointerStartX = ref(0)
+const pointerEndX = ref(0)
 const isDragging = ref(false)
 const dragOffset = ref(0)
 
-const handleTouchStart = (e: TouchEvent) => {
-    const touch = e.touches[0]
-    if (!touch) return
-    touchStartX.value = touch.clientX
+const handlePointerDown = (e: PointerEvent) => {
+    if (!e.isPrimary) return
+
+    pointerStartX.value = e.clientX
     isDragging.value = true
     dragOffset.value = 0
+
+    // Capture pointer for smooth tracking
+    ;(e.target as HTMLElement)?.setPointerCapture(e.pointerId)
 }
 
-const handleTouchMove = (e: TouchEvent) => {
-    if (!isDragging.value) return
-    const touch = e.touches[0]
-    if (!touch) return
-    touchEndX.value = touch.clientX
-    const diff = touchEndX.value - touchStartX.value
-    // Only allow left swipe (negative diff)
+const handlePointerMove = (e: PointerEvent) => {
+    if (!isDragging.value || !e.isPrimary) return
+
+    pointerEndX.value = e.clientX
+    const diff = pointerEndX.value - pointerStartX.value
+
+    // only allow left swipe (negative diff)
     if (diff < 0) {
         dragOffset.value = diff
     }
 }
 
-const handleTouchEnd = () => {
-    if (!isDragging.value) return
-    const swipeDistance = touchEndX.value - touchStartX.value
-    // If swiped left more than 100px, close sidebar
+const handlePointerUp = (e: PointerEvent) => {
+    if (!isDragging.value || !e.isPrimary) return
+
+    const swipeDistance = pointerEndX.value - pointerStartX.value
+
+    // if swiped left more than 100px, close sidebar
     if (swipeDistance < -100) {
         closeSidebar()
     }
-    // Reset
+
+    // reset
     isDragging.value = false
     dragOffset.value = 0
-    touchStartX.value = 0
-    touchEndX.value = 0
+    pointerStartX.value = 0
+    pointerEndX.value = 0
 }
 
 // Helper function to determine if school is public
@@ -82,9 +88,10 @@ const scoreColor = computed(() => {
                 ? `translateX(${dragOffset}px)`
                 : 'translateX(-100%)',
         }"
-        @touchstart="handleTouchStart"
-        @touchmove="handleTouchMove"
-        @touchend="handleTouchEnd">
+        @pointerdown="handlePointerDown"
+        @pointermove="handlePointerMove"
+        @pointerup="handlePointerUp"
+        @pointercancel="handlePointerUp">
         <!-- Sidebar Header -->
         <div
             class="sticky top-0 bg-white border-b border-gray-200 flex items-center justify-between p-4">
