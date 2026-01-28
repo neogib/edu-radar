@@ -1,4 +1,4 @@
-import { useDebounceFn, watchDebounced } from "@vueuse/core"
+import { useDebounceFn } from "@vueuse/core"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
 import { GeoJSONSource, type Map } from "maplibre-gl"
@@ -144,7 +144,7 @@ export const useSchoolGeoJSONSource = () => {
         await updateSchoolsFeatures(params, signal, source)
     }
 
-    const loadRemainingSchools = async () => {
+    const debouncedLoadRemainingSchools = useDebounceFn(async () => {
         // map needs to be loaded
         if (!mapInstance.isLoaded) {
             return
@@ -160,7 +160,8 @@ export const useSchoolGeoJSONSource = () => {
         // schools in bounds were retrieved already on filterKey change
         const map = mapInstance.map as Map
         const bounds = map.getBounds()
-        loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
+
+        await loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
     }, 100)
 
     return {
