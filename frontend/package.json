@@ -13,7 +13,8 @@
         "lint:fix": "eslint --fix .",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "api:generate": "node ./scripts/generate-api-types.js"
+        "api:generate": "node scripts/generate-api-types.js",
+        "map:translate": "node scripts/translate-map-style.js"
     },
     "dependencies": {
         "@indoorequal/vue-maplibre-gl": "^8.4.2",

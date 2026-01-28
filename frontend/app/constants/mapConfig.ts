@@ -7,7 +7,7 @@ import type { BoundingBox } from "~/types/boundingBox"
 
 // constants/mapConfig.ts
 export const MAP_CONFIG = {
-    style: "https://tiles.openfreemap.org/styles/liberty",
+    style: "/map-styles/style-pl.json",
     polandBounds: [14, 48.95, 24.2, 55] as [number, number, number, number],
     polandCenter: [19.355417, 52.191111] as [number, number],
     defaultBbox: {
