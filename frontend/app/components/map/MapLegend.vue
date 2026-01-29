@@ -31,7 +31,7 @@ const items = [
 </script>
 
 <template>
-    <div class="absolute bottom-6 left-4 z-40">
+    <div class="absolute bottom-6 left-4 z-10">
         <UDropdownMenu
             :items="items"
             :content="{ side: 'top', align: 'start' }"
