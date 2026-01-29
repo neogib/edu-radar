@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { MapSourceDataEvent } from "maplibre-gl"
 import { useSchoolGeoJSONSource } from "~/composables/useSchoolGeoJSONSource"
-import { MAP_CONFIG, ICON_URLS } from "~/constants/mapConfig"
+import { MAP_CONFIG, ICONS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
 useHistoryState()
@@ -100,10 +100,10 @@ const initializeWithSource = async (map: maplibregl.Map) => {
             :trackUserLocation="true" />
 
         <MglImage
-            v-for="iconUrl in ICON_URLS"
-            :id="`${iconUrl.split('/').pop()?.split('.').shift()}_sdf`"
-            :key="iconUrl"
-            :url="iconUrl"
+            v-for="(url, id) in ICONS"
+            :key="id"
+            :id="id"
+            :url="url"
             :options="{ sdf: true }" />
 
         <MglPopup

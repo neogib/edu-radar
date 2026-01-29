@@ -6,12 +6,7 @@ import type {
 
 export const POINT_LAYER_STYLE = {
     paint: {
-        "icon-opacity": [
-            "case",
-            ["boolean", ["feature-state", "hover"], false],
-            1,
-            0.7,
-        ],
+        "icon-opacity": 0.7,
         "icon-halo-color": "#000000", // black border
         "icon-halo-width": 1, // szerokość w px
         "icon-color": [
@@ -57,7 +52,7 @@ export const CLUSTER_LAYER_STYLE = {
             ["boolean", ["feature-state", "hover"], false],
             1,
             0.7,
-        ],
+        ] as DataDrivenPropertyValueSpecification<number>,
         "circle-stroke-width": 1,
         "circle-stroke-opacity": 0.75,
         "circle-color": [

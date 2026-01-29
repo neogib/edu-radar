@@ -27,17 +27,17 @@ export const MAP_CONFIG = {
 }
 
 export const SCHOOL_ICONS = {
-    Technikum: "hexagon_sdf",
-    "Liceum ogólnokształcące": "diamond_sdf",
-    "Szkoła podstawowa": "square_sdf",
-    Przedszkole: "triangle_sdf",
-    default: "star_sdf",
+    Technikum: "hexagon",
+    "Liceum ogólnokształcące": "diamond",
+    "Szkoła podstawowa": "square",
+    Przedszkole: "triangle",
+    default: "star",
 } as const
 
-export const ICON_URLS = [
-    triangleIconUrl,
-    diamondIconUrl,
-    squareIconUrl,
-    starIconUrl,
-    hexagonIconUrl,
-] as const
+export const ICONS = {
+    triangle: triangleIconUrl,
+    diamond: diamondIconUrl,
+    square: squareIconUrl,
+    star: starIconUrl,
+    hexagon: hexagonIconUrl,
+} as const
