@@ -33,12 +33,40 @@ const searchQuery = ref(filters.value.q || "")
 const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInputFocused = ref(false)
 const searchInput = useTemplateRef("searchInput")
+const isSearchExpanded = ref(false)
 
 defineShortcuts({
     "/": () => {
-        searchInput.value?.inputRef?.focus()
+        expandSearch()
     },
 })
+
+const expandSearch = () => {
+    isSearchExpanded.value = true
+    nextTick(() => {
+        searchInput.value?.inputRef?.focus()
+    })
+}
+
+const collapseSearch = () => {
+    // Only collapse if search is empty
+    if (searchQuery.value.trim().length === 0) {
+        isSearchExpanded.value = false
+        searchInputFocused.value = false
+    }
+}
+
+const handleSearchButtonClick = () => {
+    if (!isSearchExpanded.value) {
+        console.log("Expanding search")
+        expandSearch()
+        return
+    }
+
+    // when search is expanded, submit query
+    submitQuery()
+    handlePanelClose()
+}
 
 watch(totalActiveFilters, () => {
     filterKeyChanged.value = true
@@ -98,6 +126,7 @@ const handlePanelToggle = () => {
 const handlePanelClose = () => {
     isFilterPanelOpen.value = false
     searchInputFocused.value = false
+    collapseSearch()
 
     // panel closed, set addingState to false for all filters
     filterData.forEach((filter) => {
@@ -118,18 +147,33 @@ const clearSearchQuery = () => {
     searchQuery.value = ""
     if (q.value) {
         q.value = ""
+        // no query -> key changed
+        filterKeyChanged.value = true
     }
 
-    // no query -> key changed
-    filterKeyChanged.value = true
-
-    // for getting rest of schools
-    handlePanelClose()
+    // focus input
+    searchInput.value?.inputRef?.focus()
 }
 
 const submitQuery = () => {
+    const trimmedQuery = searchQuery.value.trim()
+
+    // Validate length
+    if (trimmedQuery.length > 0 && trimmedQuery.length < 2) {
+        useToast().add({
+            title: "Zapytanie za krótkie",
+            description: "Wpisz co najmniej 2 znaki",
+            color: "info",
+            icon: "i-mdi-alert",
+        })
+        return
+    }
+
     // trigger search with new query
-    q.value = searchQuery.value.trim()
+    if (trimmedQuery.length === 0 && !q.value) {
+        return
+    }
+    q.value = trimmedQuery
 
     // note the change
     filterKeyChanged.value = true
@@ -217,14 +261,27 @@ const handlePanelSubmit = () => {
     <div class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[95%]">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
-            <form class="relative" @submit.prevent="submitQuery">
+            <!-- Search Icon Button (always visible, changes function based on state) -->
+            <UButton
+                icon="i-mdi-magnify"
+                color="neutral"
+                variant="outline"
+                size="md"
+                :aria-label="isSearchExpanded ? 'Submit search' : 'Open search'"
+                @click.stop="handleSearchButtonClick" />
+
+            <!-- Search Input (visible when expanded) -->
+            <form
+                v-if="isSearchExpanded"
+                class="relative w-lg"
+                @submit.prevent="submitQuery">
                 <UInput
                     v-model="searchQuery"
                     ref="searchInput"
-                    icon="i-mdi-magnify"
                     placeholder="Szukaj szkoły..."
                     size="md"
                     minlength="2"
+                    class="w-full"
                     :ui="{ base: 'pe-13', trailing: 'pe-2' }"
                     @focus="handleFocus">
                     <template #trailing>
@@ -270,7 +327,7 @@ const handlePanelSubmit = () => {
                 :color="hasActiveFilters ? 'primary' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
-                @click="handlePanelToggle">
+                @click.stop="handlePanelToggle">
                 <template v-if="totalActiveFilters > 0">
                     <UBadge color="error" class="ml-1">
                         {{ totalActiveFilters }}
@@ -488,10 +545,15 @@ const handlePanelSubmit = () => {
             </div>
         </Transition>
     </div>
+    <!-- Overlay for closing search input/filter panel when clicking outside -->
     <div
         v-if="isFilterPanelOpen || searchInputFocused"
-        class="fixed inset-0 bg-black opacity-25 md:opacity-15 z-10"
+        class="fixed inset-0 bg-black opacity-25 z-10"
         @click="handlePanelClose" />
+    <!-- <div -->
+    <!--     v-if="isSearchExpanded && !searchInputFocused && !isFilterPanelOpen" -->
+    <!--     class="fixed inset-0 z-10" -->
+    <!--     @click="collapseSearch" /> -->
 </template>
 
 <style scoped>
@@ -508,5 +570,21 @@ const handlePanelSubmit = () => {
 .slide-fade-enter-from,
 .slide-fade-leave-to {
     @apply opacity-0 -translate-y-2.5;
+}
+
+form {
+    @apply transition-all duration-300 ease-out;
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 </style>
