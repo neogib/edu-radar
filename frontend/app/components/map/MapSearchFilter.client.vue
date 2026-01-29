@@ -273,7 +273,7 @@ const handlePanelSubmit = () => {
             <!-- Search Input (visible when expanded) -->
             <form
                 v-if="isSearchExpanded"
-                class="relative w-lg"
+                class="w-md"
                 @submit.prevent="submitQuery">
                 <UInput
                     v-model="searchQuery"
@@ -296,29 +296,6 @@ const handlePanelSubmit = () => {
                         <UKbd value="/" />
                     </template>
                 </UInput>
-
-                <!-- Search Suggestions Dropdown -->
-                <div
-                    v-if="searchInputFocused && searchSuggestions.length > 0"
-                    class="absolute top-full mt-1 w-full bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-50 py-1">
-                    <div
-                        v-for="school in searchSuggestions"
-                        :key="school.id"
-                        class="px-3 py-2 hover:bg-gray-50 cursor-pointer flex flex-col gap-0.5"
-                        @click="handleSelectSuggestion(school)">
-                        <span class="text-sm font-medium text-gray-900">{{
-                            school.nazwa
-                        }}</span>
-                        <div
-                            class="flex gap-2 items-center text-xs text-gray-500">
-                            <span>{{
-                                school.status_publicznoprawny.nazwa
-                            }}</span>
-                            <span>•</span>
-                            <span>{{ school.typ.nazwa }}</span>
-                        </div>
-                    </div>
-                </div>
             </form>
 
             <!-- Filter Toggle Button -->
@@ -334,6 +311,26 @@ const handlePanelSubmit = () => {
                     </UBadge>
                 </template>
             </UButton>
+
+            <!-- Search Suggestions Dropdown (spans full width) -->
+            <div
+                v-if="searchInputFocused && searchSuggestions.length > 0"
+                class="absolute top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-50 py-1">
+                <div
+                    v-for="school in searchSuggestions"
+                    :key="school.id"
+                    class="px-3 py-2 hover:bg-gray-50 cursor-pointer flex flex-col gap-0.5"
+                    @click="handleSelectSuggestion(school)">
+                    <span class="text-sm font-medium text-gray-900">{{
+                        school.nazwa
+                    }}</span>
+                    <div class="flex gap-2 items-center text-xs text-gray-500">
+                        <span>{{ school.status_publicznoprawny.nazwa }}</span>
+                        <span>•</span>
+                        <span>{{ school.typ.nazwa }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Filter Panel -->
