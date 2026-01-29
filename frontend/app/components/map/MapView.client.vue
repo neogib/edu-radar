@@ -40,13 +40,24 @@ const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     setupMapEventHandlers(map)
     startFiltersWatcher()
 
-    // wait for source to be ready
-    // sourcedata event will be fired when schools source loads
-    map.once("sourcedata", async (e: MapSourceDataEvent) => {
-        if (e.sourceId === MAP_CONFIG.sourceId) {
-            await initializeWithSource(map)
-        }
-    })
+    // wait for source to be ready and fully loaded
+    const onSourceData = async (e: MapSourceDataEvent) => {
+        if (e.sourceId !== MAP_CONFIG.sourceId) return
+        if (!e.isSourceLoaded) return
+
+        map.off("sourcedata", onSourceData)
+        console.log("Schools source is ready")
+        await initializeWithSource(map)
+    }
+
+    if (
+        map.getSource(MAP_CONFIG.sourceId) &&
+        map.isSourceLoaded(MAP_CONFIG.sourceId)
+    ) {
+        await initializeWithSource(map)
+    } else {
+        map.on("sourcedata", onSourceData)
+    }
 }
 
 const initializeWithSource = async (map: maplibregl.Map) => {
