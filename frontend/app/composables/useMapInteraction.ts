@@ -77,15 +77,7 @@ export const useMapInteractions = (
         const { lng, lat } = map.getCenter()
         const zoom = map.getZoom()
 
-        // if user moved outside of Poland bounds, reset to default center
-        if (!inPoland(lng, lat)) {
-            map.easeTo({
-                center: MAP_CONFIG.polandCenter,
-            })
-            return
-        }
-
-        updateQueryCenterZoomDebounced(lng, lat, zoom)
+        updateQueryCenterZoomDebounced(lng, lat, zoom, map)
     }
 
     const handleMouseMove = (map: maplibregl.Map, e: MapMouseLayerEvent) => {
@@ -171,7 +163,14 @@ export const useMapInteractions = (
 
     // Update bbox in URL
     const updateQueryCenterZoomDebounced = useDebounceFn(
-        async (x: number, y: number, zoom: number) => {
+        async (x: number, y: number, zoom: number, map: maplibregl.Map) => {
+            // if user moved outside of Poland bounds, reset to default center
+            if (!inPoland(x, y)) {
+                map.easeTo({
+                    center: MAP_CONFIG.polandCenter,
+                })
+                return
+            }
             // only handle naviagtion to map page
             // sometimes debounced function is called after leaving the page
             if (window.location.pathname !== "/map") return
