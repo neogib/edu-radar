@@ -34,6 +34,8 @@ const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInputFocused = ref(false)
 const searchInput = useTemplateRef("searchInput")
 const isSearchExpanded = ref(false)
+const highlightedIndex = ref(-1)
+const suggestionsListRef = useTemplateRef("suggestionsList")
 
 defineShortcuts({
     "/": () => {
@@ -190,6 +192,7 @@ watchDebounced(
 const fetchSuggestions = async (query: string) => {
     if (!query || query.length < 2) {
         searchSuggestions.value = []
+        highlightedIndex.value = -1
         return
     }
 
@@ -202,9 +205,11 @@ const fetchSuggestions = async (query: string) => {
                 limit: 50, // options are in dropdown, so limit to reasonable number
             },
         })
+        highlightedIndex.value = -1
     } catch (e) {
         console.error("Error fetching suggestions", e)
         searchSuggestions.value = []
+        highlightedIndex.value = -1
     }
 }
 
@@ -214,6 +219,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     searchQuery.value = school.nazwa
 
     searchInputFocused.value = false
+    highlightedIndex.value = -1
 
     // if schools was not within bounds, we need one more request
     debouncedLoadRemainingSchools()
@@ -227,6 +233,51 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
         ],
         zoom: 16,
     })
+}
+
+const scrollToSelected = () => {
+    nextTick(() => {
+        if (!suggestionsListRef.value || highlightedIndex.value < 0) return
+
+        const selectedElement = suggestionsListRef.value.children[
+            highlightedIndex.value
+        ] as HTMLElement
+        if (selectedElement) {
+            selectedElement.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+            })
+        }
+    })
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (!searchInputFocused.value || searchSuggestions.value.length === 0) {
+        return
+    }
+
+    if (e.key === "ArrowDown") {
+        e.preventDefault()
+        highlightedIndex.value =
+            (highlightedIndex.value + 1) % searchSuggestions.value.length
+        scrollToSelected()
+    } else if (e.key === "ArrowUp") {
+        e.preventDefault()
+        highlightedIndex.value =
+            (highlightedIndex.value - 1 + searchSuggestions.value.length) %
+            searchSuggestions.value.length
+        scrollToSelected()
+    } else if (e.key === "Enter" && highlightedIndex.value >= 0) {
+        e.preventDefault()
+        handleSelectSuggestion(
+            searchSuggestions.value[
+                highlightedIndex.value
+            ] as SzkolaPublicShort,
+        )
+    } else if (e.key === "Escape") {
+        searchInputFocused.value = false
+        highlightedIndex.value = -1
+    }
 }
 
 const handlePanelSubmit = () => {
@@ -283,7 +334,8 @@ const handlePanelSubmit = () => {
                     minlength="2"
                     class="w-full"
                     :ui="{ base: 'pe-13', trailing: 'pe-2' }"
-                    @focus="handleFocus">
+                    @focus="handleFocus"
+                    @keydown="handleKeyDown">
                     <template #trailing>
                         <UButton
                             v-if="searchQuery?.length"
@@ -301,12 +353,12 @@ const handlePanelSubmit = () => {
             <!-- Filter Toggle Button -->
             <UButton
                 :icon="isFilterPanelOpen ? 'i-mdi-filter-off' : 'i-mdi-filter'"
-                :color="hasActiveFilters ? 'primary' : 'neutral'"
+                :color="hasActiveFilters ? 'info' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
                 @click.stop="handlePanelToggle">
                 <template v-if="totalActiveFilters > 0">
-                    <UBadge color="error" class="ml-1">
+                    <UBadge color="warning" class="ml-1">
                         {{ totalActiveFilters }}
                     </UBadge>
                 </template>
@@ -315,20 +367,43 @@ const handlePanelSubmit = () => {
             <!-- Search Suggestions Dropdown (spans full width) -->
             <div
                 v-if="searchInputFocused && searchSuggestions.length > 0"
-                class="absolute top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 max-h-60 overflow-y-auto z-50 py-1">
-                <div
-                    v-for="school in searchSuggestions"
-                    :key="school.id"
-                    class="px-3 py-2 hover:bg-gray-50 cursor-pointer flex flex-col gap-0.5"
-                    @click="handleSelectSuggestion(school)">
-                    <span class="text-sm font-medium text-gray-900">{{
-                        school.nazwa
-                    }}</span>
-                    <div class="flex gap-2 items-center text-xs text-gray-500">
-                        <span>{{ school.status_publicznoprawny.nazwa }}</span>
-                        <span>•</span>
-                        <span>{{ school.typ.nazwa }}</span>
+                class="absolute top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1">
+                <div ref="suggestionsList" class="max-h-60 overflow-y-auto">
+                    <div
+                        v-for="(school, index) in searchSuggestions"
+                        :key="school.id"
+                        :class="[
+                            'px-3 py-2 cursor-pointer flex flex-col gap-0.5 transition-colors',
+                            highlightedIndex === index
+                                ? 'bg-blue-50'
+                                : 'hover:bg-gray-50',
+                        ]"
+                        @click="handleSelectSuggestion(school)"
+                        @mouseenter="highlightedIndex = index">
+                        <span class="text-sm font-medium text-gray-900">{{
+                            school.nazwa
+                        }}</span>
+                        <div
+                            class="flex gap-2 items-center text-xs text-gray-500">
+                            <span>{{
+                                school.status_publicznoprawny.nazwa
+                            }}</span>
+                            <span>•</span>
+                            <span>{{ school.typ.nazwa }}</span>
+                        </div>
                     </div>
+                </div>
+                <div
+                    class="px-3 py-2 bg-white border-t border-gray-100 flex items-center gap-3 text-xs text-gray-500">
+                    <span class="flex items-center gap-1">
+                        <UIcon name="i-mdi-arrow-up" class="size-3.5" />
+                        <UIcon name="i-mdi-arrow-down" class="size-3.5" />
+                        Nawiguj
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <UIcon name="i-mdi-keyboard-return" class="size-3.5" />
+                        Wybierz
+                    </span>
                 </div>
             </div>
         </div>
