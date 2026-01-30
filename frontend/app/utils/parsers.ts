@@ -6,7 +6,6 @@ export const parseArrayOfIds = (
         .filter((i): i is string => i !== null)
         .map(Number)
         .filter((n) => Number.isFinite(n) && n > 0)
-        .sort((a, b) => a - b)
     return arr.length ? arr : undefined
 }
 
