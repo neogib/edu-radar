@@ -1,5 +1,6 @@
 import type { ActiveSelections, FilterConfig } from "~/types/filters"
 import type { FiltersOptions, FiltersResponse } from "~/types/schools"
+import { mainSchoolTypes } from "~/constants/schoolTypes"
 
 export const useFilterData = async () => {
     const { $api } = useNuxtApp()
@@ -8,6 +9,17 @@ export const useFilterData = async () => {
     // Use $api instead of useApi to ensure data is fetched and available directly
     // This avoids potential issues with useFetch/useApi reactivity when used inside an async composable
     const filterOptions = await $api<FiltersResponse>("/filters/")
+
+    // Reorder school_types to place priority types first
+    const reorderedSchoolTypes = [
+        ...filterOptions.school_types.filter((st) =>
+            mainSchoolTypes.includes(st.nazwa),
+        ),
+        ...filterOptions.school_types.filter(
+            (st) => !mainSchoolTypes.includes(st.nazwa),
+        ),
+    ]
+    console.log("Reordered School Types:", reorderedSchoolTypes)
 
     const createFilterData = (
         key: keyof ActiveSelections,
@@ -32,7 +44,7 @@ export const useFilterData = async () => {
             type,
             "Rodzaj szkoły",
             "Wybierz typ szkoły...",
-            filterOptions.school_types || [],
+            reorderedSchoolTypes,
         ),
         createFilterData(
             "status",
