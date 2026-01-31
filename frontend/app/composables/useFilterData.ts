@@ -19,7 +19,6 @@ export const useFilterData = async () => {
             (st) => !mainSchoolTypes.includes(st.nazwa),
         ),
     ]
-    console.log("Reordered School Types:", reorderedSchoolTypes)
 
     const createFilterData = (
         key: keyof ActiveSelections,

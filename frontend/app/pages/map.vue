@@ -40,7 +40,10 @@ onUnmounted(() => {
             :is-open="isSidebarOpen"
             :selected-point="selectedSchool"
             @close="handleSidebarClose" />
-        <MapSearchFilter v-if="!isSidebarOpen" />
+
+        <div v-show="!isSidebarOpen">
+            <MapSearchFilter />
+        </div>
 
         <!-- MapView taking full remaining space -->
         <MapView @point-clicked="handlePointClick" />

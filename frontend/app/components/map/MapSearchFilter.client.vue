@@ -33,7 +33,7 @@ const searchQuery = ref(filters.value.q || "")
 const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInputFocused = ref(false)
 const searchInput = useTemplateRef("searchInput")
-const isSearchExpanded = ref(false)
+const isSearchExpanded = ref(searchQuery.value.length > 0 ? true : false)
 const highlightedIndex = ref(-1)
 const suggestionsListRef = useTemplateRef("suggestionsList")
 
