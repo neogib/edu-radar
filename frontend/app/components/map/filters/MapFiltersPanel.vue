@@ -6,7 +6,7 @@ defineEmits<{
     close: []
 }>()
 
-const filterData = defineModel<MultiFilter[]>()
+const multiSelectFilters = defineModel<MultiFilter[]>()
 
 const { min_score, max_score, hasActiveFilters, resetFilters } =
     useSchoolFilters()
@@ -58,18 +58,17 @@ const canAddMore = (
             <!-- Dynamic Filter Selects -->
             <div class="flex flex-wrap gap-4">
                 <div
-                    v-for="filtersData in filterData"
-                    :key="filtersData.key"
+                    v-for="filter in multiSelectFilters"
+                    :key="filter.key"
                     class="flex flex-col gap-2 min-w-50 flex-1 max-w-75">
                     <label class="text-xs font-medium text-neutral-600">
-                        {{ filtersData.label }}
+                        {{ filter.label }}
                     </label>
 
                     <!-- Existing selections -->
                     <div
-                        v-for="(selection, index) in filtersData.queryParam ??
-                        []"
-                        :key="`${filtersData.key}-${index}`"
+                        v-for="(selection, index) in filter.selected ?? []"
+                        :key="`${filter.key}-${index}`"
                         class="flex gap-2 items-center">
                         <USelectMenu
                             :virtualize="{
@@ -79,8 +78,8 @@ const canAddMore = (
                             :model-value="selection"
                             :items="
                                 getAvailableItems(
-                                    filtersData.options,
-                                    filtersData.queryParam,
+                                    filter.options,
+                                    filter.selected,
                                     index,
                                 )
                             "
@@ -98,11 +97,9 @@ const canAddMore = (
                             class="flex-1 min-w-0"
                             @update:model-value="
                                 (val: number) => {
-                                    const current = [
-                                        ...(filtersData.queryParam ?? []),
-                                    ]
+                                    const current = [...(filter.selected ?? [])]
                                     current[index] = val
-                                    filtersData.queryParam = current
+                                    filter.selected = current
                                 }
                             " />
                         <UButton
@@ -113,16 +110,16 @@ const canAddMore = (
                             @click="
                                 () => {
                                     const current = [
-                                        ...(filtersData.queryParam as number[]),
+                                        ...(filter.selected as number[]),
                                     ]
                                     current.splice(index, 1)
-                                    filtersData.queryParam = current
+                                    filter.selected = current
                                 }
                             " />
                     </div>
 
                     <div
-                        v-if="filtersData.addingState"
+                        v-if="filter.addingState"
                         class="flex gap-2 items-center">
                         <USelectMenu
                             :virtualize="{
@@ -131,8 +128,8 @@ const canAddMore = (
                             }"
                             :items="
                                 getAvailableItems(
-                                    filtersData.options,
-                                    filtersData.queryParam,
+                                    filter.options,
+                                    filter.selected,
                                 )
                             "
                             :search-input="{
@@ -152,12 +149,10 @@ const canAddMore = (
                             class="flex-1 min-w-0"
                             @update:model-value="
                                 (val) => {
-                                    const current = [
-                                        ...(filtersData.queryParam ?? []),
-                                    ]
+                                    const current = [...(filter.selected ?? [])]
                                     current.push(val)
-                                    filtersData.queryParam = current
-                                    filtersData.addingState = false
+                                    filter.selected = current
+                                    filter.addingState = false
                                 }
                             " />
                         <UButton
@@ -165,29 +160,25 @@ const canAddMore = (
                             color="neutral"
                             variant="ghost"
                             size="xs"
-                            @click="filtersData.addingState = false" />
+                            @click="filter.addingState = false" />
                     </div>
                     <!-- Add button -->
                     <UButton
                         v-if="
-                            !filtersData.addingState &&
-                            canAddMore(
-                                filtersData.options,
-                                filtersData.queryParam,
-                            )
+                            !filter.addingState &&
+                            canAddMore(filter.options, filter.selected)
                         "
                         icon="i-mdi-plus"
                         :label="
-                            !filtersData.queryParam ||
-                            filtersData.queryParam.length === 0
-                                ? filtersData.placeholder
+                            !filter.selected || filter.selected.length === 0
+                                ? filter.placeholder
                                 : 'Dodaj kolejny'
                         "
                         color="neutral"
                         variant="ghost"
                         size="sm"
                         class="w-full"
-                        @click="filtersData.addingState = true" />
+                        @click="filter.addingState = true" />
                 </div>
             </div>
 

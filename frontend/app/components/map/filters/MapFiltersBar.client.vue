@@ -5,7 +5,7 @@ import { MAP_CONFIG } from "~/constants/mapConfig"
 
 const mapInstance = useMap(MAP_CONFIG.mapKey)
 
-const { filterData } = await useFilterData()
+const { multiSelectFilters } = await useFilterData()
 const { isUnderZoomThreshold } = useMapState()
 
 // get filters from route.query
@@ -44,7 +44,7 @@ const handlePanelClose = () => {
     searchRef.value?.collapseSearch()
 
     // panel closed, set addingState to false for all filters
-    filterData.forEach((filter) => {
+    multiSelectFilters.forEach((filter) => {
         filter.addingState = false
     })
 
@@ -107,7 +107,7 @@ const handlePanelSubmit = () => {
         <Transition name="slide-fade">
             <MapFiltersPanel
                 v-if="isFilterPanelOpen"
-                v-model="filterData"
+                v-model="multiSelectFilters"
                 @close="handlePanelClose" />
         </Transition>
     </div>

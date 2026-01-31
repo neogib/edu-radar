@@ -22,14 +22,14 @@ export const useFilterData = async () => {
 
     const createMultiSelectFilters = (
         key: keyof ActiveSelections,
-        queryParam: Ref<number[] | undefined>,
+        selected: Ref<number[] | undefined>,
         label: string,
         placeholder: string,
         options: FiltersOptions,
     ): MultiFilterRef => {
         return {
             key,
-            queryParam,
+            selected,
             label,
             placeholder,
             options,
@@ -69,6 +69,6 @@ export const useFilterData = async () => {
     ])
 
     return {
-        filterData: multiSelectFilters,
+        multiSelectFilters,
     }
 }

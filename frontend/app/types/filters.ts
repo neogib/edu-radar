@@ -19,14 +19,14 @@ interface MultiFilterBase {
  * Filter configuration with Ref for composables (two-way binding)
  */
 export interface MultiFilterRef extends MultiFilterBase {
-    queryParam: Ref<number[] | undefined>
+    selected: Ref<number[] | undefined>
 }
 
 /**
  * Filter configuration with plain values for components
  */
 export interface MultiFilter extends MultiFilterBase {
-    queryParam: number[] | undefined
+    selected: number[] | undefined
 }
 
 /**
