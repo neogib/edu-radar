@@ -42,7 +42,7 @@ onUnmounted(() => {
             @close="handleSidebarClose" />
 
         <div v-show="!isSidebarOpen">
-            <MapSearchFilter />
+            <MapFiltersBar />
         </div>
 
         <!-- MapView taking full remaining space -->
