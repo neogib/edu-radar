@@ -1,4 +1,4 @@
-import type { ActiveSelections, FilterConfig } from "~/types/filters"
+import type { ActiveSelections, MultiFilterRef } from "~/types/filters"
 import type { FiltersOptions, FiltersResponse } from "~/types/schools"
 import { mainSchoolTypes } from "~/constants/schoolTypes"
 
@@ -20,13 +20,13 @@ export const useFilterData = async () => {
         ),
     ]
 
-    const createFilterData = (
+    const createMultiSelectFilters = (
         key: keyof ActiveSelections,
         queryParam: Ref<number[] | undefined>,
         label: string,
         placeholder: string,
         options: FiltersOptions,
-    ): FilterConfig => {
+    ): MultiFilterRef => {
         return {
             key,
             queryParam,
@@ -37,29 +37,29 @@ export const useFilterData = async () => {
         }
     }
 
-    const filterData = reactive<FilterConfig[]>([
-        createFilterData(
+    const multiSelectFilters = reactive<MultiFilterRef[]>([
+        createMultiSelectFilters(
             "type",
             type,
             "Rodzaj szkoły",
             "Wybierz typ szkoły...",
             reorderedSchoolTypes,
         ),
-        createFilterData(
+        createMultiSelectFilters(
             "status",
             status,
             "Publiczna / niepubliczna",
             "Wybierz status...",
             filterOptions.public_statuses || [],
         ),
-        createFilterData(
+        createMultiSelectFilters(
             "category",
             category,
             "Wiek uczniów",
             "Wybierz kategorię...",
             filterOptions.student_categories || [],
         ),
-        createFilterData(
+        createMultiSelectFilters(
             "career",
             career,
             "Kierunki zawodowe",
@@ -69,6 +69,6 @@ export const useFilterData = async () => {
     ])
 
     return {
-        filterData,
+        filterData: multiSelectFilters,
     }
 }

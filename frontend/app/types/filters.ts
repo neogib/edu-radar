@@ -5,16 +5,28 @@ export type FiltersParamsWihtoutBbox = Omit<
     "min_lng" | "min_lat" | "max_lng" | "max_lat" | "limit"
 >
 /**
- * Filter configuration for a single filter group
- * Used to make the filter system scalable
+ * Base filter configuration
  */
-export interface FilterConfig {
+interface MultiFilterBase {
     key: keyof ActiveSelections
-    queryParam: Ref<number[] | undefined>
     label: string
     placeholder: string
     options: FiltersOptions
     addingState: boolean
+}
+
+/**
+ * Filter configuration with Ref for composables (two-way binding)
+ */
+export interface MultiFilterRef extends MultiFilterBase {
+    queryParam: Ref<number[] | undefined>
+}
+
+/**
+ * Filter configuration with plain values for components
+ */
+export interface MultiFilter extends MultiFilterBase {
+    queryParam: number[] | undefined
 }
 
 /**
