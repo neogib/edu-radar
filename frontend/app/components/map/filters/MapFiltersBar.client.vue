@@ -105,10 +105,11 @@ const handlePanelSubmit = () => {
 
         <!-- Filter Panel -->
         <Transition name="slide-fade">
-            <MapFiltersPanel
-                v-if="isFilterPanelOpen"
-                v-model="multiSelectFilters"
-                @close="handlePanelClose" />
+            <div v-show="isFilterPanelOpen">
+                <MapFiltersPanel
+                    v-model="multiSelectFilters"
+                    @close="handlePanelClose" />
+            </div>
         </Transition>
     </div>
     <!-- Overlay for closing search input/filter panel when clicking outside -->
@@ -122,31 +123,15 @@ const handlePanelSubmit = () => {
 @reference "tailwindcss";
 
 .slide-fade-enter-active {
-    @apply transition-all duration-200 ease-out;
+    @apply transition-all duration-300 ease-out;
 }
 
 .slide-fade-leave-active {
-    @apply transition-all duration-150 ease-in;
+    @apply transition-all duration-300 ease-in;
 }
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
-    @apply opacity-0 -translate-y-2.5;
-}
-
-form {
-    @apply transition-all duration-300 ease-out;
-    animation: slideIn 0.3s ease-out forwards;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    @apply opacity-0 -translate-y-20;
 }
 </style>

@@ -116,6 +116,9 @@ const fetchSuggestions = async (query: string) => {
 
 const submitQuery = () => {
     const trimmedQuery = searchQuery.value.trim()
+    // check if query changed
+    if (trimmedQuery === q.value || (trimmedQuery.length === 0 && !q.value))
+        return
 
     // Validate length
     if (trimmedQuery.length > 0 && trimmedQuery.length < 2) {
@@ -129,9 +132,6 @@ const submitQuery = () => {
     }
 
     // trigger search with new query
-    if (trimmedQuery.length === 0 && !q.value) {
-        return
-    }
     q.value = trimmedQuery
 
     // note the change
@@ -226,7 +226,7 @@ defineExpose({
         @click.stop="handleSearchButtonClick" />
 
     <!-- Search Input (visible when expanded) -->
-    <form v-if="isSearchExpanded" class="w-md" @submit.prevent="submitQuery">
+    <form v-show="isSearchExpanded" class="w-md" @submit.prevent="submitQuery">
         <UInput
             :autofocus="true"
             v-model="searchQuery"
@@ -254,7 +254,7 @@ defineExpose({
 
     <!-- Search Suggestions Dropdown (spans full width) -->
     <div
-        v-if="isSearchFocused && searchSuggestions.length > 0"
+        v-show="isSearchFocused && searchSuggestions.length > 0"
         class="absolute top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1">
         <div ref="suggestionsList" class="max-h-60 overflow-y-auto">
             <div
@@ -292,3 +292,23 @@ defineExpose({
         </div>
     </div>
 </template>
+
+<style scoped>
+@reference "tailwindcss";
+
+form {
+    @apply transition-all duration-300 ease-out;
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+</style>
