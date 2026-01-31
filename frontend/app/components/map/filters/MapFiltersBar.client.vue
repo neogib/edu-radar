@@ -9,7 +9,7 @@ const { filterData } = await useFilterData()
 const { isUnderZoomThreshold } = useMapState()
 
 // get filters from route.query
-const { filters, hasActiveFilters, totalActiveFilters } = useSchoolFilters()
+const { hasActiveFilters, totalActiveFilters } = useSchoolFilters()
 
 const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
 
@@ -17,18 +17,8 @@ const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
 const isFilterPanelOpen = ref(false)
 const filterKeyChanged = ref(false)
 
-// Search state
-const searchQuery = ref(filters.value.q || "")
-const searchInputFocused = ref(false)
-const isSearchExpanded = ref(false)
-
-const collapseSearch = () => {
-    // Only collapse if search is empty
-    if (searchQuery.value.trim().length === 0) {
-        isSearchExpanded.value = false
-        searchInputFocused.value = false
-    }
-}
+// Search interactions
+const searchRef = useTemplateRef("searchRef")
 
 watch(totalActiveFilters, () => {
     filterKeyChanged.value = true
@@ -38,9 +28,10 @@ const handlePanelToggle = () => {
     isFilterPanelOpen.value = !isFilterPanelOpen.value
 
     // set search focus to false to hide suggestions
-    searchInputFocused.value = false
+    searchRef.value?.blur()
 
     if (isFilterPanelOpen.value) {
+        searchRef.value?.collapseSearch()
         return
     }
 
@@ -49,8 +40,8 @@ const handlePanelToggle = () => {
 
 const handlePanelClose = () => {
     isFilterPanelOpen.value = false
-    searchInputFocused.value = false
-    collapseSearch()
+    searchRef.value?.blur()
+    searchRef.value?.collapseSearch()
 
     // panel closed, set addingState to false for all filters
     filterData.forEach((filter) => {
@@ -93,9 +84,7 @@ const handlePanelSubmit = () => {
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
             <MapFiltersSearch
-                v-model:searchQuery="searchQuery"
-                v-model:searchInputFocused="searchInputFocused"
-                v-model:isSearchExpanded="isSearchExpanded"
+                ref="searchRef"
                 @panel-close="handlePanelClose"
                 @filter-key-changed="filterKeyChanged = true"
                 @filter-panel-closed="isFilterPanelOpen = false" />
@@ -124,7 +113,7 @@ const handlePanelSubmit = () => {
     </div>
     <!-- Overlay for closing search input/filter panel when clicking outside -->
     <div
-        v-if="isFilterPanelOpen || searchInputFocused"
+        v-if="isFilterPanelOpen || searchRef?.isSearchFocused"
         class="fixed inset-0 bg-black opacity-25 z-10"
         @click="handlePanelClose" />
 </template>

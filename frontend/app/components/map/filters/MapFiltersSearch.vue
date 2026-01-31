@@ -14,21 +14,25 @@ const mapInstance = useMap(MAP_CONFIG.mapKey)
 
 const { q, filters } = useSchoolFilters()
 const { fetchSchools } = useSchools()
-const suggestionsListRef = useTemplateRef("suggestionsList")
 const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
 
 // Search state
-const searchQuery = defineModel<string>("searchQuery", { required: true })
-const searchInputFocused = defineModel<boolean>("searchInputFocused", {
-    required: true,
-})
-console.log("searchInputFocused:", searchInputFocused.value)
-const isSearchExpanded = defineModel<Boolean>("isSearchExpanded", {
-    required: true,
-})
+const searchQuery = ref(q.value || "")
+const isSearchFocused = ref(false)
+const isSearchExpanded = ref(!!q.value)
 const searchSuggestions = shallowRef<SzkolaPublicShort[]>([])
 const searchInput = useTemplateRef("searchInput")
 const highlightedIndex = ref(-1)
+const suggestionsListRef = useTemplateRef("suggestionsList")
+
+watch(q, (newQ) => {
+    if (newQ !== searchQuery.value) {
+        searchQuery.value = newQ || ""
+    }
+    if (newQ && !isSearchExpanded.value) {
+        isSearchExpanded.value = true
+    }
+})
 
 defineShortcuts({
     "/": () => {
@@ -38,24 +42,28 @@ defineShortcuts({
 
 const expandSearch = () => {
     isSearchExpanded.value = true
-    nextTick(() => {
-        searchInput.value?.inputRef.focus()
-    })
+}
+
+const collapseSearch = () => {
+    // Only collapse if search is empty
+    if (searchQuery.value.trim().length === 0) {
+        isSearchExpanded.value = false
+        isSearchFocused.value = false
+    }
 }
 
 const handleSearchButtonClick = () => {
     if (!isSearchExpanded.value) {
-        console.log("Expanding search")
         expandSearch()
-        return
+    } else {
+        // when search is expanded, submit query
+        submitQuery()
+        emit("panelClose")
     }
-
-    // when search is expanded, submit query
-    submitQuery()
-    emit("panelClose")
 }
+
 const handleFocus = () => {
-    searchInputFocused.value = true
+    isSearchFocused.value = true
 
     // if filters were opened, close them
     emit("filterPanelClosed")
@@ -71,7 +79,7 @@ const clearSearchQuery = () => {
     }
 
     // focus input
-    searchInput.value?.inputRef.focus()
+    searchInput.value?.inputRef?.focus()
 }
 
 watchDebounced(
@@ -135,7 +143,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     q.value = school.nazwa
     searchQuery.value = school.nazwa
 
-    searchInputFocused.value = false
+    isSearchFocused.value = false
     highlightedIndex.value = -1
 
     // if schools was not within bounds, we need one more request
@@ -169,7 +177,7 @@ const scrollToSelected = () => {
 }
 
 const handleKeyDown = (e: KeyboardEvent) => {
-    if (!searchInputFocused.value || searchSuggestions.value.length === 0) {
+    if (!isSearchFocused.value || searchSuggestions.value.length === 0) {
         return
     }
 
@@ -192,10 +200,20 @@ const handleKeyDown = (e: KeyboardEvent) => {
             ] as SzkolaPublicShort,
         )
     } else if (e.key === "Escape") {
-        searchInputFocused.value = false
+        isSearchFocused.value = false
         highlightedIndex.value = -1
     }
 }
+
+const blur = () => {
+    isSearchFocused.value = false
+}
+
+defineExpose({
+    collapseSearch,
+    blur,
+    isSearchFocused,
+})
 </script>
 <template>
     <!-- Search Icon Button (always visible, changes function based on state) -->
@@ -210,6 +228,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     <!-- Search Input (visible when expanded) -->
     <form v-if="isSearchExpanded" class="w-md" @submit.prevent="submitQuery">
         <UInput
+            :autofocus="true"
             v-model="searchQuery"
             ref="searchInput"
             placeholder="Szukaj szkoły..."
@@ -235,7 +254,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
 
     <!-- Search Suggestions Dropdown (spans full width) -->
     <div
-        v-if="searchInputFocused && searchSuggestions.length > 0"
+        v-if="isSearchFocused && searchSuggestions.length > 0"
         class="absolute top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1">
         <div ref="suggestionsList" class="max-h-60 overflow-y-auto">
             <div
