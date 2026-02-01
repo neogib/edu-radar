@@ -28,7 +28,7 @@ target_metadata = SQLModel.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-settings = Settings()
+settings = Settings()  # pyright: ignore[reportCallIssue]
 config.set_main_option("sqlalchemy.url", settings.get_connection_string())
 
 
