@@ -13,11 +13,11 @@ class SchoolFieldExclusions:
     KSZTALCENIE_ZAWODOWE: str = "ksztalcenie_zawodowe"
     KATEGORIA_UCZNIOW: str = "kategoria_uczniow"
 
-    ALL: ClassVar[list[str]] = [
+    ALL: ClassVar[set[str]] = {
         TYP,
         ETAPY_EDUKACJI,
         MIEJSCOWOSC,
         ULICA,
         KSZTALCENIE_ZAWODOWE,
         KATEGORIA_UCZNIOW,
-    ]
+    }

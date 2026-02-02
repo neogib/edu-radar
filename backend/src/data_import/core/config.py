@@ -6,7 +6,7 @@ from src.app.models.exam_results import WynikE8, WynikEM
 
 
 class APISettings:
-    API_SCHOOLS_URL: str = "https://api-rspo.men.gov.pl/api/placowki/"
+    API_SCHOOLS_URL: str = "https://api-rspo.men.gov.pl/api/placowki/?zlikwidowana=true"
     HEADERS: ClassVar[dict[str, str]] = {"accept": "application/ld+json"}
     START_PAGE: int = 1
     PAGE_LIMIT: int | None = None  # the last page to fetch, if None there is no limit
@@ -21,7 +21,7 @@ class RetrySettings:
 
 class TIMEOUT:
     CONNECT: int = 30
-    READ: int = 60
+    READ: int = 90
 
 
 class ShifterSettings:

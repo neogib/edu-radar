@@ -11,6 +11,17 @@ from src.data_import.score.scorer import Scorer
 logger = logging.getLogger(__name__)
 
 
+def main():
+    configure_logging()
+
+    logger.info("📥 Starting segmented schools data import...")
+    api_importer()
+    excel_importer()
+
+    logger.info("📊 Starting score calculation...")
+    update_scoring()
+
+
 def configure_logging():
     file_handler = logging.FileHandler(LOGS_DIR / "data_import.log")
     stream_handler = logging.StreamHandler()
@@ -108,17 +119,6 @@ def update_scoring():
             scorer.calculate_scores()
 
     logger.info("🎉 Score calculation completed")
-
-
-def main():
-    configure_logging()
-
-    logger.info("📥 Starting segmented schools data import...")
-    api_importer()
-    excel_importer()
-
-    logger.info("📊 Starting score calculation...")
-    update_scoring()
 
 
 if __name__ == "__main__":
