@@ -206,27 +206,29 @@ export interface components {
         };
         /** SzkolaPublicShort */
         SzkolaPublicShort: {
-            /** Numer Rspo */
-            numer_rspo: number;
             /** Nazwa */
             nazwa: string;
             /** Id */
             id: number;
-            /** Geolokalizacja Latitude */
-            geolokalizacja_latitude: number;
-            /** Geolokalizacja Longitude */
-            geolokalizacja_longitude: number;
-            /** Score */
-            score: number | null;
-            typ: components["schemas"]["TypSzkolyPublic"];
-            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Wynik */
+            wynik: number | null;
+            /** Typ */
+            typ: string;
+            /** Status */
+            status: string;
         };
         /** SzkolaPublicWithRelations */
         SzkolaPublicWithRelations: {
-            /** Numer Rspo */
-            numer_rspo: number;
             /** Nazwa */
             nazwa: string;
+            /** Numer Rspo */
+            numer_rspo: number;
+            /** Nazwa Skrocona */
+            nazwa_skrocona?: string | null;
             /** Nip */
             nip?: string | null;
             /** Regon */
@@ -249,12 +251,10 @@ export interface components {
             email?: string | null;
             /** Strona Internetowa */
             strona_internetowa?: string | null;
-            /** Geolokalizacja Latitude */
-            geolokalizacja_latitude: number;
-            /** Geolokalizacja Longitude */
-            geolokalizacja_longitude: number;
-            /** Score */
-            score?: number | null;
+            /** Geom */
+            geom: unknown;
+            /** Wynik */
+            wynik?: number | null;
             /** Typ Id */
             typ_id?: number | null;
             /** Status Publicznoprawny Id */
@@ -267,10 +267,7 @@ export interface components {
             ulica_id?: number | null;
             /** Id */
             id: number;
-            /**
-             * Etapy Edukacji
-             * @default []
-             */
+            /** Etapy Edukacji */
             etapy_edukacji: components["schemas"]["EtapEdukacjiPublic"][];
             typ: components["schemas"]["TypSzkolyPublic"];
             status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];

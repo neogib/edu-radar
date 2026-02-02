@@ -922,10 +922,6 @@
       },
       "SzkolaPublicShort": {
         "properties": {
-          "numer_rspo": {
-            "type": "integer",
-            "title": "Numer Rspo"
-          },
           "nazwa": {
             "type": "string",
             "title": "Nazwa"
@@ -934,15 +930,15 @@
             "type": "integer",
             "title": "Id"
           },
-          "geolokalizacja_latitude": {
+          "latitude": {
             "type": "number",
-            "title": "Geolokalizacja Latitude"
+            "title": "Latitude"
           },
-          "geolokalizacja_longitude": {
+          "longitude": {
             "type": "number",
-            "title": "Geolokalizacja Longitude"
+            "title": "Longitude"
           },
-          "score": {
+          "wynik": {
             "anyOf": [
               {
                 "type": "number"
@@ -951,37 +947,49 @@
                 "type": "null"
               }
             ],
-            "title": "Score"
+            "title": "Wynik"
           },
           "typ": {
-            "$ref": "#/components/schemas/TypSzkolyPublic"
+            "type": "string",
+            "title": "Typ"
           },
-          "status_publicznoprawny": {
-            "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
+          "status": {
+            "type": "string",
+            "title": "Status"
           }
         },
         "type": "object",
         "required": [
-          "numer_rspo",
           "nazwa",
           "id",
-          "geolokalizacja_latitude",
-          "geolokalizacja_longitude",
-          "score",
+          "latitude",
+          "longitude",
+          "wynik",
           "typ",
-          "status_publicznoprawny"
+          "status"
         ],
         "title": "SzkolaPublicShort"
       },
       "SzkolaPublicWithRelations": {
         "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
           "numer_rspo": {
             "type": "integer",
             "title": "Numer Rspo"
           },
-          "nazwa": {
-            "type": "string",
-            "title": "Nazwa"
+          "nazwa_skrocona": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nazwa Skrocona"
           },
           "nip": {
             "anyOf": [
@@ -1091,15 +1099,10 @@
             ],
             "title": "Strona Internetowa"
           },
-          "geolokalizacja_latitude": {
-            "type": "number",
-            "title": "Geolokalizacja Latitude"
+          "geom": {
+            "title": "Geom"
           },
-          "geolokalizacja_longitude": {
-            "type": "number",
-            "title": "Geolokalizacja Longitude"
-          },
-          "score": {
+          "wynik": {
             "anyOf": [
               {
                 "type": "number",
@@ -1110,7 +1113,7 @@
                 "type": "null"
               }
             ],
-            "title": "Score"
+            "title": "Wynik"
           },
           "typ_id": {
             "anyOf": [
@@ -1176,8 +1179,7 @@
               "$ref": "#/components/schemas/EtapEdukacjiPublic"
             },
             "type": "array",
-            "title": "Etapy Edukacji",
-            "default": []
+            "title": "Etapy Edukacji"
           },
           "typ": {
             "$ref": "#/components/schemas/TypSzkolyPublic"
@@ -1225,13 +1227,13 @@
         },
         "type": "object",
         "required": [
-          "numer_rspo",
           "nazwa",
+          "numer_rspo",
           "regon",
           "kod_pocztowy",
-          "geolokalizacja_latitude",
-          "geolokalizacja_longitude",
+          "geom",
           "id",
+          "etapy_edukacji",
           "typ",
           "status_publicznoprawny",
           "kategoria_uczniow",
