@@ -2,7 +2,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import col, exists, func, select
 from sqlmodel.sql.expression import SelectOfScalar
 
-from src.app.models.filters import FilterParams
+from src.app.schemas.filters import FilterParams
 from src.app.models.schools import Szkola, SzkolaKsztalcenieZawodoweLink
 
 

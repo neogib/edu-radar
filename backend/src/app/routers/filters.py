@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from sqlmodel import select
 
-from src.app.models.filters import FILTER_MODELS, FiltersResponse
+from src.app.schemas.filters import FILTER_MODELS, FiltersResponse
 from src.dependencies import SessionDep
 
 router = APIRouter(

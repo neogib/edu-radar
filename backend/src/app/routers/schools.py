@@ -9,7 +9,7 @@ from src.app.models.exam_results import (
     WynikE8PublicWithPrzedmiot,  # noqa: F401
     WynikEMPublicWithPrzedmiot,  # noqa: F401
 )
-from src.app.models.filters import FilterParams
+from src.app.schemas.filters import FilterParams
 from src.app.models.schools import (
     Szkola,
     SzkolaPublicShort,

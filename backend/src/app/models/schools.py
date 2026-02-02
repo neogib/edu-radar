@@ -4,7 +4,6 @@ from geoalchemy2 import Geometry
 from sqlmodel import (
     Column,
     Field,
-    Index,  # pyright: ignore[reportUnknownVariableType]
     Relationship,
     SQLModel,
 )
