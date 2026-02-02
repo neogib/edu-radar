@@ -59,7 +59,12 @@ class FilterParams(BaseModel):
 
     @model_validator(mode="after")
     def validate_bbox(self) -> Self:
-        present = [self.min_lng, self.min_lat, self.max_lng, self.max_lat]
+        present = [
+            self.min_lng is not None,
+            self.min_lat is not None,
+            self.max_lng is not None,
+            self.max_lat is not None,
+        ]
         if any(present) and not all(present):
             raise ValueError("All bbox parameters must be provided together")
         if all(present):

@@ -15,7 +15,13 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
         selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
     )
 
-    present = [filters.min_lng, filters.min_lat, filters.max_lng, filters.max_lat]
+    present = [
+        filters.min_lng is not None,
+        filters.min_lat is not None,
+        filters.max_lng is not None,
+        filters.max_lat is not None,
+    ]
+
     # bounding box filters allow getting schools within or outside the box
     if all(present):  # all four bbox parameters are provided
         if filters.bbox_mode == "within":
