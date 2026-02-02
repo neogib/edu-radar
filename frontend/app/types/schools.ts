@@ -32,7 +32,7 @@ export type SchoolFeatureProperties = {
     nazwa: string
     typ: string
     status: string
-    score: number | null
+    wynik: number | null
 }
 export type SchoolFeature = GeoJSON.Feature<
     GeoJSON.Point,

@@ -61,9 +61,9 @@ await loadSchools()
         :cluster-properties="{
             sum: [
                 '+',
-                ['case', ['!=', ['get', 'score'], null], ['get', 'score'], 0],
+                ['case', ['!=', ['get', 'wynik'], null], ['get', 'wynik'], 0],
             ],
-            nonNullCount: ['+', ['case', ['!=', ['get', 'score'], null], 1, 0]],
+            nonNullCount: ['+', ['case', ['!=', ['get', 'wynik'], null], 1, 0]],
         }">
         <MglSymbolLayer
             layer-id="unclustered-points"

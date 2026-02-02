@@ -72,7 +72,7 @@ const { getColor } = useScoreColor()
 
 // Computed property for selected point score color
 const scoreColor = computed(() => {
-    return props.selectedPoint ? getColor(props.selectedPoint.score) : ""
+    return props.selectedPoint ? getColor(props.selectedPoint.wynik) : ""
 })
 </script>
 
@@ -148,8 +148,8 @@ const scoreColor = computed(() => {
                 <!-- Score Display -->
                 <div
                     v-if="
-                        selectedPoint.score !== null &&
-                        selectedPoint.score !== undefined
+                        selectedPoint.wynik !== null &&
+                        selectedPoint.wynik !== undefined
                     "
                     class="bg-white rounded-xl p-4 shadow-sm">
                     <div class="flex items-center justify-between">
@@ -164,7 +164,7 @@ const scoreColor = computed(() => {
                                     :style="{
                                         color: scoreColor,
                                     }">
-                                    {{ selectedPoint.score.toFixed(2) }}
+                                    {{ selectedPoint.wynik.toFixed(2) }}
                                 </span>
                             </div>
                         </div>
@@ -176,7 +176,7 @@ const scoreColor = computed(() => {
                                 'h-2 rounded-full transition-all duration-500',
                             ]"
                             :style="{
-                                width: `${selectedPoint.score}%`,
+                                width: `${selectedPoint.wynik}%`,
                                 'background-color': scoreColor,
                             }" />
                     </div>

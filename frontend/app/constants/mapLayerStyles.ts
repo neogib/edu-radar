@@ -11,12 +11,12 @@ export const POINT_LAYER_STYLE = {
         "icon-halo-width": 1, // szerokość w px
         "icon-color": [
             "case",
-            ["==", ["get", "score"], null],
+            ["==", ["get", "wynik"], null],
             "#87CEFA", // blue for null scores
             [
                 "interpolate",
                 ["linear"],
-                ["get", "score"],
+                ["get", "wynik"],
                 0,
                 "#FF0000",
                 50,
