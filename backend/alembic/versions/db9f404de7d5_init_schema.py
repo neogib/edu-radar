@@ -1,8 +1,8 @@
 """init schema
 
-Revision ID: ad166e48a56b
+Revision ID: db9f404de7d5
 Revises: 
-Create Date: 2026-02-02 09:21:02.459812
+Create Date: 2026-02-02 18:45:41.132353
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,9 @@ import sqlalchemy as sa
 import sqlmodel
 import geoalchemy2
 
+
 # revision identifiers, used by Alembic.
-revision: str = 'ad166e48a56b'
+revision: str = 'db9f404de7d5'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -108,6 +109,8 @@ def upgrade() -> None:
     op.create_index(op.f('ix_miejscowosc_nazwa'), 'miejscowosc', ['nazwa'], unique=False)
     op.create_index(op.f('ix_miejscowosc_teryt'), 'miejscowosc', ['teryt'], unique=True)
     op.create_table('szkola',
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('nazwa', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('numer_rspo', sa.Integer(), nullable=False),
     sa.Column('nazwa_skrocona', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
@@ -122,14 +125,19 @@ def upgrade() -> None:
     sa.Column('telefon', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('strona_internetowa', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326, dimension=2, from_text='ST_GeomFromEWKT', name='geometry', nullable=False), nullable=False),
+    sa.Column('data_zalozenia', sa.Date(), nullable=True),
+    sa.Column('data_rozpoczecia', sa.Date(), nullable=True),
+    sa.Column('data_likwidacji', sa.Date(), nullable=True),
     sa.Column('wynik', sa.Float(), nullable=True),
+    sa.Column('zlikwidowana', sa.Boolean(), nullable=False),
     sa.Column('typ_id', sa.Integer(), nullable=True),
     sa.Column('status_publicznoprawny_id', sa.Integer(), nullable=True),
     sa.Column('kategoria_uczniow_id', sa.Integer(), nullable=True),
     sa.Column('miejscowosc_id', sa.Integer(), nullable=True),
     sa.Column('ulica_id', sa.Integer(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326, dimension=2, from_text='ST_GeomFromEWKT', name='geometry', nullable=False), nullable=False),
+    sa.Column('aktualna', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['kategoria_uczniow_id'], ['kategoria_uczniow.id'], ),
     sa.ForeignKeyConstraint(['miejscowosc_id'], ['miejscowosc.id'], ),
     sa.ForeignKeyConstraint(['status_publicznoprawny_id'], ['status_publicznoprawny.id'], ),
@@ -138,6 +146,9 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('regon')
     )
+    op.create_index(op.f('ix_szkola_aktualna'), 'szkola', ['aktualna'], unique=False)
+    op.create_index(op.f('ix_szkola_data_likwidacji'), 'szkola', ['data_likwidacji'], unique=False)
+    op.create_index(op.f('ix_szkola_data_rozpoczecia'), 'szkola', ['data_rozpoczecia'], unique=False)
     op.create_index(op.f('ix_szkola_kategoria_uczniow_id'), 'szkola', ['kategoria_uczniow_id'], unique=False)
     op.create_index(op.f('ix_szkola_miejscowosc_id'), 'szkola', ['miejscowosc_id'], unique=False)
     op.create_index(op.f('ix_szkola_nazwa'), 'szkola', ['nazwa'], unique=False)
@@ -147,6 +158,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_szkola_typ_id'), 'szkola', ['typ_id'], unique=False)
     op.create_index(op.f('ix_szkola_ulica_id'), 'szkola', ['ulica_id'], unique=False)
     op.create_index(op.f('ix_szkola_wynik'), 'szkola', ['wynik'], unique=False)
+    op.create_index(op.f('ix_szkola_zlikwidowana'), 'szkola', ['zlikwidowana'], unique=False)
     op.create_table('szkolaetaplink',
     sa.Column('etap_id', sa.Integer(), nullable=False),
     sa.Column('szkola_id', sa.Integer(), nullable=False),
@@ -211,6 +223,7 @@ def downgrade() -> None:
     op.drop_table('wynik_e8')
     op.drop_table('szkolaksztalceniezawodowelink')
     op.drop_table('szkolaetaplink')
+    op.drop_index(op.f('ix_szkola_zlikwidowana'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_wynik'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_ulica_id'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_typ_id'), table_name='szkola')
@@ -220,6 +233,9 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_szkola_nazwa'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_miejscowosc_id'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_kategoria_uczniow_id'), table_name='szkola')
+    op.drop_index(op.f('ix_szkola_data_rozpoczecia'), table_name='szkola')
+    op.drop_index(op.f('ix_szkola_data_likwidacji'), table_name='szkola')
+    op.drop_index(op.f('ix_szkola_aktualna'), table_name='szkola')
     op.drop_table('szkola')
     op.drop_index(op.f('ix_miejscowosc_teryt'), table_name='miejscowosc')
     op.drop_index(op.f('ix_miejscowosc_nazwa'), table_name='miejscowosc')
