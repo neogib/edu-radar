@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Optional  # pyright: ignore[reportDeprecated]
 
+from geoalchemy2 import Geometry
 from sqlmodel import (
     Field,  # pyright: ignore[reportUnknownVariableType]
     Relationship,
@@ -140,9 +141,10 @@ class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
 
 
 class SzkolaAllData(SzkolaExtendedData):
-    geolokalizacja_latitude: float
-    geolokalizacja_longitude: float
-    score: float | None = Field(default=None, ge=0.0, le=100.0, index=True)
+    geom: object = Field(
+        sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    )
+    wynik: float | None = Field(default=None, ge=0.0, le=100.0, index=True)
     # Foreign keys
     typ_id: int | None = Field(index=True, default=None, foreign_key="typ_szkoly.id")
     status_publicznoprawny_id: int | None = Field(
