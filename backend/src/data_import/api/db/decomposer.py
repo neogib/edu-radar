@@ -2,7 +2,6 @@ import logging
 
 from geoalchemy2.shape import from_shape  # pyright: ignore[reportUnknownVariableType]
 from pydantic import ValidationError
-from pydantic.main import IncEx
 from shapely.geometry import Point
 
 from src.app.models.locations import Gmina, Miejscowosc, Powiat, Ulica, Wojewodztwo
@@ -80,18 +79,6 @@ class Decomposer(DatabaseManagerBase):
             raise DataValidationError(school_data, e) from e
 
         try:
-            # Check if school already exists
-            existing_school = self._select_where(
-                Szkola, Szkola.numer_rspo == school.numer_rspo
-            )
-
-            if existing_school:
-                logger.info(
-                    f"🔙 School with RSPO {school.numer_rspo} already exists. Skipping."
-                )
-                return
-                # todo: instaed of skipping update data in database
-
             # Process location data
             locality, street = self._process_location_data(school)
 
@@ -106,25 +93,45 @@ class Decomposer(DatabaseManagerBase):
             # Process education stages data
             education_stages_list = self._process_education_stages(school)
 
-            # Create a new school object
-            new_school_object = self._create_school_object(
-                school_data=school,
-                school_type=school_type,
-                status=school_status,
-                locality=locality,
-                street=street,
-                education_stages=education_stages_list,
-                vocational_trainings=vocational_trainings_list,
-                student_category=student_category,
+            # Check if school already exists
+            existing_school = self._select_where(
+                Szkola, Szkola.numer_rspo == school.numer_rspo
             )
 
-            session.add(new_school_object)
+            if existing_school:
+                logger.info(
+                    f"School with RSPO {school.numer_rspo} already exists. Updating..."
+                )
+                school_object = self._update_existing_school(
+                    existing_school=existing_school,
+                    school_data=school,
+                    school_type=school_type,
+                    status=school_status,
+                    locality=locality,
+                    street=street,
+                    education_stages=education_stages_list,
+                    vocational_trainings=vocational_trainings_list,
+                    student_category=student_category,
+                )
+            else:
+                # Create a new school object
+                school_object = self._create_school_object(
+                    school_data=school,
+                    school_type=school_type,
+                    status=school_status,
+                    locality=locality,
+                    street=street,
+                    education_stages=education_stages_list,
+                    vocational_trainings=vocational_trainings_list,
+                    student_category=student_category,
+                )
+
+            session.add(school_object)
             session.commit()
-            session.refresh(new_school_object)
+            session.refresh(school_object)
 
-            logger.info(
-                f"💾 Added school: {new_school_object.nazwa} (RSPO: {new_school_object.numer_rspo})"
-            )
+            action = "Updated" if existing_school else "Added"
+            logger.info(f"💾 {action} school (RSPO: {school_object.numer_rspo})")
 
         except Exception as e:
             session.rollback()
@@ -167,6 +174,49 @@ class Decomposer(DatabaseManagerBase):
         )
 
         return new_school
+
+    def _update_existing_school(
+        self,
+        existing_school: Szkola,
+        school_data: SzkolaAPIResponse,
+        school_type: TypSzkoly,
+        status: StatusPublicznoprawny,
+        locality: Miejscowosc,
+        street: Ulica | None,
+        education_stages: list[EtapEdukacji],
+        vocational_trainings: list[KsztalcenieZawodowe],
+        student_category: KategoriaUczniow,
+    ) -> Szkola:
+        """Update existing school with new data from API"""
+        geolocation = school_data.geolokalizacja
+        closure_date = school_data.data_likwidacji
+
+        # Get base school data excluding relationships
+        api_school_data_dict = school_data.model_dump(exclude=SchoolFieldExclusions.ALL)
+
+        # Update scalar fields using SQLModel's safe update method
+        existing_school.sqlmodel_update(api_school_data_dict)  # pyright: ignore[reportUnusedCallResult]
+
+        # Update geolocation
+        existing_school.geom = from_shape(
+            Point(geolocation.longitude, geolocation.latitude), srid=4326
+        )
+
+        # Update closure status
+        existing_school.zlikwidowana = closure_date is not None
+
+        # Update foreign key relationships
+        existing_school.typ = school_type
+        existing_school.status_publicznoprawny = status
+        existing_school.miejscowosc = locality
+        existing_school.ulica = street
+        existing_school.kategoria_uczniow = student_category
+
+        # Update many-to-many relationships
+        existing_school.etapy_edukacji = education_stages
+        existing_school.ksztalcenie_zawodowe = vocational_trainings
+
+        return existing_school
 
     def _process_location_data(
         self, school_data: SzkolaAPIResponse
