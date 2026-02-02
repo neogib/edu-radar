@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, Query
 from sqlmodel import Session
 
 from src.app.core.database import get_session
-from src.app.models.bounding_box import BoundingBox
+from src.app.schemas.bounding_box import BoundingBox
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -14,7 +14,7 @@ def parse_bbox(
         str | None,
         Query(
             description="Bounding box: min_lng,min_lat,max_lng,max_lat",
-            example="19.0,51.9,19.1,52.0",
+            examples=["19.0,51.9,19.1,52.0"],
         ),
     ] = None,
 ) -> BoundingBox | None:
