@@ -1,3 +1,4 @@
+from datetime import date
 from typing import TYPE_CHECKING, Optional  # pyright: ignore[reportDeprecated]
 
 from geoalchemy2 import Geometry
@@ -7,6 +8,8 @@ from sqlmodel import (
     Relationship,
     SQLModel,
 )
+
+from src.app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
     from src.app.models.exam_results import (
@@ -116,10 +119,15 @@ class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
         default=None,
     )
     strona_internetowa: str | None = Field(default=None)
+    data_zalozenia: date | None = Field(default=None)
+    data_rozpoczecia: date | None = Field(default=None, index=True)
+    data_likwidacji: date | None = Field(default=None, index=True)
 
 
 class SzkolaAllData(SzkolaExtendedData):
     wynik: float | None = Field(default=None, ge=0.0, le=100.0, index=True)
+    zlikwidowana: bool = Field(default=False, index=True)
+
     # Foreign keys
     typ_id: int | None = Field(index=True, default=None, foreign_key="typ_szkoly.id")
     status_publicznoprawny_id: int | None = Field(
@@ -134,13 +142,18 @@ class SzkolaAllData(SzkolaExtendedData):
     ulica_id: int | None = Field(index=True, default=None, foreign_key="ulica.id")
 
 
-class Szkola(SzkolaAllData, table=True):
+class Szkola(SzkolaAllData, TimestampMixin, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     # geom only for spatial queries, not exposed in API
     geom: object = Field(
         sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     )
+
+    # this column is a control flag for editing school visiblity
+    # aktualna = "should this record be shown by default"
+    aktualna: bool = Field(default=True, index=True)
+
     # Relationships - many-to-one
     typ: TypSzkoly = Relationship(back_populates="szkoly")  # pyright: ignore [reportAny]
     status_publicznoprawny: StatusPublicznoprawny = Relationship(  # pyright: ignore [reportAny]

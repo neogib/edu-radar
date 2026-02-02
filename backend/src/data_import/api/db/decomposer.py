@@ -233,6 +233,9 @@ class Decomposer(DatabaseManagerBase):
         """Create a new school object from validated data"""
         geolocation = school_data.geolokalizacja
 
+        # set closed flag based on data from API
+        closure_date = school_data.data_likwidacji
+
         api_school_data_dict = school_data.model_dump()
         # remove specific columns to prevent multiple values for the same field
         for column in SchoolFieldExclusions.ALL:
@@ -244,6 +247,7 @@ class Decomposer(DatabaseManagerBase):
             geom=from_shape(
                 Point(geolocation.longitude, geolocation.latitude), srid=4326
             ),
+            zlikwidowana=closure_date is not None,
             typ=school_type,
             status_publicznoprawny=status,  # we haven't removed status_publicznoprawny from SzkolaAPIResponse because from the API we actually have status_publiczno_prawny which is incorrect form
             miejscowosc=locality,

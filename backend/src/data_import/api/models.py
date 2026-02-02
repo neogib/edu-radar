@@ -1,6 +1,7 @@
+from datetime import date, datetime
 from typing import cast
 
-from pydantic import ConfigDict, model_validator
+from pydantic import ConfigDict, field_validator, model_validator
 from sqlmodel import SQLModel
 
 from src.app.models.schools import (
@@ -52,3 +53,30 @@ class SzkolaAPIResponse(SzkolaExtendedData):
                 data[field_name] = None
 
         return cast(T, data)
+
+    @field_validator(
+        "data_zalozenia",
+        "data_rozpoczecia",
+        "data_likwidacji",
+        mode="before",
+    )
+    @classmethod
+    def parse_datetime_to_date(cls, v: object):
+        if v is None:
+            return None
+
+        if isinstance(v, datetime):
+            return v.date()
+
+        if isinstance(v, date):
+            return v
+
+        if isinstance(v, str):
+            try:
+                return datetime.fromisoformat(v).date()
+            except ValueError as e:
+                raise ValueError(f"Invalid ISO datetime/date string: {v}") from e
+
+        raise TypeError(
+            f"Expected date, datetime, ISO string, or None; got {type(v).__name__}"
+        )
