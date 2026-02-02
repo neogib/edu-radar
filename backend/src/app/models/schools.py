@@ -105,11 +105,11 @@ class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
     numer_rspo: int = Field(unique=True, index=True)
     nazwa_skrocona: str | None = Field(default=None, index=True)
     nip: str | None = Field(default=None)
-    regon: str = Field(unique=True)
+    regon: str | None = Field(default=None, unique=True)
     liczba_uczniow: int | None = Field(default=None, ge=0)
     dyrektor_imie: str | None = Field(default=None)
     dyrektor_nazwisko: str | None = Field(default=None)
-    kod_pocztowy: str
+    kod_pocztowy: str | None = Field(default=None)
     numer_budynku: str | None = Field(default=None)
     numer_lokalu: str | None = Field(default=None)
     telefon: str | None = Field(
