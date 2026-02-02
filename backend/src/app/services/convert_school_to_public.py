@@ -2,8 +2,8 @@ from typing import cast
 
 from src.app.models.schools import (
     Szkola,
-    SzkolaPublicShort,
 )
+from src.app.schemas.schools import SzkolaPublicShort
 
 
 def to_public_short(

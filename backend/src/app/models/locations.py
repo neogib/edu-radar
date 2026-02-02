@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from sqlmodel import (
-    Field,  # pyright: ignore[reportUnknownVariableType]
+    Field,
     Relationship,
     SQLModel,
 )
@@ -21,10 +21,6 @@ class Wojewodztwo(WojewodztwoBase, table=True):
     powiaty: list["Powiat"] = Relationship(back_populates="wojewodztwo")  # pyright: ignore [reportAny]
 
 
-class WojewodztwoPublic(WojewodztwoBase):
-    id: int
-
-
 class PowiatBase(SQLModel):
     nazwa: str = Field(index=True)
     teryt: str = Field(index=True, unique=True)
@@ -40,10 +36,6 @@ class Powiat(PowiatBase, table=True):
     gminy: list["Gmina"] = Relationship(back_populates="powiat")  # pyright: ignore [reportAny]
 
 
-class PowiatPublic(PowiatBase):
-    id: int
-
-
 class GminaBase(SQLModel):
     nazwa: str = Field(index=True)
     teryt: str = Field(index=True, unique=True)
@@ -55,10 +47,6 @@ class Gmina(GminaBase, table=True):
 
     powiat: Powiat = Relationship(back_populates="gminy")  # pyright: ignore [reportAny]
     miejscowosci: list["Miejscowosc"] = Relationship(back_populates="gmina")  # pyright: ignore [reportAny]
-
-
-class GminaPublic(GminaBase):
-    id: int
 
 
 class MiejscowoscBase(SQLModel):
@@ -74,10 +62,6 @@ class Miejscowosc(MiejscowoscBase, table=True):
     szkoly: list["Szkola"] = Relationship(back_populates="miejscowosc")  # pyright: ignore [reportAny]
 
 
-class MiejscowoscPublic(MiejscowoscBase):
-    id: int
-
-
 class UlicaBase(SQLModel):
     nazwa: str = Field(index=True)
     teryt: str = Field(index=True, unique=True)
@@ -86,7 +70,3 @@ class UlicaBase(SQLModel):
 class Ulica(UlicaBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     szkoly: list["Szkola"] = Relationship(back_populates="ulica")  # pyright: ignore [reportAny]
-
-
-class UlicaPublic(UlicaBase):
-    id: int

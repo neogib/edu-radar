@@ -8,14 +8,10 @@ from sqlmodel import (
     SQLModel,
 )
 
-from src.app.models.locations import MiejscowoscPublic, UlicaPublic
-
 if TYPE_CHECKING:
     from src.app.models.exam_results import (
         WynikE8,
-        WynikE8PublicWithPrzedmiot,
         WynikEM,
-        WynikEMPublicWithPrzedmiot,
     )
     from src.app.models.locations import Miejscowosc, Ulica
 
@@ -31,10 +27,6 @@ class TypSzkoly(TypSzkolyBase, table=True):
     szkoly: list["Szkola"] = Relationship(back_populates="typ")  # pyright: ignore [reportAny]
 
 
-class TypSzkolyPublic(TypSzkolyBase):
-    id: int
-
-
 class StatusPublicznoprawnyBase(SQLModel):
     nazwa: str = Field(index=True, unique=True)
 
@@ -46,10 +38,6 @@ class StatusPublicznoprawny(StatusPublicznoprawnyBase, table=True):
     szkoly: list["Szkola"] = Relationship(back_populates="status_publicznoprawny")  # pyright: ignore [reportAny]
 
 
-class StatusPublicznoprawnyPublic(StatusPublicznoprawnyBase):
-    id: int
-
-
 class KategoriaUczniowBase(SQLModel):
     nazwa: str = Field(index=True, unique=True)
 
@@ -59,10 +47,6 @@ class KategoriaUczniow(KategoriaUczniowBase, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     szkoly: list["Szkola"] = Relationship(back_populates="kategoria_uczniow")  # pyright: ignore [reportAny]
-
-
-class KategoriaUczniowPublic(KategoriaUczniowBase):
-    id: int
 
 
 # link table for connecting EtapyEdukacji and Szkoly
@@ -88,10 +72,6 @@ class EtapEdukacji(EtapEdukacjiBase, table=True):
     )
 
 
-class EtapEdukacjiPublic(EtapEdukacjiBase):
-    id: int
-
-
 class SzkolaKsztalcenieZawodoweLink(SQLModel, table=True):
     ksztalcenie_zawodowe_id: int | None = Field(
         default=None, foreign_key="ksztalcenie_zawodowe.id", primary_key=True
@@ -112,10 +92,6 @@ class KsztalcenieZawodowe(KsztalcenieZawodoweBase, table=True):
     szkoly: list["Szkola"] = Relationship(  # pyright: ignore [reportAny]
         back_populates="ksztalcenie_zawodowe", link_model=SzkolaKsztalcenieZawodoweLink
     )
-
-
-class KsztalcenieZawodowePublic(KsztalcenieZawodoweBase):
-    id: int
 
 
 class SzkolaBase(SQLModel):
@@ -182,30 +158,3 @@ class Szkola(SzkolaAllData, table=True):
     )
     wyniki_e8: list["WynikE8"] = Relationship(back_populates="szkola")  # pyright: ignore [reportAny]
     wyniki_em: list["WynikEM"] = Relationship(back_populates="szkola")  # pyright: ignore [reportAny]
-
-
-class SzkolaPublic(SzkolaAllData):
-    id: int
-
-
-# Short version of Szkola for listing schools with minimal info
-# Fields are compressed for minimal data transfer
-class SzkolaPublicShort(SzkolaBase):
-    id: int
-    latitude: float
-    longitude: float
-    wynik: float | None
-    typ: str
-    status: str
-
-
-class SzkolaPublicWithRelations(SzkolaPublic):
-    etapy_edukacji: list[EtapEdukacjiPublic] = []
-    typ: TypSzkolyPublic
-    status_publicznoprawny: StatusPublicznoprawnyPublic
-    kategoria_uczniow: KategoriaUczniowPublic
-    miejscowosc: MiejscowoscPublic
-    ulica: UlicaPublic | None
-    ksztalcenie_zawodowe: list[KsztalcenieZawodowePublic]
-    wyniki_e8: list["WynikE8PublicWithPrzedmiot"]
-    wyniki_em: list["WynikEMPublicWithPrzedmiot"]

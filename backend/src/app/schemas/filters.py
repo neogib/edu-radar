@@ -4,12 +4,14 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from src.app.models.schools import (
     KategoriaUczniow,
-    KategoriaUczniowPublic,
     KsztalcenieZawodowe,
-    KsztalcenieZawodowePublic,
     StatusPublicznoprawny,
-    StatusPublicznoprawnyPublic,
     TypSzkoly,
+)
+from src.app.schemas.schools import (
+    KategoriaUczniowPublic,
+    KsztalcenieZawodowePublic,
+    StatusPublicznoprawnyPublic,
     TypSzkolyPublic,
 )
 

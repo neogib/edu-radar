@@ -5,17 +5,12 @@ from fastapi.responses import StreamingResponse
 from pydantic import TypeAdapter
 from sqlmodel import Session
 
-from src.app.models.exam_results import (
-    WynikE8PublicWithPrzedmiot,  # noqa: F401
-    WynikEMPublicWithPrzedmiot,  # noqa: F401
-)
-from src.app.schemas.filters import FilterParams
 from src.app.models.schools import (
     Szkola,
-    SzkolaPublicShort,
-    SzkolaPublicWithRelations,
 )
-from src.app.services.map_school_to_public import to_public_short
+from src.app.schemas.filters import FilterParams
+from src.app.schemas.schools import SzkolaPublicShort, SzkolaPublicWithRelations
+from src.app.services.convert_school_to_public import to_public_short
 from src.app.services.school_filters import apply_filters
 from src.dependencies import SessionDep
 

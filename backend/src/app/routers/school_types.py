@@ -3,7 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import col, select
 
-from src.app.models.schools import TypSzkoly, TypSzkolyPublic
+from src.app.models.schools import TypSzkoly
+from src.app.schemas.schools import TypSzkolyPublic
 from src.dependencies import SessionDep
 
 router = APIRouter(

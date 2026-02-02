@@ -2,8 +2,8 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import col, exists, func, select
 from sqlmodel.sql.expression import SelectOfScalar
 
-from src.app.schemas.filters import FilterParams
 from src.app.models.schools import Szkola, SzkolaKsztalcenieZawodoweLink
+from src.app.schemas.filters import FilterParams
 
 
 def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, float]]:
