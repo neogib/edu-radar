@@ -1,8 +1,8 @@
 """init schema
 
-Revision ID: 0d29d728f7e7
+Revision ID: ad166e48a56b
 Revises: 
-Create Date: 2026-01-04 12:31:09.125767
+Create Date: 2026-02-02 09:21:02.459812
 
 """
 from typing import Sequence, Union
@@ -10,10 +10,10 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 import sqlmodel
-
+import geoalchemy2
 
 # revision identifiers, used by Alembic.
-revision: str = '0d29d728f7e7'
+revision: str = 'ad166e48a56b'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -108,8 +108,9 @@ def upgrade() -> None:
     op.create_index(op.f('ix_miejscowosc_nazwa'), 'miejscowosc', ['nazwa'], unique=False)
     op.create_index(op.f('ix_miejscowosc_teryt'), 'miejscowosc', ['teryt'], unique=True)
     op.create_table('szkola',
-    sa.Column('numer_rspo', sa.Integer(), nullable=False),
     sa.Column('nazwa', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('numer_rspo', sa.Integer(), nullable=False),
+    sa.Column('nazwa_skrocona', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('nip', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('regon', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('liczba_uczniow', sa.Integer(), nullable=True),
@@ -121,9 +122,8 @@ def upgrade() -> None:
     sa.Column('telefon', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('strona_internetowa', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-    sa.Column('geolokalizacja_latitude', sa.Float(), nullable=False),
-    sa.Column('geolokalizacja_longitude', sa.Float(), nullable=False),
-    sa.Column('score', sa.Float(), nullable=True),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326, dimension=2, from_text='ST_GeomFromEWKT', name='geometry', nullable=False), nullable=False),
+    sa.Column('wynik', sa.Float(), nullable=True),
     sa.Column('typ_id', sa.Integer(), nullable=True),
     sa.Column('status_publicznoprawny_id', sa.Integer(), nullable=True),
     sa.Column('kategoria_uczniow_id', sa.Integer(), nullable=True),
@@ -141,11 +141,12 @@ def upgrade() -> None:
     op.create_index(op.f('ix_szkola_kategoria_uczniow_id'), 'szkola', ['kategoria_uczniow_id'], unique=False)
     op.create_index(op.f('ix_szkola_miejscowosc_id'), 'szkola', ['miejscowosc_id'], unique=False)
     op.create_index(op.f('ix_szkola_nazwa'), 'szkola', ['nazwa'], unique=False)
+    op.create_index(op.f('ix_szkola_nazwa_skrocona'), 'szkola', ['nazwa_skrocona'], unique=False)
     op.create_index(op.f('ix_szkola_numer_rspo'), 'szkola', ['numer_rspo'], unique=True)
-    op.create_index(op.f('ix_szkola_score'), 'szkola', ['score'], unique=False)
     op.create_index(op.f('ix_szkola_status_publicznoprawny_id'), 'szkola', ['status_publicznoprawny_id'], unique=False)
     op.create_index(op.f('ix_szkola_typ_id'), 'szkola', ['typ_id'], unique=False)
     op.create_index(op.f('ix_szkola_ulica_id'), 'szkola', ['ulica_id'], unique=False)
+    op.create_index(op.f('ix_szkola_wynik'), 'szkola', ['wynik'], unique=False)
     op.create_table('szkolaetaplink',
     sa.Column('etap_id', sa.Integer(), nullable=False),
     sa.Column('szkola_id', sa.Integer(), nullable=False),
@@ -210,11 +211,12 @@ def downgrade() -> None:
     op.drop_table('wynik_e8')
     op.drop_table('szkolaksztalceniezawodowelink')
     op.drop_table('szkolaetaplink')
+    op.drop_index(op.f('ix_szkola_wynik'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_ulica_id'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_typ_id'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_status_publicznoprawny_id'), table_name='szkola')
-    op.drop_index(op.f('ix_szkola_score'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_numer_rspo'), table_name='szkola')
+    op.drop_index(op.f('ix_szkola_nazwa_skrocona'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_nazwa'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_miejscowosc_id'), table_name='szkola')
     op.drop_index(op.f('ix_szkola_kategoria_uczniow_id'), table_name='szkola')

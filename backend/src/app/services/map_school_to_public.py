@@ -1,10 +1,8 @@
 from typing import cast
 
 from src.app.models.schools import (
-    StatusPublicznoprawnyPublic,
     Szkola,
     SzkolaPublicShort,
-    TypSzkolyPublic,
 )
 
 
