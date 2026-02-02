@@ -1,6 +1,8 @@
 import logging
 
+from geoalchemy2.shape import from_shape  # pyright: ignore[reportUnknownVariableType]
 from pydantic import ValidationError
+from shapely.geometry import Point
 
 from src.app.models.locations import Gmina, Miejscowosc, Powiat, Ulica, Wojewodztwo
 from src.app.models.schools import (
@@ -69,6 +71,8 @@ class Decomposer(DatabaseManagerBase):
 
         if not location:
             location = model_class(nazwa=name, teryt=territorial_code, **kwargs)  # pyright: ignore[reportArgumentType]
+            session = self._ensure_session()
+            session.add(location)
 
         cache_dict[territorial_code] = location
         return location
@@ -215,13 +219,6 @@ class Decomposer(DatabaseManagerBase):
         ]
         return education_stages_list
 
-    def _validate_required_school_data(
-        self, school_data: dict[str, object]
-    ) -> SzkolaAPIResponse:
-        """Validate that all required fields are present in the school data"""
-        school_model = SzkolaAPIResponse.model_validate(school_data)
-        return school_model
-
     def _create_school_object(
         self,
         school_data: SzkolaAPIResponse,
@@ -244,8 +241,9 @@ class Decomposer(DatabaseManagerBase):
         # all other fields from SzkolaAPIResponse that are not used in Szkola are removed by pydantic
         new_school = Szkola(
             **api_school_data_dict,  # pyright: ignore[reportAny]
-            geolokalizacja_latitude=geolocation.latitude,
-            geolokalizacja_longitude=geolocation.longitude,
+            geom=from_shape(
+                Point(geolocation.longitude, geolocation.latitude), srid=4326
+            ),
             typ=school_type,
             status_publicznoprawny=status,  # we haven't removed status_publicznoprawny from SzkolaAPIResponse because from the API we actually have status_publiczno_prawny which is incorrect form
             miejscowosc=locality,
@@ -265,7 +263,7 @@ class Decomposer(DatabaseManagerBase):
 
         # First, validate the required fields. Let errors propagate upward.
         try:
-            school = self._validate_required_school_data(school_data)
+            school = SzkolaAPIResponse.model_validate(school_data)
         except ValidationError as e:
             session.rollback()
             raise DataValidationError(school_data, e) from e
@@ -281,6 +279,7 @@ class Decomposer(DatabaseManagerBase):
                     f"🔙 School with RSPO {school.numer_rspo} already exists. Skipping."
                 )
                 return
+                # todo: instaed of skipping update data in database
 
             # Process location data
             locality, street = self._process_location_data(school)
