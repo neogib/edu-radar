@@ -47,15 +47,18 @@ async def stream_schools(
     offset = 0
 
     while True:
-        stmt = apply_filters(filters).limit(CHUNK_SIZE).offset(offset)
+        stmt = apply_filters(filters).offset(offset)
         rows = session.exec(stmt).all()
-        schools = [to_public_short(szkola, lat, lon) for szkola, lat, lon in rows]
 
-        if not schools:
+        if not rows:
             break
 
-        batch = school_list_adapter.validate_python(schools, from_attributes=True)
-        yield school_list_adapter.dump_json(batch) + b"\n"
+        yield (
+            school_list_adapter.dump_json(
+                [to_public_short(szkola, lat, lon) for szkola, lat, lon in rows]
+            )
+            + b"\n"
+        )
 
         offset += CHUNK_SIZE
 
@@ -73,8 +76,10 @@ async def read_school(school_id: int, session: SessionDep) -> Szkola:
     return school
 
 
-@router.get("/", response_model=list[SzkolaPublicShort])
-async def read_schools(session: SessionDep, filters: Annotated[FilterParams, Query()]):
+@router.get("/")
+async def read_schools(
+    session: SessionDep, filters: Annotated[FilterParams, Query()]
+) -> list[SzkolaPublicShort]:
     """
     Get schools with optional filters.
 

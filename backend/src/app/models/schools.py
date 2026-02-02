@@ -119,9 +119,6 @@ class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
 
 
 class SzkolaAllData(SzkolaExtendedData):
-    geom: object = Field(
-        sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
-    )
     wynik: float | None = Field(default=None, ge=0.0, le=100.0, index=True)
     # Foreign keys
     typ_id: int | None = Field(index=True, default=None, foreign_key="typ_szkoly.id")
@@ -140,6 +137,10 @@ class SzkolaAllData(SzkolaExtendedData):
 class Szkola(SzkolaAllData, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
+    # geom only for spatial queries, not exposed in API
+    geom: object = Field(
+        sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    )
     # Relationships - many-to-one
     typ: TypSzkoly = Relationship(back_populates="szkoly")  # pyright: ignore [reportAny]
     status_publicznoprawny: StatusPublicznoprawny = Relationship(  # pyright: ignore [reportAny]

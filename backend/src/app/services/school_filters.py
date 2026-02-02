@@ -76,7 +76,7 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, 
     if filters.q:
         statement = statement.where(col(Szkola.nazwa).ilike(f"%{filters.q}%"))
 
-    if filters.limit:
+    if filters.limit:  # if stream then limit is CHUNK_SIZE
         statement = statement.limit(
             filters.limit
         )  # for autocompletion not all results should be returned
