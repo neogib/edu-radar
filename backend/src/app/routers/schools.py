@@ -1,4 +1,3 @@
-import time
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -16,6 +15,7 @@ from src.app.models.schools import (
     SzkolaPublicShort,
     SzkolaPublicWithRelations,
 )
+from src.app.services.map_school_to_public import to_public_short
 from src.app.services.school_filters import apply_filters
 from src.dependencies import SessionDep
 
@@ -53,8 +53,9 @@ async def stream_schools(
 
     while True:
         stmt = apply_filters(filters).limit(CHUNK_SIZE).offset(offset)
+        rows = session.exec(stmt).all()
+        schools = [to_public_short(szkola, lat, lon) for szkola, lat, lon in rows]
 
-        schools = session.exec(stmt).all()
         if not schools:
             break
 
@@ -65,6 +66,7 @@ async def stream_schools(
 
         # abort when client disconnects
         if await request.is_disconnected():
+            print("client disconnected, stopping stream")
             break
 
 
@@ -93,5 +95,6 @@ async def read_schools(session: SessionDep, filters: Annotated[FilterParams, Que
 
     stmt = apply_filters(filters)
 
-    schools = session.exec(stmt).all()
+    rows = session.exec(stmt).all()
+    schools = [to_public_short(szkola, lat, lon) for szkola, lat, lon in rows]
     return schools

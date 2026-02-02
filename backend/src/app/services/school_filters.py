@@ -1,16 +1,20 @@
 from sqlalchemy.orm import selectinload
-from sqlmodel import col, exists, select
+from sqlmodel import col, exists, func, select
 from sqlmodel.sql.expression import SelectOfScalar
 
 from src.app.models.filters import FilterParams
 from src.app.models.schools import Szkola, SzkolaKsztalcenieZawodoweLink
 
 
-def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
+def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, float]]:
     """
     Apply filters to the Szkola query based on the provided FilterParams.
     """
-    statement = select(Szkola).options(
+    statement = select(
+        Szkola,
+        func.ST_Y(Szkola.geom).label("latitude"),
+        func.ST_X(Szkola.geom).label("longitude"),
+    ).options(
         selectinload(Szkola.typ),  # pyright: ignore [reportArgumentType]
         selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
     )
@@ -24,21 +28,19 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
 
     # bounding box filters allow getting schools within or outside the box
     if all(present):  # all four bbox parameters are provided
-        if filters.bbox_mode == "within":
-            statement = statement.where(
-                col(Szkola.geolokalizacja_longitude) >= filters.min_lng,
-                col(Szkola.geolokalizacja_longitude) <= filters.max_lng,
-                col(Szkola.geolokalizacja_latitude) >= filters.min_lat,
-                col(Szkola.geolokalizacja_latitude) <= filters.max_lat,
-            )
-        elif filters.bbox_mode == "outside":
-            statement = statement.where(
-                (col(Szkola.geolokalizacja_longitude) < filters.min_lng)
-                | (col(Szkola.geolokalizacja_longitude) > filters.max_lng)
-                | (col(Szkola.geolokalizacja_latitude) < filters.min_lat)
-                | (col(Szkola.geolokalizacja_latitude) > filters.max_lat)
-            )
+        envelope = func.ST_MakeEnvelope(
+            filters.min_lng,
+            filters.min_lat,
+            filters.max_lng,
+            filters.max_lat,
+            4326,
+        )
 
+        if filters.bbox_mode == "within":
+            statement = statement.where(Szkola.geom.op("&&")(envelope))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+
+        elif filters.bbox_mode == "outside":
+            statement = statement.where(~Szkola.geom.op("&&")(envelope))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
     # Apply filters based on query parameters
     if filters.type_id:
         statement = statement.where(col(Szkola.typ_id).in_(filters.type_id))
@@ -66,9 +68,9 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
         )
 
     if filters.min_score is not None:
-        statement = statement.where(col(Szkola.score) >= filters.min_score)
+        statement = statement.where(col(Szkola.wynik) >= filters.min_score)
     if filters.max_score is not None:
-        statement = statement.where(col(Szkola.score) <= filters.max_score)
+        statement = statement.where(col(Szkola.wynik) <= filters.max_score)
 
     # query search for school name
     if filters.q:
@@ -79,4 +81,4 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[Szkola]:
             filters.limit
         )  # for autocompletion not all results should be returned
 
-    return statement
+    return statement  # pyright: ignore[reportReturnType]

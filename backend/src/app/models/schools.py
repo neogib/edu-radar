@@ -2,7 +2,9 @@ from typing import TYPE_CHECKING, Optional  # pyright: ignore[reportDeprecated]
 
 from geoalchemy2 import Geometry
 from sqlmodel import (
-    Field,  # pyright: ignore[reportUnknownVariableType]
+    Column,
+    Field,
+    Index,  # pyright: ignore[reportUnknownVariableType]
     Relationship,
     SQLModel,
 )
@@ -118,11 +120,12 @@ class KsztalcenieZawodowePublic(KsztalcenieZawodoweBase):
 
 
 class SzkolaBase(SQLModel):
-    numer_rspo: int = Field(unique=True, index=True)
     nazwa: str = Field(index=True)
 
 
 class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
+    numer_rspo: int = Field(unique=True, index=True)
+    nazwa_skrocona: str | None = Field(default=None, index=True)
     nip: str | None = Field(default=None)
     regon: str = Field(unique=True)
     liczba_uczniow: int | None = Field(default=None, ge=0)
@@ -186,13 +189,15 @@ class SzkolaPublic(SzkolaAllData):
     id: int
 
 
+# Short version of Szkola for listing schools with minimal info
+# Fields are compressed for minimal data transfer
 class SzkolaPublicShort(SzkolaBase):
     id: int
-    geolokalizacja_latitude: float
-    geolokalizacja_longitude: float
-    score: float | None
-    typ: TypSzkolyPublic
-    status_publicznoprawny: StatusPublicznoprawnyPublic
+    latitude: float
+    longitude: float
+    wynik: float | None
+    typ: str
+    status: str
 
 
 class SzkolaPublicWithRelations(SzkolaPublic):
