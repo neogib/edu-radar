@@ -26,38 +26,39 @@ class Scorer(DatabaseManagerBase):
         self._schools_ids = []
         self._subjects = []
 
-    def _load_school_ids(self):
+    def calculate_scores(self):
         session = self._ensure_session()
-        ids = cast(
-            list[int], session.exec(select(self._table_type.szkola_id)).unique().all()
-        )
-        if not ids:
-            raise ValueError("No school IDs found in the database.")
-        self._schools_ids = ids
-
-    def _load_subjects(self):
-        session = self._ensure_session()
-        subject_names = list(self._subject_weights_map.keys())
-        statement = select(Przedmiot).where(Przedmiot.nazwa.in_(subject_names))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
-        self._subjects = list(session.exec(statement).all())
-        if not self._subjects:
-            raise ValueError("No subjects found in the database.")
-        elif len(self._subjects) != len(subject_names):
-            raise ValueError(
-                f"Not all subjects found in the database. Found: {self._subjects}. Expected: {subject_names}"
+        try:
+            self._initialize_required_data()
+        except ValueError as e:
+            logger.error(
+                f"⚙️ Initialization error: {e}. Aborting school scoring process."
             )
-
-    def _get_number_of_years(self):
-        session = self._ensure_session()
-        years = session.exec(select(self._table_type.rok)).unique().all()
-        if not years:
-            raise ValueError("No years found in the database.")
-        self._years_num = len(years)
-
-    def _initialize_required_data(self):
-        self._load_school_ids()
-        self._load_subjects()
-        self._get_number_of_years()  # count all distinct years from the table with scores
+            return
+        # then get all records for specific school and specific subject -> calculate score for this subject
+        for id in self._schools_ids:
+            final_score = 0.0  # final score for every school after calculating results from all subjects
+            for subject in self._subjects:
+                subject_score = self._calculate_subject_score(subject, id)
+                weight = self._subject_weights_map[subject.nazwa]
+                final_score += subject_score * weight
+            if final_score == 0.0:
+                logger.warning(
+                    f"⚠️ Final score for school (id: {id}) is 0. Possible missing data or just different school type. Skipping this school - score will be null."
+                )
+                continue
+            school = self._select_where(Szkola, Szkola.id == id)
+            if not school:
+                logger.error(
+                    f"🔍 School with ID {id} not found in database. Cannot update score."
+                )
+                continue
+            school.score = final_score
+            session.add(school)
+            session.commit()
+            logger.info(
+                f"🎯 Score updated for school (RSPO: {school.numer_rspo}): {final_score:.2f}"
+            )
 
     def _calculate_subject_score(self, subject: Przedmiot, school_id: int) -> float:
         session = self._ensure_session()
@@ -102,36 +103,35 @@ class Scorer(DatabaseManagerBase):
 
         return numerator / denominator
 
-    def calculate_scores(self):
+    def _initialize_required_data(self):
+        self._load_school_ids()
+        self._load_subjects()
+        self._get_number_of_years()  # count all distinct years from the table with scores
+
+    def _load_school_ids(self):
         session = self._ensure_session()
-        try:
-            self._initialize_required_data()
-        except ValueError as e:
-            logger.error(
-                f"⚙️ Initialization error: {e}. Aborting school scoring process."
+        ids = cast(
+            list[int], session.exec(select(self._table_type.szkola_id)).unique().all()
+        )
+        if not ids:
+            raise ValueError("No school IDs found in the database.")
+        self._schools_ids = ids
+
+    def _load_subjects(self):
+        session = self._ensure_session()
+        subject_names = list(self._subject_weights_map.keys())
+        statement = select(Przedmiot).where(Przedmiot.nazwa.in_(subject_names))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+        self._subjects = list(session.exec(statement).all())
+        if not self._subjects:
+            raise ValueError("No subjects found in the database.")
+        elif len(self._subjects) != len(subject_names):
+            raise ValueError(
+                f"Not all subjects found in the database. Found: {self._subjects}. Expected: {subject_names}"
             )
-            return
-        # then get all records for specific school and specific subject -> calculate score for this subject
-        for id in self._schools_ids:
-            final_score = 0.0  # final score for every school after calculating results from all subjects
-            for subject in self._subjects:
-                subject_score = self._calculate_subject_score(subject, id)
-                weight = self._subject_weights_map[subject.nazwa]
-                final_score += subject_score * weight
-            if final_score == 0.0:
-                logger.warning(
-                    f"⚠️ Final score for school (id: {id}) is 0. Possible missing data or just different school type. Skipping this school - score will be null."
-                )
-                continue
-            school = self._select_where(Szkola, Szkola.id == id)
-            if not school:
-                logger.error(
-                    f"🔍 School with ID {id} not found in database. Cannot update score."
-                )
-                continue
-            school.score = final_score
-            session.add(school)
-            session.commit()
-            logger.info(
-                f"🎯 Score updated for school (RSPO: {school.numer_rspo}): {final_score:.2f}"
-            )
+
+    def _get_number_of_years(self):
+        session = self._ensure_session()
+        years = session.exec(select(self._table_type.rok)).unique().all()
+        if not years:
+            raise ValueError("No years found in the database.")
+        self._years_num = len(years)

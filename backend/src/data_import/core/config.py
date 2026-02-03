@@ -52,19 +52,19 @@ class ExcelFile:
 class ScoreType(Enum):
     E8 = (
         {
-            "język polski": 0.3,
-            "matematyka": 0.4,
-            "język angielski": 0.3,
+            "język polski": 0.25,
+            "matematyka": 0.50,
+            "język angielski": 0.25,
         },
         WynikE8,
     )
     EM = (
         {
             "język polski poziom podstawowy": 0.25,
-            "matematyka poziom podstawowy": 0.3,
+            "matematyka poziom podstawowy": 0.5,
             "język angielski poziom podstawowy": 0.25,
-            "język angielski poziom rozszerzony": 0.1,
-            "matematyka poziom rozszerzony": 0.1,
+            # "język angielski poziom rozszerzony": 0.1,
+            # "matematyka poziom rozszerzony": 0.1,
         },
         WynikEM,
     )
