@@ -1,6 +1,5 @@
 import argparse
 import logging
-import sys
 
 from src.data_import.geo.exporter import SchoolAddressExporter
 from src.data_import.geo.importer import SchoolCoordinatesImporter
@@ -58,8 +57,6 @@ def main():
     _ = parser.parse_args(namespace=args)
 
     try:
-        print(args)
-        print(type(args))
         if args.option == "export":
             export_addresses()
         elif args.option == "import":
@@ -68,7 +65,6 @@ def main():
             shift_school_locations()
     except Exception as e:
         logger.error(f"❌ Error executing {args.option} operation: {e}")
-        sys.exit(1)
 
 
 if __name__ == "__main__":

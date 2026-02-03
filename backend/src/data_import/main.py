@@ -1,3 +1,4 @@
+import argparse
 import logging
 
 from src.data_import.api.db.decomposer import Decomposer
@@ -11,15 +12,40 @@ from src.data_import.score.scorer import Scorer
 logger = logging.getLogger(__name__)
 
 
+class ImportOptions:
+    option: str  # pyright: ignore[reportUninitializedInstanceVariable]
+
+
 def main():
     configure_logging()
 
-    logger.info("📥 Starting segmented schools data import...")
-    api_importer()
-    excel_importer()
+    parser = argparse.ArgumentParser(
+        description="Main import script for school data processing"
+    )
+    _ = parser.add_argument(
+        "-o",
+        "--option",
+        type=str,
+        required=True,
+        choices=["api", "excel", "score"],
+        help="Operation to perform: api (schools API import), excel (exam data import), or score (score calculation)",
+    )
 
-    logger.info("📊 Starting score calculation...")
-    update_scoring()
+    args = ImportOptions()
+    _ = parser.parse_args(namespace=args)
+
+    try:
+        if args.option == "api":
+            logger.info("📥 Starting segmented schools data import...")
+            api_importer()
+        elif args.option == "excel":
+            logger.info("📄 Starting Excel data import...")
+            excel_importer()
+        elif args.option == "score":
+            logger.info("📊 Starting score calculation...")
+            update_scoring()
+    except Exception as e:
+        logger.error(f"❌ Error executing {args.option} operation: {e}")
 
 
 def configure_logging():
