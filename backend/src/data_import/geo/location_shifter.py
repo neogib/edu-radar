@@ -3,7 +3,7 @@ import math
 from sqlmodel import Numeric, cast, func, select, tuple_
 
 from src.app.models.schools import Szkola
-from src.data_import.core.config import ShifterSettings
+from src.data_import.config.geo import ShifterSettings
 from src.data_import.utils.db.session import DatabaseManagerBase
 
 

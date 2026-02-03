@@ -4,7 +4,7 @@ import time
 import requests
 
 from src.data_import.api.exceptions import APIRequestError
-from src.data_import.core.config import TIMEOUT, RetrySettings
+from src.data_import.config.api import TIMEOUT, RetrySettings
 
 logger = logging.getLogger(__name__)
 

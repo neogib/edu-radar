@@ -4,7 +4,10 @@ import logging
 from src.data_import.api.db.decomposer import Decomposer
 from src.data_import.api.exceptions import SchoolsDataError
 from src.data_import.api.fetcher import SchoolsAPIFetcher
-from src.data_import.core.config import LOGS_DIR, APISettings, ExamType, ScoreType
+from src.data_import.config.api import APISettings
+from src.data_import.config.core import LOGS_DIR
+from src.data_import.config.excel import ExamType
+from src.data_import.config.score import ScoreType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
 from src.data_import.score.scorer import Scorer

@@ -2,7 +2,7 @@ import logging
 from typing import cast
 
 from src.data_import.api.exceptions import APIRequestError, SchoolsDataError
-from src.data_import.core.config import APISettings
+from src.data_import.config.api import APISettings
 from src.data_import.utils.api_request import api_request
 
 logger = logging.getLogger(__name__)

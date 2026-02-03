@@ -18,7 +18,7 @@ from src.app.models.exam_results import (
     WynikEMExtra,
 )
 from src.app.models.schools import Szkola
-from src.data_import.core.config import ExamType, ExcelFile
+from src.data_import.config.excel import ExamType, ExcelFile
 from src.data_import.utils.clean_column_names import (
     clean_column_name,
     clean_subjects_names,

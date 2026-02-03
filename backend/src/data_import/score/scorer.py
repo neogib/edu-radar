@@ -5,7 +5,7 @@ from sqlmodel import select
 
 from src.app.models.exam_results import Przedmiot, WynikE8
 from src.app.models.schools import Szkola
-from src.data_import.core.config import ScoreType
+from src.data_import.config.score import ScoreType
 from src.data_import.score.types import WynikTable
 from src.data_import.utils.db.session import DatabaseManagerBase
 

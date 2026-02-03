@@ -9,7 +9,8 @@ from pyproj import Transformer
 
 from src.app.models.schools import Szkola
 from src.data_import.api.exceptions import APIRequestError
-from src.data_import.core.config import CSV_DIR, GeocodingSettings
+from src.data_import.config.core import CSV_DIR
+from src.data_import.config.geo import GeocodingSettings
 from src.data_import.geo.exceptions import GeocodingError
 from src.data_import.utils.api_request import api_request
 from src.data_import.utils.db.session import DatabaseManagerBase

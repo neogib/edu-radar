@@ -113,3 +113,6 @@ temp/
 .grunt
 .lock-wscript
 lib-cov/
+
+# AI
+AGENTS.md
