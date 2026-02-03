@@ -12,12 +12,12 @@ class APISettings:
 
 @final
 class RetrySettings:
-    INITIAL_DELAY: int = 1
-    MAX_DELAY: int = 30
-    MAX_RETRIES: int = 20
+    INITIAL_DELAY = 1
+    MAX_DELAY = 30
+    MAX_RETRIES = 20
 
 
 @final
 class TIMEOUT:
-    CONNECT: int = 30
-    READ: int = 90
+    CONNECT = 30
+    READ = 90

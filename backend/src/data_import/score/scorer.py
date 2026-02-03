@@ -5,7 +5,7 @@ from sqlmodel import select
 
 from src.app.models.exam_results import Przedmiot, WynikE8
 from src.app.models.schools import Szkola
-from src.data_import.config.score import ScoreType
+from src.data_import.config.score import CalculationSettings, ScoreType
 from src.data_import.score.types import WynikTable
 from src.data_import.utils.db.session import DatabaseManagerBase
 
@@ -78,22 +78,29 @@ class Scorer(DatabaseManagerBase):
             logger.info(
                 f"🗓️ Data mismatch for school ID {school_id}, subject '{subject.nazwa}': Found {len(subject_results)} results, expected for {self._years_num} years. Proceeding with available data."
             )
-        # calculate weighted median
+
+        # calculate weighted median with decay factor for each year
         numerator = 0.0
         denominator = 0.0
+        max_year = max(result.rok for result in subject_results)
         for result in subject_results:
-            value = result.mediana
-            if (
-                value is None
-            ):  # if there is no median use sredni_wynik for WynikEM and wynik_sredni for WynikE8
-                value = cast(
-                    float,
+            if result.mediana is not None:
+                value = result.mediana
+            else:  # if there is no median use sredni_wynik for WynikEM and wynik_sredni for WynikE8 but with penalty
+                value = (
                     result.wynik_sredni
                     if isinstance(result, WynikE8)
-                    else result.sredni_wynik,
+                    else result.sredni_wynik
                 )
-            numerator += value * result.liczba_zdajacych
-            denominator += result.liczba_zdajacych
+                if value is None:
+                    continue
+                value *= CalculationSettings.MEAN_PENALTY
+
+            decay = CalculationSettings.DECAY_FACTOR ** (max_year - result.rok)
+            weight = result.liczba_zdajacych * decay
+
+            numerator += value * weight
+            denominator += weight
 
         if denominator == 0:
             logger.warning(

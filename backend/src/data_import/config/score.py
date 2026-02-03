@@ -30,3 +30,9 @@ class ScoreType(Enum):
     ):
         self.subject_weights_map = subject_weights_map
         self.table_type = table_type
+
+
+@final
+class CalculationSettings:
+    MEAN_PENALTY = 0.7  # 30% penalty for subject with no median
+    DECAY_FACTOR = 0.8  # 20% decline per year in score calculation
