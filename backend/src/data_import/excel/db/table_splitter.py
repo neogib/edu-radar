@@ -10,6 +10,8 @@ from typing import cast
 import pandas as pd
 from pydantic import ValidationError
 
+from sqlmodel import select
+
 from src.app.models.exam_results import (
     Przedmiot,
     WynikE8,
@@ -176,6 +178,22 @@ class TableSplitter(DatabaseManagerBase):
                 f"📊 Insufficient data for '{subject.nazwa}' (Details: {subject_exam_result}). Skipping result record creation."
             )
             return None
+
+        # Check if a result already exists with the same combination
+        existing_result = session.exec(
+            select(table).where(
+                table.szkola_id == school.id,
+                table.przedmiot_id == subject.id,
+                table.rok == self.year,
+            )
+        ).first()
+
+        if existing_result:
+            logger.info(
+                f"Skipping duplicate result for school_id={school.id}, przedmiot_id={subject.id}, rok={self.year}"
+            )
+            return None
+
         result = table(
             szkola=school,
             przedmiot=subject,
