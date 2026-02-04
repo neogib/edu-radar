@@ -5,7 +5,13 @@ from enum import Enum
 from pathlib import Path
 from typing import cast
 
+from geoalchemy2 import WKBElement
+from geoalchemy2.shape import (
+    from_shape,  # pyright: ignore[reportUnknownVariableType]
+    to_shape,
+)
 from pyproj import Transformer
+from shapely.geometry import Point
 
 from src.app.models.schools import Szkola
 from src.data_import.api.exceptions import APIRequestError
@@ -65,7 +71,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                 for row in reader:
                     logger.debug(f"Processing row: {row}")
 
-                    # 1. Validate data presence
+                    # validate data presence
                     raw_id = row.get(col_id, "").strip()
                     raw_lat = row.get(col_lat, "").strip()
                     raw_lon = row.get(col_lon, "").strip()
@@ -98,10 +104,12 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                             f"Updated missing data for school ID {school_id}: Lat={raw_lat}, Lon={raw_lon}"
                         )
 
-                    # 3. Update Data
+                    # update data
                     try:
-                        school.geolokalizacja_latitude = float(raw_lat)
-                        school.geolokalizacja_longitude = float(raw_lon)
+                        lat = float(raw_lat)
+                        lon = float(raw_lon)
+                        point = Point(lon, lat)  # Shapely expects (lon, lat)
+                        school.geom = from_shape(point, srid=4326)
                         session.add(school)
                         self.stats[ProcessingStats.PROCESSED.value] += 1
 
@@ -127,10 +135,12 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
 
     def investigate_missing_data(self, school: Szkola) -> None | tuple[float, float]:
         try:
+            # Extract current coordinates from geom
+            point = cast(Point, to_shape(cast(WKBElement, school.geom)))
+            lon, lat = point.x, point.y
+
             # Check if current coordinates are valid (in a building)
-            is_valid = self.is_point_in_building(
-                school.geolokalizacja_latitude, school.geolokalizacja_longitude
-            )
+            is_valid = self.is_point_in_building(lat, lon)
 
             if is_valid:
                 logger.info(

@@ -66,7 +66,7 @@ class SchoolAddressExporter(DatabaseManagerBase):
                             "id",
                             "miejscowosc",
                             "ulica",
-                            "numer_budynku",
+                            "numer_domu",
                             "kod_pocztowy",
                         ]
                     )
