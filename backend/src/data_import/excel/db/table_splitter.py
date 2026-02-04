@@ -9,7 +9,6 @@ from typing import cast
 
 import pandas as pd
 from pydantic import ValidationError
-
 from sqlmodel import select
 
 from src.app.models.exam_results import (
@@ -40,6 +39,7 @@ class TableSplitter(DatabaseManagerBase):
     processed_count: int = 0
     skipped_schools: int = 0
     added_results: int = 0
+    missing_schools_rspo: set[int]
 
     def __init__(self, exam_data: pd.DataFrame, exam_type: ExamType, year: int):
         super().__init__()
@@ -48,6 +48,7 @@ class TableSplitter(DatabaseManagerBase):
         self.year = year
         self.unique_subjects = set()
         self.subjects_cache = {}
+        self.missing_schools_rspo = set()  # to avoid repeated DB lookups
 
     def initialize(self) -> bool:
         """Perform initialization and validation steps.
@@ -131,8 +132,11 @@ class TableSplitter(DatabaseManagerBase):
         return int(cast(str, rspo))
 
     def get_school(self, rspo: int) -> Szkola | None:
+        if rspo in self.missing_schools_rspo:
+            return None
         school = self._select_where(Szkola, Szkola.numer_rspo == rspo)
         if not school:
+            self.missing_schools_rspo.add(rspo)
             self.skip_school(f"❓ School with RSPO {rspo} not found in the database")
         return school
 
@@ -173,10 +177,12 @@ class TableSplitter(DatabaseManagerBase):
                 f"🚫 Invalid data for subject '{subject.nazwa}' (School RSPO: {school.numer_rspo}). Details: {subject_exam_result}. Error: {e}"
             )
             return None
-        if not self._validate_enough_data(result_base):
-            logger.warning(
-                f"📊 Insufficient data for '{subject.nazwa}' (Details: {subject_exam_result}). Skipping result record creation."
-            )
+        if not self._validate_enough_data(
+            result_base
+        ):  # skip results with insufficient data
+            # logger.warning(
+            #     f"📊 Insufficient data for '{subject.nazwa}' (Details: {subject_exam_result}). Skipping result record creation."
+            # )
             return None
 
         # Check if a result already exists with the same combination
@@ -214,9 +220,9 @@ class TableSplitter(DatabaseManagerBase):
                 dict[str, int | float | None],
                 (school_exam_data.loc[subject_name]).to_dict(),  # pyright: ignore[reportAny]
             )
-            logger.info(
-                f"Processing exam result for subject '{subject.nazwa}' (School RSPO: {rspo}): {subject_exam_result}"
-            )
+            # logger.info(
+            #     f"Processing exam result for subject '{subject.nazwa}' (School RSPO: {rspo}): {subject_exam_result}"
+            # )
             # change numpy NaN values to None and clean column names
             subject_exam_result = {
                 clean_column_name(k): (v if pd.notna(v) else None)
@@ -233,7 +239,7 @@ class TableSplitter(DatabaseManagerBase):
                         subject_exam_result, szkola, subject, WynikEMExtra, WynikEM
                     )
             if not result:
-                continue  # there was a ValidationError, move on
+                continue  # there was a ValidationError or record already exists, move on
             results_to_commit += 1
             logger.info(f"💾 Added new exam result: {result.przedmiot} (RSPO: {rspo})")
 
