@@ -53,7 +53,7 @@ class Scorer(DatabaseManagerBase):
                     f"🔍 School with ID {id} not found in database. Cannot update score."
                 )
                 continue
-            school.score = final_score
+            school.wynik = final_score
             session.add(school)
             session.commit()
             logger.info(
@@ -72,12 +72,6 @@ class Scorer(DatabaseManagerBase):
                 f"🤔 No results found for school ID {school_id}, subject '{subject.nazwa}'. Assigning score 0 for this subject's contribution."
             )
             return 0
-
-        # there should be the same amount of records as years
-        if len(subject_results) != self._years_num:
-            logger.info(
-                f"🗓️ Data mismatch for school ID {school_id}, subject '{subject.nazwa}': Found {len(subject_results)} results, expected for {self._years_num} years. Proceeding with available data."
-            )
 
         # calculate weighted median with decay factor for each year
         numerator = 0.0
