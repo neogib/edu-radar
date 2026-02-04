@@ -37,6 +37,13 @@ class TransformOptions:
     option: str  # pyright: ignore[reportUninitializedInstanceVariable]
 
 
+COMMANDS = {
+    "export": export_addresses,
+    "import": import_coordinates,
+    "move": shift_school_locations,
+}
+
+
 def main():
     """Main function to handle command-line arguments and execute appropriate function."""
     configure_logging()
@@ -57,12 +64,7 @@ def main():
     _ = parser.parse_args(namespace=args)
 
     try:
-        if args.option == "export":
-            export_addresses()
-        elif args.option == "import":
-            import_coordinates()
-        elif args.option == "move":
-            shift_school_locations()
+        COMMANDS[args.option]()
     except Exception as e:
         logger.error(f"❌ Error executing {args.option} operation: {e}")
 

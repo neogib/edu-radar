@@ -15,42 +15,6 @@ from src.data_import.score.scorer import Scorer
 logger = logging.getLogger(__name__)
 
 
-class ImportOptions:
-    option: str  # pyright: ignore[reportUninitializedInstanceVariable]
-
-
-def main():
-    configure_logging()
-
-    parser = argparse.ArgumentParser(
-        description="Main import script for school data processing"
-    )
-    _ = parser.add_argument(
-        "-o",
-        "--option",
-        type=str,
-        required=True,
-        choices=["api", "excel", "score"],
-        help="Operation to perform: api (schools API import), excel (exam data import), or score (score calculation)",
-    )
-
-    args = ImportOptions()
-    _ = parser.parse_args(namespace=args)
-
-    try:
-        if args.option == "api":
-            logger.info("📥 Starting segmented schools data import...")
-            api_importer()
-        elif args.option == "excel":
-            logger.info("📄 Starting Excel data import...")
-            excel_importer()
-        elif args.option == "score":
-            logger.info("📊 Starting score calculation...")
-            update_scoring()
-    except Exception as e:
-        logger.error(f"❌ Error executing {args.option} operation: {e}")
-
-
 def configure_logging():
     file_handler = logging.FileHandler(LOGS_DIR / "data_import.log")
     stream_handler = logging.StreamHandler()
@@ -148,6 +112,43 @@ def update_scoring():
             scorer.calculate_scores()
 
     logger.info("🎉 Score calculation completed")
+
+
+class ImportOptions:
+    option: str  # pyright: ignore[reportUninitializedInstanceVariable]
+
+
+COMMANDS = {
+    "api": api_importer,
+    "excel": excel_importer,
+    "score": update_scoring,
+}
+
+
+def main():
+    configure_logging()
+
+    parser = argparse.ArgumentParser(
+        description="Main import script for school data processing"
+    )
+    _ = parser.add_argument(
+        "-o",
+        "--option",
+        type=str,
+        required=True,
+        choices=["api", "excel", "score"],
+        help="Operation to perform: api (schools API import), excel (exam data import), or score (score calculation)",
+    )
+
+    args = ImportOptions()
+    _ = parser.parse_args(namespace=args)
+
+    try:
+        logger.info(f"🚀 Starting {args.option} operation...")
+        COMMANDS[args.option]()
+        logger.info(f"✅ {args.option.capitalize()} operation completed successfully")
+    except Exception as e:
+        logger.error(f"❌ Error executing {args.option} operation: {e}")
 
 
 if __name__ == "__main__":
