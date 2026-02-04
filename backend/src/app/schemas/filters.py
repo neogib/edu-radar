@@ -57,6 +57,9 @@ class FilterParams(BaseModel):
     )
     min_score: int | None = Field(None, ge=0, le=100)
     max_score: int | None = Field(None, ge=0, le=100)
+    closed: bool = Field(
+        False, description="Include closed/liquidated schools in the results"
+    )
     limit: int | None = Field(None, ge=1, le=1000)
 
     @model_validator(mode="after")

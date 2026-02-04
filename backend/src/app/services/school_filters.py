@@ -1,5 +1,5 @@
 from sqlalchemy.orm import selectinload
-from sqlmodel import col, exists, func, select
+from sqlmodel import col, exists, func, not_, select
 from sqlmodel.sql.expression import SelectOfScalar
 
 from src.app.models.schools import Szkola, SzkolaKsztalcenieZawodoweLink
@@ -18,6 +18,9 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, 
         selectinload(Szkola.typ),  # pyright: ignore [reportArgumentType]
         selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
     )
+
+    if not filters.closed:
+        statement = statement.where(not_(Szkola.zlikwidowana))
 
     present = [
         filters.min_lng is not None,
