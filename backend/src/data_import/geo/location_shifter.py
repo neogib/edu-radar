@@ -1,10 +1,15 @@
+import logging
 import math
 
+from geoalchemy2.shape import from_shape  # pyright: ignore[reportUnknownVariableType]
+from shapely.geometry import Point
 from sqlmodel import Numeric, cast, func, select, tuple_
 
 from src.app.models.schools import Szkola
 from src.data_import.config.geo import ShifterSettings
 from src.data_import.utils.db.session import DatabaseManagerBase
+
+logger = logging.getLogger(__name__)
 
 
 class SchoolLocationShifter(DatabaseManagerBase):
@@ -45,7 +50,7 @@ class SchoolLocationShifter(DatabaseManagerBase):
 
     def _get_schools_with_duplicate_coordinates(
         self, precision: int = 5
-    ) -> list[Szkola]:
+    ) -> list[tuple[Szkola, float, float]]:
         """
         Get all schools that share the same coordinates (rounded to given precision).
 
@@ -56,31 +61,33 @@ class SchoolLocationShifter(DatabaseManagerBase):
 
         """
         session = self._ensure_session()
-        lat = func.round(cast(Szkola.geolokalizacja_latitude, Numeric), precision)
-        lon = func.round(cast(Szkola.geolokalizacja_longitude, Numeric), precision)
+        lat = func.round(cast(func.ST_Y(Szkola.geom), Numeric), precision)
+        lon = func.round(cast(func.ST_X(Szkola.geom), Numeric), precision)
+
         # Subquery: find coordinate pairs that appear more than once
         duplicate_coords_subquery = (
             select(lat.label("lat"), lon.label("lon"))
-            .group_by("lat", "lon")
+            .group_by(lat, lon)
             .having(func.count() > 1)
         )
 
         # Main query: get all schools with those duplicate coordinates
-        statement = (
-            select(Szkola)
-            .where(tuple_(lat, lon).in_(duplicate_coords_subquery))  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
-            .order_by(
-                Szkola.geolokalizacja_latitude,  # pyright: ignore[reportArgumentType]
-                Szkola.geolokalizacja_longitude,  # pyright: ignore[reportArgumentType]
-                Szkola.id,  # pyright: ignore[reportArgumentType]
-            )
+        # Return rounded coordinates to ensure consistent grouping
+        statement = select(
+            Szkola,
+            lat.label("lat"),
+            lon.label("lon"),
+        ).where(
+            tuple_(lat, lon).in_(duplicate_coords_subquery)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
         )
 
-        schools = list(session.exec(statement).all())
+        results = session.exec(statement).all()
+        # Convert Decimal to float for geometric calculations
+        schools = [(school, float(lat), float(lon)) for school, lat, lon in results]  # pyright: ignore[reportAny]
         return schools
 
     def _group_schools_by_location(
-        self, schools: list[Szkola]
+        self, schools: list[tuple[Szkola, float, float]]
     ) -> dict[tuple[float, float], list[Szkola]]:
         """
         Group schools by their exact coordinates.
@@ -93,15 +100,20 @@ class SchoolLocationShifter(DatabaseManagerBase):
         """
 
         location_groups: dict[tuple[float, float], list[Szkola]] = {}
-        for school in schools:
-            if (
-                school.geolokalizacja_latitude == 0.0
-                or school.geolokalizacja_longitude == 0.0
-            ):
-                # Skip invalid coordinates
+        skipped_invalid = 0
+
+        for school, lat, lon in schools:
+            if lat == 0.0 or lon == 0.0:
+                skipped_invalid += 1
                 continue
-            coords = (school.geolokalizacja_latitude, school.geolokalizacja_longitude)
+
+            coords = (lat, lon)
             location_groups.setdefault(coords, []).append(school)
+
+        if skipped_invalid > 0:
+            logger.warning(
+                f"⚠️ Skipped {skipped_invalid} schools with invalid coordinates (0.0)"
+            )
 
         return location_groups
 
@@ -122,6 +134,9 @@ class SchoolLocationShifter(DatabaseManagerBase):
 
         for coords, schools_at_location in location_groups.items():
             if len(schools_at_location) <= 1:
+                logger.debug(
+                    f"No shift needed for location {coords} with single school. But there shouldn't be any in this list anyway."
+                )
                 continue
 
             # Keep the first school, shift the rest
@@ -211,11 +226,19 @@ class SchoolLocationShifter(DatabaseManagerBase):
         updated_count = 0
 
         for school, new_lat, new_lon in schools_to_shift:
-            school.geolokalizacja_latitude = new_lat
-            school.geolokalizacja_longitude = new_lon
+            # Update PostGIS geometry column (lon, lat order for POINT)
+            school.geom = from_shape(Point(new_lon, new_lat), srid=4326)
             session.add(school)
             updated_count += 1
 
+            if updated_count % 1000 == 0:
+                # commit in batches to avoid large transactions
+                logger.info(
+                    f"Committed {updated_count} school location shifts so far..."
+                )
+                session.commit()
+
+        # final commit for any remaining updates
         session.commit()
 
         return updated_count
