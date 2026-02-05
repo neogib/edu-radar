@@ -27,7 +27,7 @@ def import_coordinates():
 
 def shift_school_locations():
     """Move data functionality - to be implemented later."""
-    logger.warning("Starting to shift school locations...")
+    logger.info("Starting to shift school locations...")
     with SchoolLocationShifter() as location_shifter:
         schools_shifted = location_shifter.shift_school_locations()
     logger.info(f"✅ Shifted locations for {schools_shifted} schools successfully")

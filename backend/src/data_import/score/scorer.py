@@ -1,7 +1,7 @@
 import logging
 from typing import cast
 
-from sqlmodel import select
+from sqlmodel import func, select
 
 from src.app.models.exam_results import Przedmiot, WynikE8
 from src.app.models.schools import Szkola
@@ -13,10 +13,21 @@ logger = logging.getLogger(__name__)
 
 
 class Scorer(DatabaseManagerBase):
+    """
+    Calculates normalized school scores (0-100) based on exam results.
+
+    Scoring rules:
+    - Only considers schools that have results for all subjects defined in the score type
+    - Only considers schools that have results from the most recent year in the database
+    - If a school has no results for ANY subject in the most recent year,
+      its score is set to NULL (even if it has scores from previous years)
+    - This handles cases where schools become inactive or skip exam cycles
+    """
+
     _subject_weights_map: dict[str, float]
     _schools_ids: list[int]
     _subjects: list[Przedmiot]
-    _years_num: int = 0
+    _most_recent_year: int = 0
     _table_type: type[WynikTable]
 
     def __init__(self, score_type: ScoreType):
@@ -35,48 +46,84 @@ class Scorer(DatabaseManagerBase):
                 f"⚙️ Initialization error: {e}. Aborting school scoring process."
             )
             return
-        # then get all records for specific school and specific subject -> calculate score for this subject
+        processed_schools = 0
+
         for id in self._schools_ids:
-            final_score = 0.0  # final score for every school after calculating results from all subjects
-            for subject in self._subjects:
-                subject_score = self._calculate_subject_score(subject, id)
-                weight = self._subject_weights_map[subject.nazwa]
-                final_score += subject_score * weight
-            if final_score == 0.0:
-                logger.warning(
-                    f"⚠️ Final score for school (id: {id}) is 0. Possible missing data or just different school type. Skipping this school - score will be null."
-                )
-                continue
             school = self._select_where(Szkola, Szkola.id == id)
             if not school:
                 logger.error(
                     f"🔍 School with ID {id} not found in database. Cannot update score."
                 )
                 continue
-            school.wynik = final_score
-            session.add(school)
-            session.commit()
-            logger.info(
-                f"🎯 Score updated for school (RSPO: {school.numer_rspo}): {final_score:.2f}"
-            )
 
-    def _calculate_subject_score(self, subject: Przedmiot, school_id: int) -> float:
+            final_score = 0.0
+
+            for subject in self._subjects:
+                subject_score = self._calculate_subject_score(subject, id)
+                if subject_score is None:  # skip this school and set score to NULL
+                    # missing results for this school or no results in the most recent year
+                    logger.info(
+                        f"⏩ School ID {id} missing '{subject.nazwa}' results. Setting score to NULL."
+                    )
+                    school.wynik = None
+                    session.add(school)
+                    processed_schools += 1
+                    break
+                weight = self._subject_weights_map[subject.nazwa]
+                final_score += subject_score * weight
+            else:
+                # Loop completed without break - all subjects processed
+                if final_score == 0.0:
+                    logger.warning(
+                        f"⚠️ Final score for school (id: {id}) is 0. Possible missing data. Setting score to NULL."
+                    )
+                    school.wynik = None
+                else:
+                    school.wynik = final_score
+                    logger.info(
+                        f"🎯 Score updated for school (RSPO: {school.numer_rspo}): {final_score:.2f}"
+                    )
+                session.add(school)
+                processed_schools += 1
+
+            if processed_schools % 100 == 0:
+                session.commit()
+                logger.info(
+                    f"💾 Committed scores for {processed_schools} schools so far..."
+                )
+
+        # Final commit after processing all schools
+        session.commit()
+
+    def _calculate_subject_score(
+        self, subject: Przedmiot, school_id: int
+    ) -> float | None:
+        """
+        Calculate score for a specific subject and school.
+
+        Returns:
+            float: The calculated score (0.0 if no valid data)
+            None: If school has no results for this subject in the most recent year
+        """
         session = self._ensure_session()
         statement = select(self._table_type).where(
             self._table_type.szkola_id == school_id,
             self._table_type.przedmiot_id == subject.id,
         )
         subject_results = session.exec(statement).all()
+
         if not subject_results:
-            logger.warning(
-                f"🤔 No results found for school ID {school_id}, subject '{subject.nazwa}'. Assigning score 0 for this subject's contribution."
-            )
-            return 0
+            # schools should have results for each subject taken into account when calculating score
+            return None  # signal to skip entire school
+
+        max_year = max(result.rok for result in subject_results)
+        if max_year != self._most_recent_year:
+            # School doesn't have results for this subject in the most recent year
+            return None  # signal to skip entire school
 
         # calculate weighted median with decay factor for each year
         numerator = 0.0
         denominator = 0.0
-        max_year = max(result.rok for result in subject_results)
         for result in subject_results:
             if result.mediana is not None:
                 value = result.mediana
@@ -107,7 +154,7 @@ class Scorer(DatabaseManagerBase):
     def _initialize_required_data(self):
         self._load_school_ids()
         self._load_subjects()
-        self._get_number_of_years()  # count all distinct years from the table with scores
+        self._get_most_recent_year()
 
     def _load_school_ids(self):
         session = self._ensure_session()
@@ -130,9 +177,8 @@ class Scorer(DatabaseManagerBase):
                 f"Not all subjects found in the database. Found: {self._subjects}. Expected: {subject_names}"
             )
 
-    def _get_number_of_years(self):
+    def _get_most_recent_year(self):
         session = self._ensure_session()
-        years = session.exec(select(self._table_type.rok)).unique().all()
-        if not years:
-            raise ValueError("No years found in the database.")
-        self._years_num = len(years)
+        self._most_recent_year = session.exec(
+            select(func.max(self._table_type.rok))
+        ).one()
