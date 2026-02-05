@@ -63,42 +63,132 @@ class TableSplitter(DatabaseManagerBase):
             )
             return False
 
-    def _get_rspo_col_name(self):
-        rspo_cols = [
-            col
-            for col in self.exam_data.columns
-            if isinstance(col, tuple)
-            and "RSPO" in col[1]  # RSPO is in the second part of the tuple
-        ]
-        if len(rspo_cols) != 1:
-            raise ValueError("Exactly one column with 'RSPO' in its name is expected.")
-        self.rspo_col_name = rspo_cols[0]
-
-    def _get_subjects_names(self):
+    def split_exam_results(self):
         """
-        Extracts unique subject names from the multi-level column index,
-        prunes exam data to include only subjects of interest.
-        Assumes subject names are in the first level.
+        Iterates through exam data, finds corresponding schools and subjects,
+        creates WynikE8/WynikEM records, and adds them to the DB session.
         """
+        logger.info(
+            f"📊 Starting processing of {self.exam_type} results for {len(self.exam_data)} schools..."
+        )
 
-        # Iterate through columns to find subjects (assuming they are level 0 of multi-index)
-        for col in self.exam_data.columns:
-            # Check if it's a tuple (multi-index) and not unnamed/metadata column which can be skipped
-            if isinstance(col, tuple) and len(col) > 1:
-                valid_col = True
-                for col_prefix in ExcelFile.SPECIAL_COLUMN_START:
-                    if col_prefix in col[0]:
-                        valid_col = False
-                        break
-                if not valid_col:
+        for index, school_exam_data in self.exam_data.iterrows():
+            school_exam_data: pd.Series
+            try:
+                # Find School by RSPO
+                rspo = self.get_school_rspo_number(school_exam_data, index)
+                if not rspo:
                     continue
-                self.unique_subjects.add(str(col[0]))
 
-        logger.info(f"📚 Identified subjects for processing: {self.unique_subjects}")
-        cols_to_keep = [*self.unique_subjects, self.rspo_col_name[0]]
+                school = self.get_school(rspo)
+                if not school:
+                    continue
 
-        # slicing of self.exam_data to get only exam results + rspo column
-        self.exam_data = self.exam_data.loc[:, cols_to_keep]
+                # Process results for each subject for this school
+                self.create_results(school_exam_data, school, rspo)
+
+                self.processed_count += 1
+                if self.processed_count % 100 == 0:  # Log progress periodically
+                    logger.info(
+                        f"⏳ Processed {self.processed_count} schools... Added {self.added_results} results so far."
+                    )
+
+            except Exception as e:
+                logger.exception(f"📛 Unexpected error processing row {index}: {e}")
+                self.skipped_schools += (
+                    1  # Count as skipped if major error occurs for the row
+                )
+
+        logger.info(f"✅ Successfully processed {self.processed_count} schools.")
+        logger.info(f"ℹ️ Added {self.added_results} new exam results to the session.")  # noqa: RUF001
+        logger.info(
+            f"ℹ️ Skipped {self.skipped_schools} schools due to missing/invalid RSPO, school not found in DB, or row processing error."  # noqa: RUF001
+        )
+
+    def create_results(self, school_exam_data: pd.Series, szkola: Szkola, rspo: int):
+        session = self._ensure_session()
+        results_to_commit = 0
+        for subject_name in self.unique_subjects:
+            subject = self.get_subject(clean_subjects_names(subject_name))
+
+            subject_exam_result: dict[str, int | float | None] = cast(
+                dict[str, int | float | None],
+                (school_exam_data.loc[subject_name]).to_dict(),  # pyright: ignore[reportAny]
+            )
+            # logger.info(
+            #     f"Processing exam result for subject '{subject.nazwa}' (School RSPO: {rspo}): {subject_exam_result}"
+            # )
+            # change numpy NaN values to None and clean column names
+            subject_exam_result = {
+                clean_column_name(k): (v if pd.notna(v) else None)
+                for k, v in subject_exam_result.items()
+            }
+
+            match self.exam_type:
+                case ExamType.E8:
+                    result = self.create_result_record(
+                        subject_exam_result, szkola, subject, WynikE8Extra, WynikE8
+                    )
+                case ExamType.EM:
+                    result = self.create_result_record(
+                        subject_exam_result, szkola, subject, WynikEMExtra, WynikEM
+                    )
+            if not result:
+                continue  # there was a ValidationError or record already exists, move on
+            results_to_commit += 1
+            logger.info(f"💾 Added new exam result: {result.przedmiot} (RSPO: {rspo})")
+
+        if results_to_commit > 0:
+            session.commit()
+
+    def create_result_record(
+        self,
+        subject_exam_result: dict[str, int | float | None],
+        school: Szkola,
+        subject: Przedmiot,
+        base: type[WynikE8Extra | WynikEMExtra],
+        table: type[WynikE8 | WynikEM],
+    ) -> WynikE8 | WynikEM | None:
+        session = self._ensure_session()
+        try:
+            result_base = base.model_validate(subject_exam_result)
+        except ValidationError as e:
+            logger.error(
+                f"🚫 Invalid data for subject '{subject.nazwa}' (School RSPO: {school.numer_rspo}). Details: {subject_exam_result}. Error: {e}"
+            )
+            return None
+        if not self._validate_enough_data(
+            result_base
+        ):  # skip results with insufficient data
+            # logger.warning(
+            #     f"📊 Insufficient data for '{subject.nazwa}' (Details: {subject_exam_result}). Skipping result record creation."
+            # )
+            return None
+
+        # Check if a result already exists with the same combination
+        existing_result = session.exec(
+            select(table).where(
+                table.szkola_id == school.id,
+                table.przedmiot_id == subject.id,
+                table.rok == self.year,
+            )
+        ).first()
+
+        if existing_result:
+            logger.info(
+                f"Skipping duplicate result for school_id={school.id}, przedmiot_id={subject.id}, rok={self.year}"
+            )
+            return None
+
+        result = table(
+            szkola=school,
+            przedmiot=subject,
+            rok=self.year,
+            **result_base.model_dump(),  # pyright: ignore[reportAny]
+        )
+        session.add(result)
+        self.added_results += 1
+        return result
 
     def get_subject(self, subject_name: str) -> Przedmiot:
         """Gets a Przedmiot record in the database. If it does not exist, creates it."""
@@ -161,129 +251,39 @@ class TableSplitter(DatabaseManagerBase):
             return False
         return True
 
-    def create_result_record(
-        self,
-        subject_exam_result: dict[str, int | float | None],
-        school: Szkola,
-        subject: Przedmiot,
-        base: type[WynikE8Extra | WynikEMExtra],
-        table: type[WynikE8 | WynikEM],
-    ) -> WynikE8 | WynikEM | None:
-        session = self._ensure_session()
-        try:
-            result_base = base.model_validate(subject_exam_result)
-        except ValidationError as e:
-            logger.error(
-                f"🚫 Invalid data for subject '{subject.nazwa}' (School RSPO: {school.numer_rspo}). Details: {subject_exam_result}. Error: {e}"
-            )
-            return None
-        if not self._validate_enough_data(
-            result_base
-        ):  # skip results with insufficient data
-            # logger.warning(
-            #     f"📊 Insufficient data for '{subject.nazwa}' (Details: {subject_exam_result}). Skipping result record creation."
-            # )
-            return None
+    def _get_rspo_col_name(self):
+        rspo_cols = [
+            col
+            for col in self.exam_data.columns
+            if isinstance(col, tuple)
+            and "RSPO" in col[1]  # RSPO is in the second part of the tuple
+        ]
+        if len(rspo_cols) != 1:
+            raise ValueError("Exactly one column with 'RSPO' in its name is expected.")
+        self.rspo_col_name = rspo_cols[0]
 
-        # Check if a result already exists with the same combination
-        existing_result = session.exec(
-            select(table).where(
-                table.szkola_id == school.id,
-                table.przedmiot_id == subject.id,
-                table.rok == self.year,
-            )
-        ).first()
-
-        if existing_result:
-            logger.info(
-                f"Skipping duplicate result for school_id={school.id}, przedmiot_id={subject.id}, rok={self.year}"
-            )
-            return None
-
-        result = table(
-            szkola=school,
-            przedmiot=subject,
-            rok=self.year,
-            **result_base.model_dump(),  # pyright: ignore[reportAny]
-        )
-        session.add(result)
-        self.added_results += 1
-        return result
-
-    def create_results(self, school_exam_data: pd.Series, szkola: Szkola, rspo: int):
-        session = self._ensure_session()
-        results_to_commit = 0
-        for subject_name in self.unique_subjects:
-            subject = self.get_subject(clean_subjects_names(subject_name))
-
-            subject_exam_result: dict[str, int | float | None] = cast(
-                dict[str, int | float | None],
-                (school_exam_data.loc[subject_name]).to_dict(),  # pyright: ignore[reportAny]
-            )
-            # logger.info(
-            #     f"Processing exam result for subject '{subject.nazwa}' (School RSPO: {rspo}): {subject_exam_result}"
-            # )
-            # change numpy NaN values to None and clean column names
-            subject_exam_result = {
-                clean_column_name(k): (v if pd.notna(v) else None)
-                for k, v in subject_exam_result.items()
-            }
-
-            match self.exam_type:
-                case ExamType.E8:
-                    result = self.create_result_record(
-                        subject_exam_result, szkola, subject, WynikE8Extra, WynikE8
-                    )
-                case ExamType.EM:
-                    result = self.create_result_record(
-                        subject_exam_result, szkola, subject, WynikEMExtra, WynikEM
-                    )
-            if not result:
-                continue  # there was a ValidationError or record already exists, move on
-            results_to_commit += 1
-            logger.info(f"💾 Added new exam result: {result.przedmiot} (RSPO: {rspo})")
-
-        if results_to_commit > 0:
-            session.commit()
-
-    def split_exam_results(self):
+    def _get_subjects_names(self):
         """
-        Iterates through exam data, finds corresponding schools and subjects,
-        creates WynikE8/WynikEM records, and adds them to the DB session.
+        Extracts unique subject names from the multi-level column index,
+        prunes exam data to include only subjects of interest.
+        Assumes subject names are in the first level.
         """
-        logger.info(
-            f"📊 Starting processing of {self.exam_type} results for {len(self.exam_data)} schools..."
-        )
 
-        for index, school_exam_data in self.exam_data.iterrows():
-            school_exam_data: pd.Series
-            try:
-                # Find School by RSPO
-                rspo = self.get_school_rspo_number(school_exam_data, index)
-                if not rspo:
+        # Iterate through columns to find subjects (assuming they are level 0 of multi-index)
+        for col in self.exam_data.columns:
+            # Check if it's a tuple (multi-index) and not unnamed/metadata column which can be skipped
+            if isinstance(col, tuple) and len(col) > 1:
+                valid_col = True
+                for col_prefix in ExcelFile.SPECIAL_COLUMN_START:
+                    if col_prefix in col[0]:
+                        valid_col = False
+                        break
+                if not valid_col:
                     continue
+                self.unique_subjects.add(str(col[0]))
 
-                school = self.get_school(rspo)
-                if not school:
-                    continue
+        logger.info(f"📚 Identified subjects for processing: {self.unique_subjects}")
+        cols_to_keep = [*self.unique_subjects, self.rspo_col_name[0]]
 
-                # Process results for each subject for this school
-                self.create_results(school_exam_data, school, rspo)
-
-                self.processed_count += 1
-                if self.processed_count % 100 == 0:  # Log progress periodically
-                    logger.info(
-                        f"⏳ Processed {self.processed_count} schools... Added {self.added_results} results so far."
-                    )
-
-            except Exception as e:
-                logger.exception(f"📛 Unexpected error processing row {index}: {e}")
-                self.skipped_schools += (
-                    1  # Count as skipped if major error occurs for the row
-                )
-
-        logger.info(f"✅ Successfully processed {self.processed_count} schools.")
-        logger.info(f"ℹ️ Added {self.added_results} new exam results to the session.")  # noqa: RUF001
-        logger.info(
-            f"ℹ️ Skipped {self.skipped_schools} schools due to missing/invalid RSPO, school not found in DB, or row processing error."  # noqa: RUF001
-        )
+        # slicing of self.exam_data to get only exam results + rspo column
+        self.exam_data = self.exam_data.loc[:, cols_to_keep]

@@ -23,6 +23,17 @@ class ExcelReader:
         if base_data_path is not None:
             self.base_data_path = base_data_path
 
+    def load_files(self, exam_type: ExamType) -> Iterator[tuple[int, pd.DataFrame]]:
+        """
+        Loads Excel files from E8 or EM directories
+        """
+        target_dir = exam_type.directory_name
+        path = self.base_data_path / target_dir
+        logger.info(f"📂 Accessing data from directory: {path}")
+        yield from self.read_files_from_dir(path, exam_type)
+
+        logger.info(f"✅ Successfully processed all files from: {path}")
+
     def read_files_from_dir(
         self, directory_path: Path, exam_type: ExamType
     ) -> Iterator[tuple[int, pd.DataFrame]]:
@@ -49,14 +60,3 @@ class ExcelReader:
                     )
             except Exception as e:
                 logger.error(f"Error reading file {file_name}: {e}")
-
-    def load_files(self, exam_type: ExamType) -> Iterator[tuple[int, pd.DataFrame]]:
-        """
-        Loads Excel files from E8 or EM directories
-        """
-        target_dir = exam_type.directory_name
-        path = self.base_data_path / target_dir
-        logger.info(f"📂 Accessing data from directory: {path}")
-        yield from self.read_files_from_dir(path, exam_type)
-
-        logger.info(f"✅ Successfully processed all files from: {path}")
