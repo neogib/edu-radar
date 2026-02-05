@@ -65,7 +65,6 @@ def api_request(
         try:
             return response.json()  # pyright: ignore[reportAny]
         except requests.exceptions.JSONDecodeError:  # api doesn't reponse with json
-            logger.info(f"Response url: {response.url}")
             return response.text
 
     raise APIRequestError(
