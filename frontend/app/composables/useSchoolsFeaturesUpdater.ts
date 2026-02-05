@@ -13,6 +13,7 @@ export const useSchoolsFeaturesUpdater = () => {
         source: GeoJSONSource,
     ) => {
         const { streamFetch } = useStreamFetch()
+        let totalAdded = 0
 
         // setup a Buffer and a Processing Flag
         let featureBuffer: SchoolFeature[] = []
@@ -37,7 +38,7 @@ export const useSchoolsFeaturesUpdater = () => {
 
                 try {
                     await source.updateData({ add: featuresBatch }, true)
-                    console.log("Updated map with", featuresBatch.length)
+                    totalAdded += featuresBatch.length
                 } catch (e) {
                     console.error("Error updating map data", e)
                 }
@@ -63,6 +64,9 @@ export const useSchoolsFeaturesUpdater = () => {
         if (processingState.promise) {
             await processingState.promise
         }
+        console.log(
+            `Schools features update completed, total added: ${totalAdded}`,
+        )
     }
     return updateSchoolsFeatures
 }
