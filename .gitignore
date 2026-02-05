@@ -91,6 +91,9 @@ logs/
 # created datasets
 *.csv
 
+# created checkpoints
+*.txt
+
 # Testing and Coverage
 coverage/
 .nyc_output/

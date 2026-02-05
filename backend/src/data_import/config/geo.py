@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import ClassVar, final
 
 
@@ -11,8 +12,8 @@ class ShifterSettings:
 class GeocodingSettings:
     UUG_URL: str = "https://services.gugik.gov.pl/uug/"
     ULDK_URL: str = "https://uldk.gugik.gov.pl"
-    SRID_POL: int = 2180  # EPSG code for Poland CS92 coordinate system
     SRID_WGS84: int = 4326  # EPSG code for WGS84 coordinate system
+    CHECKPOINT_FILE: Path = Path(__file__).parent.parent / "data" / "geo_checkpoint.txt"
     # Geocoding - change Warsaw districts into "Warszawa"
     WARSAW_DISTRICTS: ClassVar = {
         "Wola",

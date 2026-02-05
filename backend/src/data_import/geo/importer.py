@@ -34,16 +34,25 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
     def __init__(
         self,
         converted_file: str | Path = CSV_DIR / "converted_addresses.csv",
+        starting_id: int | None = None,
     ):
         super().__init__()
+        self.checkpoint_file: Path = GeocodingSettings.CHECKPOINT_FILE
         self.converted_file: str | Path = converted_file
+        self.starting_id: int = (
+            starting_id if starting_id is not None else self._load_checkpoint()
+        )
         self.stats: dict[str, int] = defaultdict(int)
 
     def update_school_coordinates(self) -> None:
         """
         Updates school geolocation data based on the CSV file.
+        Resumes from starting_id if set.
         """
         session = self._ensure_session()
+
+        if self.starting_id:
+            logger.info(f"🔄 Resuming import from ID: {self.starting_id}")
 
         # Define required columns
         col_id = "id"
@@ -77,6 +86,11 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
 
                     # find school
                     school_id = int(raw_id)
+
+                    # Skip records until we reach starting_id
+                    if self.starting_id and school_id < self.starting_id:
+                        continue
+
                     school = session.get(Szkola, school_id)
 
                     if not school:
@@ -118,9 +132,11 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                     # Commit every 100 records to avoid large transactions
                     if self.stats[ProcessingStats.PROCESSED.value] % 100 == 0:
                         session.commit()
+                        self._save_checkpoint(school_id)
 
                 # Final commit for remaining records
                 session.commit()
+                self._clear_checkpoint()
                 for stats in ProcessingStats:
                     logger.info(f"Stat - {stats.value}: {self.stats[stats.value]}")
 
@@ -284,3 +300,31 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
             return False
 
         return True
+
+    def _load_checkpoint(self) -> int:
+        """Load the last processed school ID from checkpoint file."""
+        if self.checkpoint_file.exists():
+            try:
+                content = self.checkpoint_file.read_text().strip()
+                if content:
+                    return int(content)
+            except (ValueError, OSError) as e:
+                logger.warning(f"Failed to load checkpoint: {e}")
+        return 0
+
+    def _save_checkpoint(self, school_id: int) -> None:
+        """Save the current school ID to checkpoint file."""
+        try:
+            self.checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
+            self.checkpoint_file.write_text(str(school_id))  # pyright: ignore[reportUnusedCallResult]
+        except OSError as e:
+            logger.error(f"Failed to save checkpoint: {e}")
+
+    def _clear_checkpoint(self) -> None:
+        """Clear the checkpoint file after successful completion."""
+        try:
+            if self.checkpoint_file.exists():
+                self.checkpoint_file.unlink()
+                logger.info("✅ Checkpoint cleared - import completed successfully")
+        except OSError as e:
+            logger.error(f"Failed to clear checkpoint: {e}")
