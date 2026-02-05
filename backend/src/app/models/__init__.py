@@ -1,3 +1,8 @@
-from . import exam_results, locations, schools
+from . import exam_results, locations, ranking, schools
 
-__all__ = ["exam_results", "locations", "schools"]
+__all__ = [
+    "exam_results",
+    "locations",
+    "ranking",
+    "schools",
+]

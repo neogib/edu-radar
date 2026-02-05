@@ -17,6 +17,7 @@ if TYPE_CHECKING:
         WynikEM,
     )
     from src.app.models.locations import Miejscowosc, Ulica
+    from src.app.models.ranking import Ranking
 
 
 class TypSzkolyBase(SQLModel):
@@ -172,3 +173,4 @@ class Szkola(SzkolaAllData, TimestampMixin, table=True):
     )
     wyniki_e8: list["WynikE8"] = Relationship(back_populates="szkola")  # pyright: ignore [reportAny]
     wyniki_em: list["WynikEM"] = Relationship(back_populates="szkola")  # pyright: ignore [reportAny]
+    rankingi: list["Ranking"] = Relationship(back_populates="szkola")  # pyright: ignore [reportAny]
