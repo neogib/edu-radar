@@ -1,5 +1,4 @@
 import { useDebounceFn } from "@vueuse/core"
-import type { Point } from "geojson"
 import type { GeoJSONFeature } from "maplibre-gl"
 import type maplibregl from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
@@ -36,7 +35,7 @@ export const useMapInteractions = (
             handleMouseMove(map, e),
         )
         map.on("mouseleave", "unclustered-points", () => handleMouseLeave(map))
-        map.on("click", "unclustered-points", handleClick)
+        map.on("click", "unclustered-points", (e) => handleClick(map, e))
 
         // Cluster click to zoom in
         map.on("click", "clusters", (e) => handleClusterClick(map, e))
@@ -118,12 +117,45 @@ export const useMapInteractions = (
         hoveredSchool.value = null
     }
 
-    const handleClick = async (e: MapMouseLayerEvent) => {
-        const feature_collection = e.features?.[0]
-        if (!feature_collection) return
+    const handleClick = async (map: maplibregl.Map, e: MapMouseLayerEvent) => {
+        const feature = e.features?.[0]
+        if (!feature) return
+        if (feature.geometry.type !== "Point") return
 
+        // MapLibre click features are runtime objects; create plain GeoJSON
+        // before passing data to sources to avoid serialization issues.
+        const selectedFeature: SchoolFeature = {
+            type: "Feature",
+            properties: {
+                id: Number(feature.properties.id),
+                nazwa: feature.properties.nazwa,
+                typ: feature.properties.typ,
+                status: feature.properties.status,
+                wynik: feature.properties.wynik,
+            },
+            geometry: {
+                type: "Point",
+                coordinates: [
+                    Number(feature.geometry.coordinates[0]),
+                    Number(feature.geometry.coordinates[1]),
+                ],
+            },
+        }
+
+        // update the selected point source
+        const selectedPointSource = map.getSource("selected-point") as
+            | maplibregl.GeoJSONSource
+            | undefined
+        if (selectedPointSource) {
+            selectedPointSource.setData({
+                type: "FeatureCollection",
+                features: [selectedFeature],
+            })
+        }
+
+        // Fetch full school details and emit event
         const schoolFullDetails = await $api<SzkolaPublicWithRelations>(
-            `/schools/${feature_collection.properties.id}`,
+            `/schools/${feature.properties.id}`,
         )
 
         if (schoolFullDetails) {

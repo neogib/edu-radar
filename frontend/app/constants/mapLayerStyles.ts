@@ -4,11 +4,29 @@ import type {
     PropertyValueSpecification,
 } from "maplibre-gl"
 
+const ICON_IMAGES = [
+    "case",
+    ["==", ["get", "typ"], "Technikum"],
+    SCHOOL_ICONS.Technikum,
+    ["==", ["get", "typ"], "Liceum ogólnokształcące"],
+    SCHOOL_ICONS["Liceum ogólnokształcące"],
+    ["==", ["get", "typ"], "Szkoła podstawowa"],
+    SCHOOL_ICONS["Szkoła podstawowa"],
+    ["==", ["get", "typ"], "Przedszkole"],
+    SCHOOL_ICONS["Przedszkole"],
+    SCHOOL_ICONS.default,
+] as DataDrivenPropertyValueSpecification<string>
+
 export const POINT_LAYER_STYLE = {
     paint: {
-        "icon-opacity": 0.7,
-        "icon-halo-color": "#000000", // black border
-        "icon-halo-width": 1, // szerokość w px
+        "icon-opacity": [
+            "case",
+            ["boolean", ["feature-state", "clicked"], false],
+            1,
+            0.7,
+        ] as DataDrivenPropertyValueSpecification<number>,
+        "icon-halo-color": "#000000",
+        "icon-halo-width": 1,
         "icon-color": [
             "case",
             ["==", ["get", "wynik"], null],
@@ -28,19 +46,7 @@ export const POINT_LAYER_STYLE = {
     },
     layout: {
         "icon-size": 0.5,
-        "icon-image": [
-            "case",
-            ["==", ["get", "typ"], "Technikum"],
-            SCHOOL_ICONS.Technikum,
-            ["==", ["get", "typ"], "Liceum ogólnokształcące"],
-            SCHOOL_ICONS["Liceum ogólnokształcące"],
-            ["==", ["get", "typ"], "Szkoła podstawowa"],
-            SCHOOL_ICONS["Szkoła podstawowa"],
-            ["==", ["get", "typ"], "Przedszkole"],
-            SCHOOL_ICONS["Przedszkole"],
-            // Default fallback for any other school types
-            SCHOOL_ICONS.default,
-        ] as DataDrivenPropertyValueSpecification<string>,
+        "icon-image": ICON_IMAGES,
         "icon-allow-overlap": true,
     },
 }
@@ -85,5 +91,17 @@ export const CLUSTER_LAYER_STYLE = {
             string[]
         >,
         "text-size": 12 as PropertyValueSpecification<number>,
+    },
+}
+
+export const SELECTED_POINT_BORDER_STYLE = {
+    paint: {
+        "icon-opacity": 1,
+        "icon-color": "#000000",
+    },
+    layout: {
+        "icon-size": 0.6,
+        "icon-image": ICON_IMAGES,
+        "icon-allow-overlap": true,
     },
 }
