@@ -152,10 +152,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     // Fly to school
     const map = mapInstance.map as maplibregl.Map
     map.flyTo({
-        center: [
-            school.geolokalizacja_longitude,
-            school.geolokalizacja_latitude,
-        ],
+        center: [school.longitude, school.latitude],
         zoom: 16,
     })
 }
@@ -272,9 +269,9 @@ defineExpose({
                     school.nazwa
                 }}</span>
                 <div class="flex gap-2 items-center text-xs text-gray-500">
-                    <span>{{ school.status_publicznoprawny.nazwa }}</span>
+                    <span>{{ school.status }}</span>
                     <span>•</span>
-                    <span>{{ school.typ.nazwa }}</span>
+                    <span>{{ school.typ }}</span>
                 </div>
             </div>
         </div>

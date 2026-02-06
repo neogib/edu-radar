@@ -56,7 +56,7 @@ await loadSchools()
         :source-id="MAP_CONFIG.sourceId"
         :data="schoolsSource"
         :cluster="true"
-        :cluster-max-zoom="14"
+        :cluster-max-zoom="11"
         :promote-id="'id'"
         :cluster-properties="{
             sum: [
