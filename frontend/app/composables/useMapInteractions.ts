@@ -20,6 +20,7 @@ export const useMapInteractions = (
 
     // Track hovered feature IDs for feature-state
     let hoveredClusterId: number | null = null
+    let selectedSchoolId: number | null = null
 
     const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
 
@@ -75,6 +76,23 @@ export const useMapInteractions = (
     const handleMoveEnd = (map: maplibregl.Map) => {
         const { lng, lat } = map.getCenter()
         const zoom = map.getZoom()
+
+        // Check if selected school is now clustered
+        if (selectedSchoolId !== null) {
+            const features = map.querySourceFeatures(MAP_CONFIG.sourceId, {
+                filter: ["==", ["get", "id"], selectedSchoolId],
+            })
+
+            // Toggle visibility: if features.length === 0, school is clustered or out of view
+            const visibility = features.length > 0 ? "visible" : "none"
+
+            map.setLayoutProperty("selected-point", "visibility", visibility)
+            map.setLayoutProperty(
+                "selected-point-border",
+                "visibility",
+                visibility,
+            )
+        }
 
         updateQueryCenterZoomDebounced(lng, lat, zoom, map)
     }
@@ -151,6 +169,7 @@ export const useMapInteractions = (
                 type: "FeatureCollection",
                 features: [selectedFeature],
             })
+            selectedSchoolId = Number(feature.properties.id)
         }
 
         // Fetch full school details and emit event
