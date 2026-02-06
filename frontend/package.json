@@ -14,7 +14,8 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "api:generate": "node scripts/generate-api-types.js",
-        "map:translate": "node scripts/translate-map-style.js"
+        "map:translate": "node scripts/translate-map-style.js",
+        "sdf:generate": "bash scripts/sdf.sh"
     },
     "dependencies": {
         "@indoorequal/vue-maplibre-gl": "^8.4.2",

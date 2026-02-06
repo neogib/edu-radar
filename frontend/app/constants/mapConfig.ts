@@ -1,9 +1,9 @@
-import triangleIconUrl from "~/assets/images/figures/triangle.png"
-import diamondIconUrl from "~/assets/images/figures/diamond.png"
-import squareIconUrl from "~/assets/images/figures/square.png"
-import starIconUrl from "~/assets/images/figures/star.png"
-import hexagonIconUrl from "~/assets/images/figures/hexagon.png"
 import type { BoundingBox } from "~/types/boundingBox"
+import teddyBearIconUrl from "~/assets/images/figures/sdf/teddy-bear.png"
+import backpackIconUrl from "~/assets/images/figures/sdf/backpack.png"
+import bookIconUrl from "~/assets/images/figures/sdf/book.png"
+import gearIconUrl from "~/assets/images/figures/sdf/gear.png"
+import schoolIconUrl from "~/assets/images/figures/sdf/school.png"
 
 // constants/mapConfig.ts
 export const MAP_CONFIG = {
@@ -27,17 +27,17 @@ export const MAP_CONFIG = {
 }
 
 export const SCHOOL_ICONS = {
-    Technikum: "hexagon_sdf",
-    "Liceum ogólnokształcące": "diamond_sdf",
-    "Szkoła podstawowa": "square_sdf",
-    Przedszkole: "triangle_sdf",
-    default: "star_sdf",
+    Przedszkole: "teddyBear",
+    "Szkoła podstawowa": "backpack",
+    "Liceum ogólnokształcące": "book",
+    Technikum: "gear",
+    default: "schoolSymbol",
 } as const
 
 export const ICONS = {
-    triangle_sdf: triangleIconUrl,
-    diamond_sdf: diamondIconUrl,
-    square_sdf: squareIconUrl,
-    star_sdf: starIconUrl,
-    hexagon_sdf: hexagonIconUrl,
+    teddyBear: teddyBearIconUrl,
+    backpack: backpackIconUrl,
+    book: bookIconUrl,
+    gear: gearIconUrl,
+    schoolSymbol: schoolIconUrl,
 } as const
