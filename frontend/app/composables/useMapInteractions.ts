@@ -77,23 +77,6 @@ export const useMapInteractions = (
         const { lng, lat } = map.getCenter()
         const zoom = map.getZoom()
 
-        // Check if selected school is now clustered
-        if (selectedSchoolId !== null) {
-            const features = map.querySourceFeatures(MAP_CONFIG.sourceId, {
-                filter: ["==", ["get", "id"], selectedSchoolId],
-            })
-
-            // Toggle visibility: if features.length === 0, school is clustered or out of view
-            const visibility = features.length > 0 ? "visible" : "none"
-
-            map.setLayoutProperty("selected-point", "visibility", visibility)
-            map.setLayoutProperty(
-                "selected-point-border",
-                "visibility",
-                visibility,
-            )
-        }
-
         updateQueryCenterZoomDebounced(lng, lat, zoom, map)
     }
 
@@ -140,37 +123,18 @@ export const useMapInteractions = (
         if (!feature) return
         if (feature.geometry.type !== "Point") return
 
-        // MapLibre click features are runtime objects; create plain GeoJSON
-        // before passing data to sources to avoid serialization issues.
-        const selectedFeature: SchoolFeature = {
-            type: "Feature",
-            properties: {
-                id: Number(feature.properties.id),
-                nazwa: feature.properties.nazwa,
-                typ: feature.properties.typ,
-                status: feature.properties.status,
-                wynik: feature.properties.wynik,
-            },
-            geometry: {
-                type: "Point",
-                coordinates: [
-                    Number(feature.geometry.coordinates[0]),
-                    Number(feature.geometry.coordinates[1]),
-                ],
-            },
+        if (selectedSchoolId !== null) {
+            map.setFeatureState(
+                { source: MAP_CONFIG.sourceId, id: selectedSchoolId },
+                { clicked: false },
+            )
+            // todo: after clicking the same school when sidebar is open, it should close, but currently it doesn't because of how the state is managed
         }
-
-        // update the selected point source
-        const selectedPointSource = map.getSource("selected-point") as
-            | maplibregl.GeoJSONSource
-            | undefined
-        if (selectedPointSource) {
-            selectedPointSource.setData({
-                type: "FeatureCollection",
-                features: [selectedFeature],
-            })
-            selectedSchoolId = Number(feature.properties.id)
-        }
+        selectedSchoolId = Number(feature.properties?.id)
+        map.setFeatureState(
+            { source: MAP_CONFIG.sourceId, id: selectedSchoolId },
+            { clicked: true },
+        )
 
         // Fetch full school details and emit event
         const schoolFullDetails = await $api<SzkolaPublicWithRelations>(
@@ -203,10 +167,7 @@ export const useMapInteractions = (
         ) as maplibregl.GeoJSONSource
         const zoom = await source.getClusterExpansionZoom(clusterId)
         map.easeTo({
-            center: (firstFeature.geometry as Point).coordinates as [
-                number,
-                number,
-            ],
+            center: firstFeature.geometry.coordinates as [number, number],
             zoom,
             duration: 150,
         })

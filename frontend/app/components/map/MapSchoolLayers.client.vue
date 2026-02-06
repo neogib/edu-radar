@@ -2,7 +2,6 @@
 import {
     CLUSTER_LAYER_STYLE,
     POINT_LAYER_STYLE,
-    SELECTED_POINT_BORDER_STYLE,
 } from "~/constants/mapLayerStyles"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 
@@ -13,10 +12,6 @@ const { filters } = useSchoolFilters()
 const { bboxController } = useControllers()
 
 const schoolsSource = shallowRef<GeoJSON.FeatureCollection>({
-    type: "FeatureCollection",
-    features: [],
-})
-const selectedSchoolSource = shallowRef<GeoJSON.FeatureCollection>({
     type: "FeatureCollection",
     features: [],
 })
@@ -88,22 +83,5 @@ await loadSchools()
             :source="MAP_CONFIG.sourceId"
             :filter="['has', 'cluster']"
             :layout="CLUSTER_LAYER_STYLE.layout" />
-    </MglGeoJsonSource>
-
-    <!-- Selected School on top with border -->
-    <MglGeoJsonSource source-id="selected-point" :data="selectedSchoolSource">
-        <MglSymbolLayer
-            layer-id="selected-point-border"
-            source="selected-point"
-            :paint="SELECTED_POINT_BORDER_STYLE.paint"
-            :layout="SELECTED_POINT_BORDER_STYLE.layout" />
-        <MglSymbolLayer
-            layer-id="selected-point"
-            source="selected-point"
-            :paint="{
-                ...POINT_LAYER_STYLE.paint,
-                'icon-opacity': 1,
-            }"
-            :layout="POINT_LAYER_STYLE.layout" />
     </MglGeoJsonSource>
 </template>

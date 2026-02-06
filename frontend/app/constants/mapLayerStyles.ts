@@ -26,7 +26,12 @@ export const POINT_LAYER_STYLE = {
             0.7,
         ] as DataDrivenPropertyValueSpecification<number>,
         "icon-halo-color": "#000000",
-        "icon-halo-width": 1,
+        "icon-halo-width": [
+            "case",
+            ["boolean", ["feature-state", "clicked"], false],
+            2,
+            0.5,
+        ] as DataDrivenPropertyValueSpecification<number>,
         "icon-color": [
             "case",
             ["==", ["get", "wynik"], null],
@@ -91,17 +96,5 @@ export const CLUSTER_LAYER_STYLE = {
             string[]
         >,
         "text-size": 12 as PropertyValueSpecification<number>,
-    },
-}
-
-export const SELECTED_POINT_BORDER_STYLE = {
-    paint: {
-        "icon-opacity": 1,
-        "icon-color": "#000000",
-    },
-    layout: {
-        "icon-size": 0.6,
-        "icon-image": ICON_IMAGES,
-        "icon-allow-overlap": true,
     },
 }
