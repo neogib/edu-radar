@@ -68,11 +68,9 @@ const isPublicSchool = (status: string) => {
     return !status.toLowerCase().includes("nie")
 }
 
-const { getColor } = useScoreColor()
-
 // Computed property for selected point score color
 const scoreColor = computed(() => {
-    return props.selectedPoint ? getColor(props.selectedPoint.wynik) : ""
+    return props.selectedPoint ? getScoreColor(props.selectedPoint.wynik) : ""
 })
 </script>
 

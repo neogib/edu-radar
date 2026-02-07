@@ -11,8 +11,6 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { getColor } = useScoreColor()
-
 const groupResultsBySubject = (
     results: WynikE8PublicWithPrzedmiot[] | WynikEMPublicWithPrzedmiot[],
 ) => {
@@ -81,7 +79,7 @@ const emData = computed(() => groupResultsBySubject(props.wynikiEm))
                                 <div
                                     class="text-2xl font-bold mb-1"
                                     :style="{
-                                        color: getColor(
+                                        color: getScoreColor(
                                             (
                                                 yearData[
                                                     year
@@ -149,7 +147,7 @@ const emData = computed(() => groupResultsBySubject(props.wynikiEm))
                                 <div
                                     class="text-2xl font-bold mb-1"
                                     :style="{
-                                        color: getColor(
+                                        color: getScoreColor(
                                             (
                                                 yearData[
                                                     year

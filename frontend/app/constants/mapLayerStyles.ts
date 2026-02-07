@@ -35,22 +35,8 @@ export const POINT_LAYER_STYLE = {
         "icon-color": [
             "case",
             ["==", ["get", "wynik"], null],
-            "#87CEFA", // blue for null scores
-            [
-                "interpolate",
-                ["linear"],
-                ["get", "wynik"],
-                0,
-                "#7A0000", // dark red (worst), more saturated
-                25,
-                "#FF5A36", // light red/orange (poor), more saturated
-                50,
-                "#FFD400", // yellow (average), more saturated
-                75,
-                "#66D96B", // light green (good), more saturated
-                100,
-                "#007A1A", // dark green (best), more saturated
-            ],
+            NULL_SCORE_COLOR,
+            createScoreColorInterpolation(["get", "wynik"]),
         ] as DataDrivenPropertyValueSpecification<string>,
     },
     layout: {
@@ -73,18 +59,12 @@ export const CLUSTER_LAYER_STYLE = {
         "circle-color": [
             "case",
             ["==", ["get", "nonNullCount"], 0],
-            "#87CEFA", // blue for null scores
-            [
-                "interpolate",
-                ["linear"],
-                ["/", ["get", "sum"], ["get", "nonNullCount"]],
-                0,
-                "#FF0000", // red at 0
-                50,
-                "#FFFF00", // yellow at 50
-                100,
-                "#00FF00", // green at 100
-            ],
+            NULL_SCORE_COLOR,
+            createScoreColorInterpolation([
+                "/",
+                ["get", "sum"],
+                ["get", "nonNullCount"],
+            ]),
         ] as DataDrivenPropertyValueSpecification<string>,
         "circle-radius": [
             "case",
