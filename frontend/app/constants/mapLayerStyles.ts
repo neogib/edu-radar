@@ -41,11 +41,15 @@ export const POINT_LAYER_STYLE = {
                 ["linear"],
                 ["get", "wynik"],
                 0,
-                "#FF0000",
+                "#7A0000", // dark red (worst), more saturated
+                25,
+                "#FF5A36", // light red/orange (poor), more saturated
                 50,
-                "#FFFF00",
+                "#FFD400", // yellow (average), more saturated
+                75,
+                "#66D96B", // light green (good), more saturated
                 100,
-                "#00FF00",
+                "#007A1A", // dark green (best), more saturated
             ],
         ] as DataDrivenPropertyValueSpecification<string>,
     },

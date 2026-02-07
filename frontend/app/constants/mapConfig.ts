@@ -20,7 +20,7 @@ export const MAP_CONFIG = {
     defaultZoom: 12,
     voivodeshipZoom: 10,
     maxZoom: 19,
-    minZoom: 5,
+    minZoom: 4,
     zoomThreshold: 8,
     mapKey: "mainMap",
     sourceId: "schools",
