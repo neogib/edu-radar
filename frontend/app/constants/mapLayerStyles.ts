@@ -30,7 +30,7 @@ export const POINT_LAYER_STYLE = {
             "case",
             ["boolean", ["feature-state", "clicked"], false],
             2,
-            0.5,
+            1,
         ] as DataDrivenPropertyValueSpecification<number>,
         "icon-color": [
             "case",

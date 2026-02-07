@@ -1,9 +1,9 @@
 import type { BoundingBox } from "~/types/boundingBox"
 import teddyBearIconUrl from "~/assets/images/figures/sdf/teddy-bear.png"
-import backpackIconUrl from "~/assets/images/figures/sdf/backpack.png"
-import bookIconUrl from "~/assets/images/figures/sdf/book.png"
 import gearIconUrl from "~/assets/images/figures/sdf/gear.png"
 import schoolIconUrl from "~/assets/images/figures/sdf/school.png"
+import starIconUrl from "~/assets/images/figures/sdf/star.png"
+import bookIconUrl from "~/assets/images/figures/sdf/book.png"
 
 // constants/mapConfig.ts
 export const MAP_CONFIG = {
@@ -28,16 +28,16 @@ export const MAP_CONFIG = {
 
 export const SCHOOL_ICONS = {
     Przedszkole: "teddyBear",
-    "Szkoła podstawowa": "backpack",
-    "Liceum ogólnokształcące": "book",
+    "Szkoła podstawowa": "book",
+    "Liceum ogólnokształcące": "schoolSymbol",
     Technikum: "gear",
-    default: "schoolSymbol",
+    default: "starSymbol",
 } as const
 
 export const ICONS = {
     teddyBear: teddyBearIconUrl,
-    backpack: backpackIconUrl,
     book: bookIconUrl,
-    gear: gearIconUrl,
     schoolSymbol: schoolIconUrl,
+    gear: gearIconUrl,
+    starSymbol: starIconUrl,
 } as const
