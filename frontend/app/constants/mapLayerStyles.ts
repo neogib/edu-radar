@@ -43,6 +43,7 @@ export const POINT_LAYER_STYLE = {
         "icon-size": 0.5,
         "icon-image": ICON_IMAGES,
         "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
     },
 }
 
@@ -80,5 +81,6 @@ export const CLUSTER_LAYER_STYLE = {
             string[]
         >,
         "text-size": 12 as PropertyValueSpecification<number>,
+        "text-ignore-placement": true,
     },
 }
