@@ -148,7 +148,7 @@ const canAddMore = (
                             default-open
                             class="flex-1 min-w-0"
                             @update:model-value="
-                                (val) => {
+                                (val: number) => {
                                     const current = [...(filter.selected ?? [])]
                                     current.push(val)
                                     filter.selected = current

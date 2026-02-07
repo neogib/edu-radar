@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SzkolaPublicWithRelations } from "~/types/schools"
+import { onKeyStroke } from "@vueuse/core"
 
 interface Props {
     isOpen: boolean
@@ -16,6 +17,14 @@ const emit = defineEmits<{
 const closeSidebar = () => {
     emit("close")
 }
+
+// Close on Escape key
+onKeyStroke("Escape", (e) => {
+    if (props.isOpen) {
+        e.preventDefault()
+        closeSidebar()
+    }
+})
 
 // Swipe gesture handling
 const pointerStartX = ref(0)
@@ -99,7 +108,7 @@ const scoreColor = computed(() => {
             <button
                 class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Zamknij panel"
-                @click="closeSidebar">
+                @click.stop="closeSidebar">
                 <Icon name="mdi:close" class="w-6 h-6 text-gray-600" />
             </button>
         </div>
@@ -190,12 +199,19 @@ const scoreColor = computed(() => {
                 :selected-point="selectedPoint" />
         </div>
     </div>
+    <Transition
+        enter-active-class="transition-opacity duration-300 ease-out"
+        leave-active-class="transition-opacity duration-300 ease-in"
+        enter-from-class="opacity-0"
+        leave-to-class="opacity-0">
+        <div
+            v-if="isOpen"
+            class="fixed inset-0 bg-black/25 z-60 lg:hidden cursor-pointer touch-none"
+            aria-hidden="true"
+            @click.stop="closeSidebar" />
+    </Transition>
 
     <!-- Overlay for mobile -->
-    <div
-        v-if="isOpen"
-        class="fixed inset-0 bg-black opacity-25 z-60 lg:hidden"
-        @click="closeSidebar" />
 </template>
 
 <style scoped>
