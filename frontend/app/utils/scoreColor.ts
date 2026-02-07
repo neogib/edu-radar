@@ -3,11 +3,11 @@ import type { ExpressionSpecification } from "maplibre-gl"
 export const NULL_SCORE_COLOR = "#87CEFA"
 
 export const SCORE_COLOR_STOPS = [
-    [0, "#7A0000"],
-    [25, "#FF5A36"],
-    [50, "#FFD400"],
-    [75, "#66D96B"],
-    [100, "#007A1A"],
+    [0, "#8B0000"], // dark red
+    [25, "#FF0000"], // red
+    [50, "#FFEE00"], // yellow
+    [75, "#00FF00"], // green
+    [100, "#006400"], // dark green
 ] as const
 
 const colorStopsForExpression = SCORE_COLOR_STOPS.flatMap(([stop, color]) => [
