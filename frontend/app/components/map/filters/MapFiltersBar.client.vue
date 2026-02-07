@@ -9,7 +9,7 @@ const { multiSelectFilters } = await useFilterData()
 const { isUnderZoomThreshold } = useMapState()
 
 // get filters from route.query
-const { hasActiveFilters, totalActiveFilters } = useSchoolFilters()
+const { hasActiveFilters, totalActiveFilters, filterKey } = useSchoolFilters()
 
 const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
 
@@ -20,7 +20,7 @@ const filterKeyChanged = ref(false)
 // Search interactions
 const searchRef = useTemplateRef("searchRef")
 
-watch(totalActiveFilters, () => {
+watch(filterKey, () => {
     filterKeyChanged.value = true
 })
 
@@ -86,7 +86,6 @@ const handlePanelSubmit = () => {
             <MapFiltersSearch
                 ref="searchRef"
                 @panel-close="handlePanelClose"
-                @filter-key-changed="filterKeyChanged = true"
                 @filter-panel-closed="isFilterPanelOpen = false" />
             <!-- Filter Toggle Button -->
             <UButton

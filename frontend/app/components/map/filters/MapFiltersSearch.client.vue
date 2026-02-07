@@ -6,7 +6,6 @@ import type { SzkolaPublicShort } from "~/types/schools"
 
 const emit = defineEmits<{
     panelClose: []
-    filterKeyChanged: []
     filterPanelClosed: []
 }>()
 
@@ -74,8 +73,6 @@ const clearSearchQuery = () => {
     searchSuggestions.value = []
     if (q.value) {
         q.value = ""
-        // no query -> key changed
-        emit("filterKeyChanged")
     }
 
     // focus input
@@ -133,9 +130,6 @@ const submitQuery = () => {
 
     // trigger search with new query
     q.value = trimmedQuery
-
-    // note the change
-    emit("filterKeyChanged")
 }
 
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
