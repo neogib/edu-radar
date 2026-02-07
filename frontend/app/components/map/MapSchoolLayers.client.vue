@@ -3,7 +3,7 @@ import {
     CLUSTER_LAYER_STYLE,
     POINT_LAYER_STYLE,
 } from "~/constants/mapLayerStyles"
-import { MAP_CONFIG } from "~/constants/mapConfig"
+import { GeoJSON_SOURCE_CONFIG, MAP_CONFIG } from "~/constants/mapConfig"
 
 const route = useRoute()
 let initialBbox = useInitialBbox()
@@ -56,7 +56,9 @@ await loadSchools()
         :source-id="MAP_CONFIG.sourceId"
         :data="schoolsSource"
         :cluster="true"
-        :cluster-max-zoom="11"
+        :cluster-max-zoom="GeoJSON_SOURCE_CONFIG.clusterMaxZoom"
+        :cluster-radius="GeoJSON_SOURCE_CONFIG.clusterRadius"
+        :cluster-min-points="GeoJSON_SOURCE_CONFIG.clusterMinPoints"
         :promote-id="'id'"
         :cluster-properties="{
             sum: [
