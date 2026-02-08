@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import TYPE_CHECKING
 
 from sqlmodel import (
@@ -11,8 +12,19 @@ if TYPE_CHECKING:
     from src.app.models.schools import Szkola
 
 
+class RodzajRankingu(Enum):
+    E8 = "E8"
+    EM_LO = "EM_LO"
+    EM_TECH = "EM_TECH"
+
+
 class RankingBase(SQLModel):
     rok: int = Field(index=True, ge=2000)
+
+    rodzaj_rankingu: RodzajRankingu = Field(
+        index=True,
+        nullable=False,
+    )
 
     wynik: float = Field(ge=0.0, le=100.0, index=True)
 
@@ -37,7 +49,8 @@ class Ranking(RankingBase, table=True):
         UniqueConstraint(
             "szkola_id",
             "rok",
-            name="uq_ranking_szkola_rok",
+            "rodzaj_rankingu",
+            name="uq_ranking_szkola_rok_rodzaj",
         ),
     )
 
