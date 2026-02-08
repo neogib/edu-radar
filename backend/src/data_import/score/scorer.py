@@ -1,7 +1,6 @@
 import logging
-from typing import cast
 
-from sqlmodel import func, select
+from sqlmodel import col, func, select
 
 from src.app.models.exam_results import Przedmiot, WynikE8
 from src.app.models.schools import Szkola
@@ -152,23 +151,24 @@ class Scorer(DatabaseManagerBase):
         return numerator / denominator
 
     def _initialize_required_data(self):
+        self._most_recent_year = self._get_most_recent_year()
         self._load_school_ids()
         self._load_subjects()
-        self._get_most_recent_year()
 
     def _load_school_ids(self):
         session = self._ensure_session()
-        ids = cast(
-            list[int], session.exec(select(self._table_type.szkola_id)).unique().all()
+        stmt = select(self._table_type.szkola_id).where(
+            self._table_type.rok == self._most_recent_year
         )
+        ids = session.exec(stmt).unique()
         if not ids:
             raise ValueError("No school IDs found in the database.")
-        self._schools_ids = ids
+        self._schools_ids = list(ids)
 
     def _load_subjects(self):
         session = self._ensure_session()
         subject_names = list(self._subject_weights_map.keys())
-        statement = select(Przedmiot).where(Przedmiot.nazwa.in_(subject_names))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+        statement = select(Przedmiot).where(col(Przedmiot.nazwa).in_(subject_names))
         self._subjects = list(session.exec(statement).all())
         if not self._subjects:
             raise ValueError("No subjects found in the database.")
@@ -177,8 +177,6 @@ class Scorer(DatabaseManagerBase):
                 f"Not all subjects found in the database. Found: {self._subjects}. Expected: {subject_names}"
             )
 
-    def _get_most_recent_year(self):
+    def _get_most_recent_year(self) -> int:
         session = self._ensure_session()
-        self._most_recent_year = session.exec(
-            select(func.max(self._table_type.rok))
-        ).one()
+        return session.exec(select(func.max(self._table_type.rok))).one()

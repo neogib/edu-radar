@@ -9,7 +9,7 @@ class ScoreType(Enum):
     E8 = (
         {
             "język polski": 0.25,
-            "matematyka": 0.50,
+            "matematyka": 0.5,
             "język angielski": 0.25,
         },
         WynikE8,
@@ -19,8 +19,6 @@ class ScoreType(Enum):
             "język polski poziom podstawowy": 0.25,
             "matematyka poziom podstawowy": 0.5,
             "język angielski poziom podstawowy": 0.25,
-            # "język angielski poziom rozszerzony": 0.1,
-            # "matematyka poziom rozszerzony": 0.1,
         },
         WynikEM,
     )
