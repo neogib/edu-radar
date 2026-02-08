@@ -1,3 +1,4 @@
+# pyright: reportAny = false
 from typing import TYPE_CHECKING
 
 from sqlmodel import (
@@ -17,8 +18,8 @@ class PrzedmiotBase(SQLModel):
 
 class Przedmiot(PrzedmiotBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    wyniki_e8: list["WynikE8"] = Relationship(back_populates="przedmiot")  # pyright: ignore[reportAny]
-    wyniki_em: list["WynikEM"] = Relationship(back_populates="przedmiot")  # pyright: ignore[reportAny]
+    wyniki_e8: list["WynikE8"] = Relationship(back_populates="przedmiot")
+    wyniki_em: list["WynikEM"] = Relationship(back_populates="przedmiot")
 
 
 # Columns that default to None don't always exist in excel files
@@ -55,8 +56,8 @@ class WynikE8(WynikE8Extra, WynikCommon, table=True):
     )
     id: int | None = Field(default=None, primary_key=True)
     liczba_zdajacych: int  # pyright: ignore[reportIncompatibleVariableOverride]
-    przedmiot: Przedmiot = Relationship(back_populates="wyniki_e8")  # pyright: ignore[reportAny]
-    szkola: "Szkola" = Relationship(back_populates="wyniki_e8")  # pyright: ignore[reportAny]
+    przedmiot: Przedmiot = Relationship(back_populates="wyniki_e8")
+    szkola: "Szkola" = Relationship(back_populates="wyniki_e8")
 
 
 class WynikEM(WynikEMExtra, WynikCommon, table=True):
@@ -71,5 +72,5 @@ class WynikEM(WynikEMExtra, WynikCommon, table=True):
     )
     id: int | None = Field(default=None, primary_key=True)
     liczba_zdajacych: int  # pyright: ignore[reportIncompatibleVariableOverride]
-    przedmiot: Przedmiot = Relationship(back_populates="wyniki_em")  # pyright: ignore[reportAny]
-    szkola: "Szkola" = Relationship(back_populates="wyniki_em")  # pyright: ignore[reportAny]
+    przedmiot: Przedmiot = Relationship(back_populates="wyniki_em")
+    szkola: "Szkola" = Relationship(back_populates="wyniki_em")

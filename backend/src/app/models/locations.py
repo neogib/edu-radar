@@ -1,3 +1,4 @@
+# pyright: reportAny = false
 from typing import TYPE_CHECKING
 
 from sqlmodel import (
@@ -18,7 +19,7 @@ class WojewodztwoBase(SQLModel):
 class Wojewodztwo(WojewodztwoBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    powiaty: list["Powiat"] = Relationship(back_populates="wojewodztwo")  # pyright: ignore [reportAny]
+    powiaty: list["Powiat"] = Relationship(back_populates="wojewodztwo")
 
 
 class PowiatBase(SQLModel):
@@ -32,8 +33,8 @@ class PowiatBase(SQLModel):
 class Powiat(PowiatBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    wojewodztwo: Wojewodztwo = Relationship(back_populates="powiaty")  # pyright: ignore [reportAny]
-    gminy: list["Gmina"] = Relationship(back_populates="powiat")  # pyright: ignore [reportAny]
+    wojewodztwo: Wojewodztwo = Relationship(back_populates="powiaty")
+    gminy: list["Gmina"] = Relationship(back_populates="powiat")
 
 
 class GminaBase(SQLModel):
@@ -45,8 +46,8 @@ class GminaBase(SQLModel):
 class Gmina(GminaBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    powiat: Powiat = Relationship(back_populates="gminy")  # pyright: ignore [reportAny]
-    miejscowosci: list["Miejscowosc"] = Relationship(back_populates="gmina")  # pyright: ignore [reportAny]
+    powiat: Powiat = Relationship(back_populates="gminy")
+    miejscowosci: list["Miejscowosc"] = Relationship(back_populates="gmina")
 
 
 class MiejscowoscBase(SQLModel):
@@ -58,8 +59,8 @@ class MiejscowoscBase(SQLModel):
 class Miejscowosc(MiejscowoscBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
-    gmina: Gmina = Relationship(back_populates="miejscowosci")  # pyright: ignore [reportAny]
-    szkoly: list["Szkola"] = Relationship(back_populates="miejscowosc")  # pyright: ignore [reportAny]
+    gmina: Gmina = Relationship(back_populates="miejscowosci")
+    szkoly: list["Szkola"] = Relationship(back_populates="miejscowosc")
 
 
 class UlicaBase(SQLModel):
@@ -69,4 +70,4 @@ class UlicaBase(SQLModel):
 
 class Ulica(UlicaBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    szkoly: list["Szkola"] = Relationship(back_populates="ulica")  # pyright: ignore [reportAny]
+    szkoly: list["Szkola"] = Relationship(back_populates="ulica")
