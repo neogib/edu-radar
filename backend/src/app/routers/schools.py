@@ -1,16 +1,15 @@
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import TypeAdapter
-from sqlmodel import Session
+from sqlalchemy.orm import Session
 
 from src.app.models.schools import (
     Szkola,
 )
 from src.app.schemas.filters import FilterParams
 from src.app.schemas.schools import SzkolaPublicShort, SzkolaPublicWithRelations
-from src.app.services.convert_school_to_public import to_public_short
 from src.app.services.school_filters import apply_filters
 from src.dependencies import SessionDep
 
@@ -48,17 +47,13 @@ async def stream_schools(
 
     while True:
         stmt = apply_filters(filters).offset(offset)
-        rows = session.exec(stmt).all()
+        rows = session.execute(stmt).mappings().all()
 
         if not rows:
             break
 
-        yield (
-            school_list_adapter.dump_json(
-                [to_public_short(szkola, lat, lon) for szkola, lat, lon in rows]
-            )
-            + b"\n"
-        )
+        schools_chunk = school_list_adapter.validate_python(rows)
+        yield (school_list_adapter.dump_json(schools_chunk) + b"\n")
 
         offset += CHUNK_SIZE
 
@@ -95,6 +90,10 @@ async def read_schools(
 
     stmt = apply_filters(filters)
 
-    rows = session.exec(stmt).all()
-    schools = [to_public_short(szkola, lat, lon) for szkola, lat, lon in rows]
+    s = cast(Session, session)  # for better type checking
+    rows = (
+        s.execute(stmt).mappings().all()
+    )  # use execute from sqlalchemy Session to get mappings
+
+    schools = [SzkolaPublicShort.model_validate(row) for row in rows]
     return schools

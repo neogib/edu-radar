@@ -1,26 +1,39 @@
-from sqlalchemy.orm import selectinload
-from sqlmodel import col, exists, func, not_, select
-from sqlmodel.sql.expression import SelectOfScalar
+# pyright: reportUnknownVariableType = false
+# pyright: reportUnknownArgumentType = false
+from sqlalchemy import Select, select
+from sqlmodel import col, exists, func
 
-from src.app.models.schools import Szkola, SzkolaKsztalcenieZawodoweLink
+from src.app.models.schools import (
+    StatusPublicznoprawny,
+    Szkola,
+    SzkolaKsztalcenieZawodoweLink,
+    TypSzkoly,
+)
 from src.app.schemas.filters import FilterParams
 
 
-def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, float]]:
+def apply_filters(
+    filters: FilterParams,
+) -> Select[tuple[int, str, float | None, str, str, float, float]]:
     """
     Apply filters to the Szkola query based on the provided FilterParams.
     """
-    statement = select(
-        Szkola,
-        func.ST_Y(Szkola.geom).label("latitude"),
-        func.ST_X(Szkola.geom).label("longitude"),
-    ).options(
-        selectinload(Szkola.typ),  # pyright: ignore [reportArgumentType]
-        selectinload(Szkola.status_publicznoprawny),  # pyright: ignore [reportArgumentType]
+    statement = (
+        select(
+            col(Szkola.id),
+            col(Szkola.nazwa),
+            col(Szkola.wynik),
+            col(TypSzkoly.nazwa).label("typ"),
+            col(StatusPublicznoprawny.nazwa).label("status"),
+            func.ST_Y(Szkola.geom).label("latitude"),
+            func.ST_X(Szkola.geom).label("longitude"),
+        )
+        .join(TypSzkoly)
+        .join(StatusPublicznoprawny)
     )
 
     if not filters.closed:
-        statement = statement.where(not_(Szkola.zlikwidowana))
+        statement = statement.where(~(col(Szkola.zlikwidowana)))
 
     present = [
         filters.min_lng is not None,
@@ -40,10 +53,10 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, 
         )
 
         if filters.bbox_mode == "within":
-            statement = statement.where(Szkola.geom.op("&&")(envelope))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+            statement = statement.where(col(Szkola.geom).op("&&")(envelope))
 
         elif filters.bbox_mode == "outside":
-            statement = statement.where(~Szkola.geom.op("&&")(envelope))  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
+            statement = statement.where(~col(Szkola.geom).op("&&")(envelope))
     # Apply filters based on query parameters
     if filters.type_id:
         statement = statement.where(col(Szkola.typ_id).in_(filters.type_id))
@@ -62,7 +75,7 @@ def apply_filters(filters: FilterParams) -> SelectOfScalar[tuple[Szkola, float, 
         statement = statement.where(
             exists(
                 select(1).where(
-                    SzkolaKsztalcenieZawodoweLink.szkola_id == Szkola.id,
+                    col(SzkolaKsztalcenieZawodoweLink.szkola_id) == col(Szkola.id),
                     col(SzkolaKsztalcenieZawodoweLink.ksztalcenie_zawodowe_id).in_(
                         filters.vocational_training_id
                     ),
