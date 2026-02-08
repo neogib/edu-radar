@@ -130,16 +130,12 @@ class SzkolaAllData(SzkolaExtendedData):
     zlikwidowana: bool = Field(default=False, index=True)
 
     # Foreign keys
-    typ_id: int | None = Field(index=True, default=None, foreign_key="typ_szkoly.id")
-    status_publicznoprawny_id: int | None = Field(
-        index=True, default=None, foreign_key="status_publicznoprawny.id"
+    typ_id: int = Field(index=True, foreign_key="typ_szkoly.id")
+    status_publicznoprawny_id: int = Field(
+        index=True, foreign_key="status_publicznoprawny.id"
     )
-    kategoria_uczniow_id: int | None = Field(
-        index=True, default=None, foreign_key="kategoria_uczniow.id"
-    )
-    miejscowosc_id: int | None = Field(
-        index=True, default=None, foreign_key="miejscowosc.id"
-    )
+    kategoria_uczniow_id: int = Field(index=True, foreign_key="kategoria_uczniow.id")
+    miejscowosc_id: int = Field(index=True, foreign_key="miejscowosc.id")
     ulica_id: int | None = Field(index=True, default=None, foreign_key="ulica.id")
 
 
