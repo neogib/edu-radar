@@ -1,8 +1,8 @@
 """add ranking table
 
-Revision ID: f75febc5aa5a
-Revises: fff7ba934856
-Create Date: 2026-02-08 19:22:25.360750
+Revision ID: 65521748b5cb
+Revises: 61773fb4d705
+Create Date: 2026-02-09 00:01:40.256381
 
 """
 from typing import Sequence, Union
@@ -13,8 +13,8 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f75febc5aa5a'
-down_revision: Union[str, Sequence[str], None] = 'fff7ba934856'
+revision: str = '65521748b5cb'
+down_revision: Union[str, Sequence[str], None] = '61773fb4d705'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
