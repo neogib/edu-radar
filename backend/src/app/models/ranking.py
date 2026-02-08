@@ -1,7 +1,9 @@
 from enum import Enum
 from typing import TYPE_CHECKING
 
+import sqlalchemy as sa
 from sqlmodel import (
+    Column,
     Field,
     Relationship,
     SQLModel,
@@ -22,8 +24,11 @@ class RankingBase(SQLModel):
     rok: int = Field(index=True, ge=2000)
 
     rodzaj_rankingu: RodzajRankingu = Field(
-        index=True,
-        nullable=False,
+        sa_column=Column(
+            sa.Enum(RodzajRankingu, name="rodzaj_rankingu"),
+            nullable=False,
+            index=True,
+        )
     )
 
     wynik: float = Field(ge=0.0, le=100.0, index=True)
