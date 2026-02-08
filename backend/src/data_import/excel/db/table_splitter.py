@@ -165,10 +165,12 @@ class TableSplitter(DatabaseManagerBase):
             if not result:
                 continue  # there was a ValidationError or record already exists, move on
             results_to_commit += 1
-            logger.info(f"💾 Added new exam result: {result.przedmiot} (RSPO: {rspo})")
 
         if results_to_commit > 0:
             session.commit()
+            logger.info(
+                f"💾 Committed {results_to_commit} results for school (RSPO: {rspo}) to the database."
+            )
 
     def create_result_record(
         self,

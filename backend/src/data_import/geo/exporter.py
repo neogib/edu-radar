@@ -8,10 +8,21 @@ from sqlmodel import Session, select
 
 from src.app.models.schools import Szkola
 from src.data_import.config.core import CSV_DIR
-from src.data_import.config.geo import GeocodingSettings
 from src.data_import.utils.db.session import DatabaseManagerBase
+from src.data_import.utils.geo import normalize_city_name
 
 logger = logging.getLogger(__name__)
+
+
+def _school_to_address_row(school: Szkola) -> list[str | int | None]:
+    city = normalize_city_name(school.miejscowosc.nazwa)
+    return [
+        school.id,
+        city,
+        school.ulica.nazwa if school.ulica else "",
+        school.numer_budynku or "",
+        school.kod_pocztowy,
+    ]
 
 
 class SchoolAddressExporter(DatabaseManagerBase):
@@ -74,28 +85,13 @@ class SchoolAddressExporter(DatabaseManagerBase):
                 # Iterate over schools and write their addresses
                 for school in schools:
                     # Write row
-                    writer.writerow(self.get_school_address(school))
+                    writer.writerow(_school_to_address_row(school))
                     total_processed += 1
 
             last_id += batch_size
         logger.info(
             f"✅ Completed exporting school addresses. Total schools processed: {total_processed}"
         )
-
-    def get_school_address(self, school: Szkola) -> list[str | int | None]:
-        """Write a single row to the CSV file"""
-        # Get location hierarchy
-        miejscowosc = school.miejscowosc
-
-        return [
-            school.id,
-            miejscowosc.nazwa
-            if miejscowosc.nazwa not in GeocodingSettings.WARSAW_DISTRICTS
-            else "Warszawa",
-            school.ulica.nazwa if school.ulica else "",
-            school.numer_budynku or "",
-            school.kod_pocztowy,
-        ]
 
     def get_schools_batch(
         self, session: Session, last_id: int = 0, batch_size: int = 1000

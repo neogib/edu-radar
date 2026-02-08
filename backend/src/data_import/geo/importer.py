@@ -6,10 +6,7 @@ from pathlib import Path
 from typing import cast
 
 from geoalchemy2 import WKBElement
-from geoalchemy2.shape import (
-    from_shape,  # pyright: ignore[reportUnknownVariableType]
-    to_shape,
-)
+from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
 
 from src.app.models.schools import Szkola
@@ -19,6 +16,11 @@ from src.data_import.config.geo import GeocodingSettings
 from src.data_import.geo.exceptions import GeocodingError
 from src.data_import.utils.api_request import api_request
 from src.data_import.utils.db.session import DatabaseManagerBase
+from src.data_import.utils.geo import (
+    build_full_address,
+    create_geom_point,
+    normalize_city_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +30,40 @@ class ProcessingStats(Enum):
     COORDINATES_IN_BUILDING = "coordinates_in_building"
     FAILED_GEOCODING = "failed_geocoding"
     SUCCESSFUL_GEOCODING = "successful_geocoding"
+
+
+def _extract_lat_lon_from_uug(data: dict[str, object]) -> tuple[float, float] | None:
+    """Parse UUG API response to get coordinates in (lon, lat) order."""
+    results = cast(dict[str, object], data.get("results", {}))
+    if not results:
+        logger.warning("🚫 No results found in UUG response")
+        return None
+
+    first_result = cast(dict[str, object], results.get("1"))
+    try:
+        lon = float(cast(str, first_result.get("x")))
+        lat = float(cast(str, first_result.get("y")))
+    except (TypeError, ValueError):
+        logger.error("❌ Invalid coordinate values in UUG response")
+        return None
+
+    logger.info(f"🔄 Transformed coordinates: {lat}, {lon}")
+    return lon, lat
+
+
+def _validate_uldk_response(data: object) -> bool:
+    """Validate ULDK API response for building presence."""
+    result_str = str(data)
+
+    # Edge case when ULDK service is down - avoid false negatives.
+    if "nie zwróciła" in result_str:
+        logger.warning("🚫 ULDK service did not return valid data")
+        return True
+
+    if result_str.startswith("-1"):
+        return False
+
+    return True
 
 
 class SchoolCoordinatesImporter(DatabaseManagerBase):
@@ -125,7 +161,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                             )
                             continue
 
-                    school.geom = from_shape(Point(lon, lat), srid=4326)
+                    school.geom = create_geom_point(lon, lat)
                     session.add(school)
                     self.stats[ProcessingStats.PROCESSED.value] += 1
 
@@ -154,16 +190,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
             )
 
             # Prepare address components
-            city = school.miejscowosc.nazwa
-
-            # Normalize city name for geocoding - for the biggest cities miejscowosc is actually district and we need to change that
-            if city in GeocodingSettings.WARSAW_DISTRICTS:
-                city = "Warszawa"
-            # Check for other big cities, districts starts with "CityName-", for example "Wrocław-Psie Pole"
-            for big_city in GeocodingSettings.POLAND_BIGGEST_CITIES:
-                if city.startswith(f"{big_city}-"):
-                    city = big_city
-                    break
+            city = normalize_city_name(school.miejscowosc.nazwa)
             street = school.ulica.nazwa if school.ulica else None
             building_number = school.numer_budynku
 
@@ -196,14 +223,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         Raises:
             GeocodingError: If geocoding request fails
         """
-        # Build request query string
-        full_address = city
-
-        if street:
-            full_address += f", {street}"
-
-        if building_number:
-            full_address += f" {building_number}"
+        full_address = build_full_address(city, street, building_number)
 
         params: dict[str, object] = {
             "request": "GetAddress",
@@ -216,7 +236,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                 dict[str, object],
                 api_request(url=GeocodingSettings.UUG_URL, params=params),
             )
-            result = self._extract_lat_lon_from_uug(data)
+            result = _extract_lat_lon_from_uug(data)
         except APIRequestError as err:
             logger.error(f"❌ Geocoding failed for: {full_address}: {err}")
             raise GeocodingError(
@@ -253,7 +273,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
 
         try:
             data = api_request(url=GeocodingSettings.ULDK_URL, params=params)
-            return self._validate_uldk_response(data)
+            return _validate_uldk_response(data)
         except APIRequestError as err:
             coords = f"({lat}, {lon})"
             logger.error(f"❌ Building lookup failed for coords {coords}: {err}")
@@ -261,45 +281,6 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                 f"Failed to get building info for coordinates: {coords}",
                 address=coords,
             ) from err
-
-    def _extract_lat_lon_from_uug(
-        self, data: dict[str, object]
-    ) -> tuple[float, float] | None:
-        """Parse the UUG API response to get latitude."""
-        # UUG returns results in 'results' list
-        results = cast(dict[str, object], data.get("results", {}))
-
-        if not results:
-            logger.warning("🚫 No results found in UUG response")
-            return None
-
-        first_result = cast(dict[str, object], results.get("1"))
-
-        try:
-            lon = float(cast(str, first_result.get("x")))
-            lat = float(cast(str, first_result.get("y")))
-        except (TypeError, ValueError) as _:
-            logger.error("❌ Invalid coordinate values in UUG response")
-
-            return None
-
-        logger.info(f"🔄 Transformed coordinates: {lat}, {lon}")
-        return lon, lat
-
-    def _validate_uldk_response(self, data: object) -> bool:
-        """Validate the ULDK API response for building presence."""
-        # ULDK returns pipe-separated values or -1 for no results
-        result_str = str(data)
-
-        # edge case when uldk is not working
-        if "nie zwróciła" in result_str:
-            logger.warning("🚫 ULDK service did not return valid data")
-            return True  # assume point is in building to avoid false negatives
-
-        if result_str.startswith("-1"):  # no building found
-            return False
-
-        return True
 
     def _load_checkpoint(self) -> int:
         """Load the last processed school ID from checkpoint file."""

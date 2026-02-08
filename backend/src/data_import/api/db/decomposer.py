@@ -1,8 +1,6 @@
 import logging
 
-from geoalchemy2.shape import from_shape  # pyright: ignore[reportUnknownVariableType]
 from pydantic import ValidationError
-from shapely.geometry import Point
 
 from src.app.models.locations import Gmina, Miejscowosc, Powiat, Ulica, Wojewodztwo
 from src.app.models.schools import (
@@ -23,8 +21,23 @@ from src.data_import.api.db.exceptions import DataValidationError, SchoolProcess
 from src.data_import.api.db.excluded_fields import SchoolFieldExclusions
 from src.data_import.api.models import SzkolaAPIResponse
 from src.data_import.utils.db.session import DatabaseManagerBase
+from src.data_import.utils.geo import create_geom_point
 
 logger = logging.getLogger(__name__)
+
+
+def _school_scalar_data(school_data: SzkolaAPIResponse):
+    # use model_dump with exclude to get only the scalar fields that are directly mapped to Szkola, excluding related entities and fields that require special handling
+    return school_data.model_dump(exclude=SchoolFieldExclusions.ALL)
+
+
+def _is_school_closed(school_data: SzkolaAPIResponse) -> bool:
+    return school_data.data_likwidacji is not None
+
+
+def _school_geom(school_data: SzkolaAPIResponse):
+    geolocation = school_data.geolokalizacja
+    return create_geom_point(geolocation.longitude, geolocation.latitude)
 
 
 class Decomposer(DatabaseManagerBase):
@@ -137,8 +150,8 @@ class Decomposer(DatabaseManagerBase):
             session.rollback()
             raise SchoolProcessingError(school.numer_rspo, e) from e
 
+    @staticmethod
     def _create_school_object(
-        self,
         school_data: SzkolaAPIResponse,
         school_type: TypSzkoly,
         status: StatusPublicznoprawny,
@@ -149,21 +162,13 @@ class Decomposer(DatabaseManagerBase):
         student_category: KategoriaUczniow,
     ) -> Szkola:
         """Create a new school object from validated data"""
-        geolocation = school_data.geolokalizacja
-
-        # set closed flag based on data from API
-        closure_date = school_data.data_likwidacji
-
-        # remove specific columns to prevent multiple values for the same field
-        api_school_data_dict = school_data.model_dump(exclude=SchoolFieldExclusions.ALL)
+        api_school_data_dict = _school_scalar_data(school_data)
 
         # all other fields from SzkolaAPIResponse that are not used in Szkola are removed by pydantic
         new_school = Szkola(
             **api_school_data_dict,  # pyright: ignore[reportAny]
-            geom=from_shape(
-                Point(geolocation.longitude, geolocation.latitude), srid=4326
-            ),
-            zlikwidowana=closure_date is not None,
+            geom=_school_geom(school_data),
+            zlikwidowana=_is_school_closed(school_data),
             typ=school_type,
             status_publicznoprawny=status,  # we haven't removed status_publicznoprawny from SzkolaAPIResponse because from the API we actually have status_publiczno_prawny which is incorrect form
             miejscowosc=locality,
@@ -175,8 +180,8 @@ class Decomposer(DatabaseManagerBase):
 
         return new_school
 
+    @staticmethod
     def _update_existing_school(
-        self,
         existing_school: Szkola,
         school_data: SzkolaAPIResponse,
         school_type: TypSzkoly,
@@ -188,22 +193,16 @@ class Decomposer(DatabaseManagerBase):
         student_category: KategoriaUczniow,
     ) -> Szkola:
         """Update existing school with new data from API"""
-        geolocation = school_data.geolokalizacja
-        closure_date = school_data.data_likwidacji
-
-        # Get base school data excluding relationships
-        api_school_data_dict = school_data.model_dump(exclude=SchoolFieldExclusions.ALL)
+        api_school_data_dict = _school_scalar_data(school_data)
 
         # Update scalar fields using SQLModel's safe update method
         existing_school.sqlmodel_update(api_school_data_dict)  # pyright: ignore[reportUnusedCallResult]
 
         # Update geolocation
-        existing_school.geom = from_shape(
-            Point(geolocation.longitude, geolocation.latitude), srid=4326
-        )
+        existing_school.geom = _school_geom(school_data)
 
         # Update closure status
-        existing_school.zlikwidowana = closure_date is not None
+        existing_school.zlikwidowana = _is_school_closed(school_data)
 
         # Update foreign key relationships
         existing_school.typ = school_type
