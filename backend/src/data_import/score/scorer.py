@@ -11,6 +11,58 @@ from src.data_import.utils.db.session import DatabaseManagerBase
 logger = logging.getLogger(__name__)
 
 
+def _get_result_value(result: WynikTable) -> float | None:
+    if result.mediana is not None:
+        return result.mediana
+
+    # if there is no median use sredni_wynik for WynikEM and wynik_sredni for WynikE8
+    mean_value = (
+        result.wynik_sredni if isinstance(result, WynikE8) else result.sredni_wynik
+    )
+    if mean_value is None:
+        return None
+
+    # apply penalty for using mean instead of median
+    return mean_value * CalculationSettings.MEAN_PENALTY
+
+
+def _calculate_weighted_score(
+    subject_results: list[WynikTable], most_recent_year: int
+) -> tuple[float | None, bool]:
+    """
+    Calculate weighted score for a subject across years.
+
+    Returns:
+        tuple[float | None, bool]:
+            - score (None when school should be skipped)
+            - denominator_is_zero flag for logging
+    """
+    if not subject_results:
+        return None, False
+
+    max_year = max(result.rok for result in subject_results)
+    if max_year != most_recent_year:
+        return None, False
+
+    numerator = 0.0
+    denominator = 0.0
+    for result in subject_results:
+        value = _get_result_value(result)
+        if value is None:
+            continue
+
+        decay = CalculationSettings.DECAY_FACTOR ** (max_year - result.rok)
+        weight = result.liczba_zdajacych * decay
+
+        numerator += value * weight
+        denominator += weight
+
+    if denominator == 0:
+        return 0.0, True
+
+    return numerator / denominator, False
+
+
 class Scorer(DatabaseManagerBase):
     """
     Calculates normalized school scores (0-100) based on exam results.
@@ -109,46 +161,19 @@ class Scorer(DatabaseManagerBase):
             self._table_type.szkola_id == school_id,
             self._table_type.przedmiot_id == subject.id,
         )
-        subject_results = session.exec(statement).all()
+        subject_results = list(session.exec(statement).all())
 
-        if not subject_results:
-            # schools should have results for each subject taken into account when calculating score
-            return None  # signal to skip entire school
+        subject_score, denominator_is_zero = _calculate_weighted_score(
+            subject_results=subject_results,
+            most_recent_year=self._most_recent_year,
+        )
 
-        max_year = max(result.rok for result in subject_results)
-        if max_year != self._most_recent_year:
-            # School doesn't have results for this subject in the most recent year
-            return None  # signal to skip entire school
-
-        # calculate weighted median with decay factor for each year
-        numerator = 0.0
-        denominator = 0.0
-        for result in subject_results:
-            if result.mediana is not None:
-                value = result.mediana
-            else:  # if there is no median use sredni_wynik for WynikEM and wynik_sredni for WynikE8 but with penalty
-                value = (
-                    result.wynik_sredni
-                    if isinstance(result, WynikE8)
-                    else result.sredni_wynik
-                )
-                if value is None:
-                    continue
-                value *= CalculationSettings.MEAN_PENALTY
-
-            decay = CalculationSettings.DECAY_FACTOR ** (max_year - result.rok)
-            weight = result.liczba_zdajacych * decay
-
-            numerator += value * weight
-            denominator += weight
-
-        if denominator == 0:
+        if denominator_is_zero:  # this should not happen if data in database is correct, log it just in case to identify potential data issues
             logger.warning(
                 f"🔢 Denominator is zero for school ID {school_id}, subject '{subject.nazwa}' (total 'liczba_zdajacych' is 0). Assigning score 0 for this subject."
             )
-            return 0.0
 
-        return numerator / denominator
+        return subject_score
 
     def _initialize_required_data(self):
         self._most_recent_year = self._get_most_recent_year()

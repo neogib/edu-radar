@@ -29,6 +29,35 @@ from src.data_import.utils.db.session import DatabaseManagerBase
 logger = logging.getLogger(__name__)
 
 
+def _extract_rspo_col_name(exam_data: pd.DataFrame) -> tuple[str, str]:
+    rspo_cols = [
+        col
+        for col in exam_data.columns
+        if isinstance(col, tuple)
+        and "RSPO" in col[1]  # RSPO is in the second part of the tuple
+    ]
+    if len(rspo_cols) != 1:
+        raise ValueError("Exactly one column with 'RSPO' in its name is expected.")
+    return cast(tuple[str, str], rspo_cols[0])
+
+
+def _extract_subject_names(exam_data: pd.DataFrame) -> set[str]:
+    unique_subjects: set[str] = set()
+    for col in exam_data.columns:
+        # Check if it's a tuple (multi-index) and not unnamed/metadata column which can be skipped
+        if isinstance(col, tuple) and len(col) > 1:
+            valid_col = True
+            for col_prefix in ExcelFile.SPECIAL_COLUMN_START:
+                if col_prefix in col[0]:
+                    valid_col = False
+                    break
+            if not valid_col:
+                continue
+            unique_subjects.add(str(col[0]))
+
+    return unique_subjects
+
+
 class TableSplitter(DatabaseManagerBase):
     exam_data: pd.DataFrame
     rspo_col_name: tuple[str, str] = ("", "")
@@ -54,7 +83,7 @@ class TableSplitter(DatabaseManagerBase):
         """Perform initialization and validation steps.
         Returns True if successful, False otherwise."""
         try:
-            self._get_rspo_col_name()
+            self.rspo_col_name = _extract_rspo_col_name(self.exam_data)
             self._get_subjects_names()
             return True
         except ValueError as e:
@@ -236,7 +265,8 @@ class TableSplitter(DatabaseManagerBase):
         )
         self.skipped_schools += 1
 
-    def _validate_enough_data(self, result: WynikE8Extra | WynikEMExtra) -> bool:
+    @staticmethod
+    def _validate_enough_data(result: WynikE8Extra | WynikEMExtra) -> bool:
         # the columns differ in different exam types
         average_score: float | None = (
             result.sredni_wynik
@@ -251,17 +281,6 @@ class TableSplitter(DatabaseManagerBase):
             return False
         return True
 
-    def _get_rspo_col_name(self):
-        rspo_cols = [
-            col
-            for col in self.exam_data.columns
-            if isinstance(col, tuple)
-            and "RSPO" in col[1]  # RSPO is in the second part of the tuple
-        ]
-        if len(rspo_cols) != 1:
-            raise ValueError("Exactly one column with 'RSPO' in its name is expected.")
-        self.rspo_col_name = rspo_cols[0]
-
     def _get_subjects_names(self):
         """
         Extracts unique subject names from the multi-level column index,
@@ -269,18 +288,7 @@ class TableSplitter(DatabaseManagerBase):
         Assumes subject names are in the first level.
         """
 
-        # Iterate through columns to find subjects (assuming they are level 0 of multi-index)
-        for col in self.exam_data.columns:
-            # Check if it's a tuple (multi-index) and not unnamed/metadata column which can be skipped
-            if isinstance(col, tuple) and len(col) > 1:
-                valid_col = True
-                for col_prefix in ExcelFile.SPECIAL_COLUMN_START:
-                    if col_prefix in col[0]:
-                        valid_col = False
-                        break
-                if not valid_col:
-                    continue
-                self.unique_subjects.add(str(col[0]))
+        self.unique_subjects = _extract_subject_names(self.exam_data)
 
         logger.info(f"📚 Identified subjects for processing: {self.unique_subjects}")
         cols_to_keep = [*self.unique_subjects, self.rspo_col_name[0]]
