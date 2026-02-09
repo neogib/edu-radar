@@ -7,10 +7,8 @@ from src.data_import.api.fetcher import SchoolsAPIFetcher
 from src.data_import.config.api import APISettings
 from src.data_import.config.core import LOGS_DIR
 from src.data_import.config.excel import ExamType
-from src.data_import.config.score import ScoreType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
-from src.data_import.score.scorer import Scorer
 
 logger = logging.getLogger(__name__)
 
@@ -105,15 +103,6 @@ def excel_importer():
     logger.info("🎉 Excel data import completed")
 
 
-def update_scoring():
-    for score_type in ScoreType:
-        logger.info(f"📊 Processing {score_type.name} scores...")
-        with Scorer(score_type) as scorer:
-            scorer.calculate_scores()
-
-    logger.info("🎉 Score calculation completed")
-
-
 class ImportOptions:
     option: str  # pyright: ignore[reportUninitializedInstanceVariable]
 
@@ -121,7 +110,6 @@ class ImportOptions:
 COMMANDS = {
     "api": api_importer,
     "excel": excel_importer,
-    "score": update_scoring,
 }
 
 
@@ -136,8 +124,8 @@ def main():
         "--option",
         type=str,
         required=True,
-        choices=["api", "excel", "score"],
-        help="Operation to perform: api (schools API import), excel (exam data import), or score (score calculation)",
+        choices=["api", "excel"],
+        help="Operation to perform: api (schools API import) or excel (exam data import)",
     )
 
     args = ImportOptions()
