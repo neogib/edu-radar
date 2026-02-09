@@ -2,9 +2,9 @@ import argparse
 import logging
 
 from src.data_import.config.score import ScoreType
-from src.data_import.main import configure_logging
 from src.data_import.score.ranking_calculator import RankingCalculator
 from src.data_import.score.scorer import Scorer
+from src.data_import.utils.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
 

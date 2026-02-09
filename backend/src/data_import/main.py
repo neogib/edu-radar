@@ -5,22 +5,12 @@ from src.data_import.api.db.decomposer import Decomposer
 from src.data_import.api.exceptions import SchoolsDataError
 from src.data_import.api.fetcher import SchoolsAPIFetcher
 from src.data_import.config.api import APISettings
-from src.data_import.config.core import LOGS_DIR
 from src.data_import.config.excel import ExamType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
+from src.data_import.utils.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
-
-
-def configure_logging():
-    file_handler = logging.FileHandler(LOGS_DIR / "data_import.log")
-    stream_handler = logging.StreamHandler()
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[file_handler, stream_handler],
-    )
 
 
 def print_error_message(segment_number: int, current_page: int):

@@ -4,7 +4,7 @@ import logging
 from src.data_import.geo.exporter import SchoolAddressExporter
 from src.data_import.geo.importer import SchoolCoordinatesImporter
 from src.data_import.geo.location_shifter import SchoolLocationShifter
-from src.data_import.main import configure_logging
+from src.data_import.utils.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
 
