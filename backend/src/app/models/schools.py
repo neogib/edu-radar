@@ -159,7 +159,7 @@ class Szkola(SzkolaAllData, TimestampMixin, table=True):
     )
     kategoria_uczniow: KategoriaUczniow = Relationship(back_populates="szkoly")
     miejscowosc: "Miejscowosc" = Relationship(back_populates="szkoly")
-    ulica: "Ulica | None" = Relationship(back_populates="szkoly")
+    ulica: Optional["Ulica"] = Relationship(back_populates="szkoly")  # pyright: ignore[reportDeprecated]
 
     # Relationships - many-to-many
     etapy_edukacji: list[EtapEdukacji] = Relationship(
