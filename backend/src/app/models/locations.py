@@ -25,9 +25,7 @@ class Wojewodztwo(WojewodztwoBase, table=True):
 class PowiatBase(SQLModel):
     nazwa: str = Field(index=True)
     teryt: str = Field(index=True, unique=True)
-    wojewodztwo_id: int | None = Field(
-        index=True, default=None, foreign_key="wojewodztwo.id"
-    )
+    wojewodztwo_id: int = Field(index=True, foreign_key="wojewodztwo.id")
 
 
 class Powiat(PowiatBase, table=True):
@@ -40,7 +38,7 @@ class Powiat(PowiatBase, table=True):
 class GminaBase(SQLModel):
     nazwa: str = Field(index=True)
     teryt: str = Field(index=True, unique=True)
-    powiat_id: int | None = Field(index=True, default=None, foreign_key="powiat.id")
+    powiat_id: int = Field(index=True, foreign_key="powiat.id")
 
 
 class Gmina(GminaBase, table=True):
@@ -53,7 +51,7 @@ class Gmina(GminaBase, table=True):
 class MiejscowoscBase(SQLModel):
     nazwa: str = Field(index=True)
     teryt: str = Field(index=True, unique=True)
-    gmina_id: int | None = Field(index=True, default=None, foreign_key="gmina.id")
+    gmina_id: int = Field(index=True, foreign_key="gmina.id")
 
 
 class Miejscowosc(MiejscowoscBase, table=True):
