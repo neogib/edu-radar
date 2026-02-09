@@ -38,6 +38,7 @@
         "@iconify-json/line-md": "^1.2.13",
         "@iconify-json/mdi": "^1.2.3",
         "@types/geojson": "^7946.0.16",
+        "eslint-config-prettier": "^10.1.8",
         "openapi-typescript": "^7.10.1",
         "prettier": "3.7.4",
         "typescript": "^5.9.3"
