@@ -10,7 +10,12 @@ const isSidebarOpen = ref(false)
 const selectedSchool = ref<SzkolaPublicWithRelations | null>(null)
 
 // Handle data updates from map interactions
-const handlePointClick = (school: SzkolaPublicWithRelations) => {
+const handlePointClick = (school: SzkolaPublicWithRelations | null) => {
+    if (!school) {
+        handleSidebarClose()
+        return
+    }
+
     selectedSchool.value = school
     isSidebarOpen.value = true
 }

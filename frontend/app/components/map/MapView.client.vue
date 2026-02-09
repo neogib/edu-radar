@@ -12,7 +12,7 @@ const [x, y, z] = [
     Number(route.query.z),
 ]
 const emit = defineEmits<{
-    "point-clicked": [school: SzkolaPublicWithRelations]
+    "point-clicked": [school: SzkolaPublicWithRelations | null]
 }>()
 
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)

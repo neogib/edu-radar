@@ -10,7 +10,10 @@ import type {
 } from "~/types/schools"
 
 export const useMapInteractions = (
-    emit: (event: "point-clicked", school: SzkolaPublicWithRelations) => void,
+    emit: (
+        event: "point-clicked",
+        school: SzkolaPublicWithRelations | null,
+    ) => void,
     popupCoordinates: Ref<[number, number] | undefined>,
 ) => {
     let currentFeatureCoordinates: string | undefined = undefined
@@ -123,14 +126,22 @@ export const useMapInteractions = (
         if (!feature) return
         if (feature.geometry.type !== "Point") return
 
+        const clickedSchoolId = Number(feature.properties?.id)
+
         if (selectedSchoolId !== null) {
             map.setFeatureState(
                 { source: MAP_CONFIG.sourceId, id: selectedSchoolId },
                 { clicked: false },
             )
-            // todo: after clicking the same school when sidebar is open, it should close, but currently it doesn't because of how the state is managed
+
+            // Clicking the same school toggles the sidebar closed.
+            if (selectedSchoolId === clickedSchoolId) {
+                selectedSchoolId = null
+                emit("point-clicked", null)
+                return
+            }
         }
-        selectedSchoolId = Number(feature.properties?.id)
+        selectedSchoolId = clickedSchoolId
         map.setFeatureState(
             { source: MAP_CONFIG.sourceId, id: selectedSchoolId },
             { clicked: true },
