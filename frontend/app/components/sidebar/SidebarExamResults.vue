@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EM_PRIORITY_SUBJECTS } from "~/constants/subjects"
 import type {
     WynikE8PublicWithPrzedmiot,
     WynikEMPublicWithPrzedmiot,
@@ -28,6 +29,13 @@ type GroupedResults = Record<
         >
     }
 >
+
+const emPriorityOrder = new Map(
+    EM_PRIORITY_SUBJECTS.map((subject, index) => [
+        normalizeSubjectName(subject),
+        index,
+    ]),
+)
 
 const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
     key: "e8" | "em",
@@ -92,6 +100,37 @@ const examSections = computed(() => {
 })
 
 const hasExamResults = computed(() => examSections.value.length > 0)
+
+const getOrderedSubjects = (section: {
+    key: "e8" | "em"
+    grouped: GroupedResults
+}) => {
+    const entries = Object.entries(section.grouped)
+
+    // only prioritize EM subjects, for E8 we can keep the original order
+    if (section.key !== "em") {
+        return entries
+    }
+
+    const prioritized: typeof entries = []
+    const rest: typeof entries = []
+
+    for (const entry of entries) {
+        const [subject] = entry
+        const priorityIndex = emPriorityOrder.get(normalizeSubjectName(subject))
+
+        if (priorityIndex !== undefined) prioritized.push(entry)
+        else rest.push(entry)
+    }
+
+    prioritized.sort((a, b) => {
+        const aPriority = emPriorityOrder.get(normalizeSubjectName(a[0])) ?? 999
+        const bPriority = emPriorityOrder.get(normalizeSubjectName(b[0])) ?? 999
+        return aPriority - bPriority
+    })
+
+    return [...prioritized, ...rest]
+}
 </script>
 
 <template>
@@ -127,7 +166,9 @@ const hasExamResults = computed(() => examSections.value.length > 0)
                 </thead>
                 <tbody>
                     <tr
-                        v-for="(subjectData, subject) in section.grouped"
+                        v-for="[subject, subjectData] in getOrderedSubjects(
+                            section,
+                        )"
                         :key="`${section.key}-${subject}`"
                         class="border-b border-gray-200">
                         <td class="py-3 px-1 text-gray-900">
