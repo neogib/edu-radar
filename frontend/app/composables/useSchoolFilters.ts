@@ -1,5 +1,8 @@
 import { SELECTION_KEYS, type FiltersParamsWihtoutBbox } from "~/types/filters"
+import type { LocationQueryValue } from "vue-router"
 import { parseArrayOfIds, parseNumber, parseQueryString } from "~/utils/parsers"
+
+type RouteQueryValue = LocationQueryValue | LocationQueryValue[] | undefined
 
 // normalize array to filter values lower than 1
 const normalizeArray = (arr: number[] | undefined): string[] | undefined => {
@@ -12,23 +15,20 @@ export const useSchoolFilters = () => {
     const route = useRoute()
 
     const updateQuery = async (
-        updates: Record<string, string | string[] | undefined>,
+        updates: Record<string, RouteQueryValue>,
     ) => {
-        const query = { ...route.query, ...updates }
-
-        // Remove undefined keys
-        Object.keys(updates).forEach((key) => {
-            if (updates[key] === undefined) {
-                delete query[key]
-            }
-        })
+        const query = Object.fromEntries(
+            Object.entries({ ...route.query, ...updates }).filter(
+                ([, value]) => value !== undefined,
+            ),
+        )
 
         await navigateTo({ query })
     }
 
-    const createComputedFilter = <T, S extends string | string[] | undefined>(
+    const createComputedFilter = <T, S extends RouteQueryValue>(
         key: string,
-        parser: (v: any) => T,
+        parser: (v: RouteQueryValue) => T,
         serializer: (v: T) => S,
     ) =>
         computed({

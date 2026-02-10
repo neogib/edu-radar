@@ -6,7 +6,7 @@ import {
 import { GeoJSON_SOURCE_CONFIG, MAP_CONFIG } from "~/constants/mapConfig"
 
 const route = useRoute()
-let initialBbox = useInitialBbox()
+const initialBbox = useInitialBbox()
 const { schoolsGeoJSONFeatures } = useSchools()
 const { filters } = useSchoolFilters()
 const { bboxController } = useControllers()

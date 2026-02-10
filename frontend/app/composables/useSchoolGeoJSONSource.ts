@@ -1,7 +1,7 @@
 import { useDebounceFn } from "@vueuse/core"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import { useMap } from "@indoorequal/vue-maplibre-gl"
-import { GeoJSONSource, type Map } from "maplibre-gl"
+import type { GeoJSONSource, Map } from "maplibre-gl"
 import type { BoundingBox } from "~/types/boundingBox"
 import { useToast } from "#ui/composables/useToast"
 
