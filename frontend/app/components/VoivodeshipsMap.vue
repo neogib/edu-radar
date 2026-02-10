@@ -26,8 +26,8 @@ function handlePathClick(event: Event) {
             <defs id="defs5" />
             <path
                 v-for="path in VOIVODESHIPS_PATHS"
-                :key="path.id"
                 :id="path.id"
+                :key="path.id"
                 :d="path.d"
                 class="voivodeship"
                 tabindex="0"

@@ -75,16 +75,16 @@ onMounted(() => {
                 </div>
 
                 <label
-                    v-else
                     v-for="type in schoolTypes as TypSzkolyPublic[]"
+                    v-else
                     :key="type.id"
                     class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer transition hover:bg-gray-50 has-checked:border-indigo-500 has-checked:bg-indigo-50">
                     <!-- Native checkbox with accent color saves tons of CSS -->
                     <input
+                        v-model="selectedSchoolTypes"
                         type="checkbox"
                         :value="type.id"
                         :disabled="!hydrated"
-                        v-model="selectedSchoolTypes"
                         class="w-5 h-5 accent-indigo-600 rounded" />
                     <span class="ml-3 font-medium text-gray-700">{{
                         type.nazwa
@@ -105,7 +105,7 @@ onMounted(() => {
             <p class="text-sm text-slate-500 pl-2 mb-2 md:pl-0 md:mb-4">
                 Kliknij województwo, aby wybrać
             </p>
-            <VoivodeshipsMap @redirectToMap="handleSubmit" />
+            <VoivodeshipsMap @redirect-to-map="handleSubmit" />
         </div>
     </div>
 </template>

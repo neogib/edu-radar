@@ -219,9 +219,9 @@ defineExpose({
     <!-- Search Input (visible when expanded) -->
     <form v-show="isSearchExpanded" class="w-md" @submit.prevent="submitQuery">
         <UInput
-            :autofocus="true"
-            v-model="searchQuery"
             ref="searchInput"
+            v-model="searchQuery"
+            :autofocus="true"
             placeholder="Szukaj szkoły..."
             size="md"
             minlength="2"

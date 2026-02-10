@@ -96,13 +96,13 @@ const initializeWithSource = async (map: maplibregl.Map) => {
         <MglFullscreenControl position="bottom-right" />
         <MglGeolocateControl
             position="bottom-right"
-            :positionOptions="{ enableHighAccuracy: true }"
-            :trackUserLocation="true" />
+            :position-options="{ enableHighAccuracy: true }"
+            :track-user-location="true" />
 
         <MglImage
             v-for="(url, id) in ICONS"
-            :key="id"
             :id="id"
+            :key="id"
             :url="url"
             :options="{ sdf: true }" />
 
