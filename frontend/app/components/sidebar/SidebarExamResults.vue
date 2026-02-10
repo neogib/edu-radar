@@ -9,43 +9,103 @@ interface Props {
     wynikiEm: WynikEMPublicWithPrzedmiot[]
 }
 
-const props = defineProps<Props>()
+const { wynikiE8, wynikiEm } = defineProps<Props>()
 
-const groupResultsBySubject = (
-    results: WynikE8PublicWithPrzedmiot[] | WynikEMPublicWithPrzedmiot[],
+type WynikPublicWithPrzedmiot =
+    | WynikE8PublicWithPrzedmiot
+    | WynikEMPublicWithPrzedmiot
+
+type GroupedResults = Record<
+    string,
+    Record<
+        number,
+        {
+            wynik: number | null
+            liczba_zdajacych: number | null
+        }
+    >
+>
+
+const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
+    key: "e8" | "em",
+    title: string,
+    results: T[],
+    getScore: (result: T) => number | null,
 ) => {
-    const grouped: Record<
-        string,
-        Record<number, WynikE8PublicWithPrzedmiot | WynikEMPublicWithPrzedmiot>
-    > = {}
-    const years = new Set<number>()
+    const yearsSet = new Set<number>()
+    const grouped: GroupedResults = {}
 
-    results.forEach((result) => {
+    for (const result of results) {
+        yearsSet.add(result.rok)
         const subjectName = result.przedmiot.nazwa
-        years.add(result.rok)
 
         if (!grouped[subjectName]) {
             grouped[subjectName] = {}
         }
-        grouped[subjectName][result.rok] = result
-    })
 
-    return { grouped, years: Array.from(years).sort() }
+        grouped[subjectName][result.rok] = {
+            wynik: getScore(result),
+            liczba_zdajacych: result.liczba_zdajacych,
+        }
+    }
+
+    return {
+        key,
+        title,
+        years: Array.from(yearsSet).sort((a, b) => a - b),
+        grouped,
+    }
 }
 
-const e8Data = computed(() => groupResultsBySubject(props.wynikiE8))
-const emData = computed(() => groupResultsBySubject(props.wynikiEm))
+const examSections = computed(() => {
+    const sections = []
+
+    if (wynikiE8.length) {
+        sections.push(
+            buildExamSection(
+                "e8",
+                "Wyniki z egzaminu ósmoklasisty",
+                wynikiE8,
+                (result) => result.wynik_sredni,
+            ),
+        )
+    }
+
+    if (wynikiEm.length) {
+        sections.push(
+            buildExamSection(
+                "em",
+                "Wyniki z egzaminu maturalnego",
+                wynikiEm,
+                (result) => result.sredni_wynik,
+            ),
+        )
+    }
+
+    return sections
+})
+
+const hasExamResults = computed(() => examSections.value.length > 0)
+
+const formatScore = (wynik: number | null) => Math.round(wynik ?? 0)
+const scoreColor = (wynik: number | null) => getScoreColor(wynik ?? 0)
 </script>
 <template>
     <!-- Exam Results Section -->
-    <div v-if="wynikiE8.length || wynikiEm.length" class="p-4 border-b">
+    <div v-if="hasExamResults" class="p-4 border-b">
         <h4 class="exam-title">
             <Icon name="mdi:school" class="exam-icon text-green-500" />
             Wyniki z egzaminów
         </h4>
 
-        <!-- E8 Results Table -->
-        <div v-if="wynikiE8?.length" class="overflow-x-auto mb-6">
+        <div
+            v-for="(section, sectionIndex) in examSections"
+            :key="section.key"
+            class="overflow-x-auto"
+            :class="{ 'mb-6': sectionIndex < examSections.length - 1 }">
+            <h5 class="exam-subtitle">
+                {{ section.title }}
+            </h5>
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-300">
@@ -54,8 +114,8 @@ const emData = computed(() => groupResultsBySubject(props.wynikiEm))
                             Przedmiot
                         </th>
                         <th
-                            v-for="year in e8Data.years"
-                            :key="`year-${year}`"
+                            v-for="year in section.years"
+                            :key="`year-${section.key}-${year}`"
                             class="text-center py-2 px-1 font-semibold text-gray-700">
                             {{ year }}
                         </th>
@@ -63,8 +123,8 @@ const emData = computed(() => groupResultsBySubject(props.wynikiEm))
                 </thead>
                 <tbody>
                     <tr
-                        v-for="(yearData, subject) in e8Data.grouped"
-                        :key="`e8-${subject}`"
+                        v-for="(yearData, subject) in section.grouped"
+                        :key="`${section.key}-${subject}`"
                         class="border-b border-gray-200">
                         <td class="py-3 px-1 text-gray-900">
                             <div class="font-medium" :title="subject">
@@ -72,103 +132,27 @@ const emData = computed(() => groupResultsBySubject(props.wynikiEm))
                             </div>
                         </td>
                         <td
-                            v-for="year in e8Data.years"
-                            :key="`e8-${subject}-${year}`"
+                            v-for="year in section.years"
+                            :key="`${section.key}-${subject}-${year}`"
                             class="text-center py-3 px-1">
                             <template v-if="yearData[year]">
                                 <div
                                     class="text-2xl font-bold mb-1"
                                     :style="{
-                                        color: getScoreColor(
-                                            (
-                                                yearData[
-                                                    year
-                                                ] as WynikE8PublicWithPrzedmiot
-                                            ).wynik_sredni || 0,
+                                        color: scoreColor(
+                                            yearData[year]?.wynik ?? null,
                                         ),
                                     }">
                                     {{
-                                        Math.round(
-                                            (
-                                                yearData[
-                                                    year
-                                                ] as WynikE8PublicWithPrzedmiot
-                                            ).wynik_sredni || 0,
+                                        formatScore(
+                                            yearData[year]?.wynik ?? null,
                                         )
                                     }}
                                 </div>
                                 <div class="text-xs text-gray-500">
                                     {{
-                                        yearData[year].liczba_zdajacych
-                                            ? `#${yearData[year].liczba_zdajacych}`
-                                            : ""
-                                    }}
-                                </div>
-                            </template>
-                            <span v-else class="text-gray-300">-</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Matura Results Table -->
-        <div v-if="wynikiEm?.length" class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b border-gray-300">
-                        <th
-                            class="text-left py-2 px-1 font-semibold text-gray-700 max-w-30 w-30">
-                            Przedmiot
-                        </th>
-                        <th
-                            v-for="year in emData.years"
-                            :key="`year-${year}`"
-                            class="text-center py-2 px-1 font-semibold text-gray-700">
-                            {{ year }}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="(yearData, subject) in emData.grouped"
-                        :key="`em-${subject}`"
-                        class="border-b border-gray-200">
-                        <td class="py-3 px-1 text-gray-900">
-                            <div class="font-medium" :title="subject">
-                                {{ subject }}
-                            </div>
-                        </td>
-                        <td
-                            v-for="year in emData.years"
-                            :key="`em-${subject}-${year}`"
-                            class="text-center py-3 px-1">
-                            <template v-if="yearData[year]">
-                                <div
-                                    class="text-2xl font-bold mb-1"
-                                    :style="{
-                                        color: getScoreColor(
-                                            (
-                                                yearData[
-                                                    year
-                                                ] as WynikEMPublicWithPrzedmiot
-                                            ).sredni_wynik || 0,
-                                        ),
-                                    }">
-                                    {{
-                                        Math.round(
-                                            (
-                                                yearData[
-                                                    year
-                                                ] as WynikEMPublicWithPrzedmiot
-                                            ).sredni_wynik || 0,
-                                        )
-                                    }}
-                                </div>
-                                <div class="text-xs text-gray-500">
-                                    {{
-                                        yearData[year].liczba_zdajacych
-                                            ? `#${yearData[year].liczba_zdajacych}`
+                                        yearData[year]?.liczba_zdajacych
+                                            ? `#${yearData[year]?.liczba_zdajacych}`
                                             : ""
                                     }}
                                 </div>
@@ -189,5 +173,8 @@ const emData = computed(() => groupResultsBySubject(props.wynikiEm))
 }
 .exam-icon {
     @apply w-4 h-4 mr-2;
+}
+.exam-subtitle {
+    @apply text-sm font-semibold text-gray-700 mb-2;
 }
 </style>
