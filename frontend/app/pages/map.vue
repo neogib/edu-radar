@@ -1,13 +1,33 @@
 <script setup lang="ts">
+import { LazySidebarMain } from "#components"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 definePageMeta({
     colorMode: "light",
     middleware: "redirect-map",
 })
 
-// Reactive state for sidebar
-const isSidebarOpen = ref(false)
 const selectedSchool = ref<SzkolaPublicWithRelations | null>(null)
+const overlay = useOverlay()
+const sidebar = overlay.create(LazySidebarMain)
+
+const openSidebar = (school: SzkolaPublicWithRelations) => {
+    selectedSchool.value = school
+
+    if (overlay.isOpen(sidebar.id)) {
+        sidebar.patch({
+            selectedPoint: school,
+        })
+        return
+    }
+
+    const instance = sidebar.open({
+        selectedPoint: school,
+    })
+
+    void instance.result.finally(() => {
+        selectedSchool.value = null
+    })
+}
 
 // Handle data updates from map interactions
 const handlePointClick = (school: SzkolaPublicWithRelations | null) => {
@@ -16,18 +36,18 @@ const handlePointClick = (school: SzkolaPublicWithRelations | null) => {
         return
     }
 
-    selectedSchool.value = school
-    isSidebarOpen.value = true
+    openSidebar(school)
 }
 
 const handleSidebarClose = () => {
-    isSidebarOpen.value = false
+    sidebar.close()
     selectedSchool.value = null
 }
 
 const initialBbox = useInitialBbox()
 const { bboxController, streamingController } = useControllers()
 onUnmounted(() => {
+    sidebar.close()
     // Reset initialBbox when leaving map page
     initialBbox.value = undefined
     // abort controllers
@@ -41,12 +61,7 @@ onUnmounted(() => {
         <NavBar class="absolute w-full" />
         <MapLegend />
 
-        <SidebarMain
-            :is-open="isSidebarOpen"
-            :selected-point="selectedSchool"
-            @close="handleSidebarClose" />
-
-        <div v-show="!isSidebarOpen">
+        <div v-show="!selectedSchool">
             <MapFiltersBar />
         </div>
 
