@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import TypeAdapter
 from sqlalchemy.orm import Session
+from sqlmodel import col
 
 from src.app.models.schools import (
     Szkola,
@@ -43,10 +44,15 @@ async def stream_schools(
     session: Session,
     filters: FilterParams,
 ):
-    offset = 0
+    last_id = 0
 
     while True:
-        stmt = apply_filters(filters).offset(offset)
+        # Keyset pagination is stable for streaming large/updated datasets.
+        stmt = (
+            apply_filters(filters)
+            .where(col(Szkola.id) > last_id)
+            .order_by(col(Szkola.id))
+        )
         rows = session.execute(stmt).mappings().all()
 
         if not rows:
@@ -55,7 +61,7 @@ async def stream_schools(
         schools_chunk = school_list_adapter.validate_python(rows)
         yield (school_list_adapter.dump_json(schools_chunk) + b"\n")
 
-        offset += CHUNK_SIZE
+        last_id = cast(int, rows[-1]["id"])
 
         # abort when client disconnects
         if await request.is_disconnected():
