@@ -12,14 +12,17 @@ class DatabaseManagerBase:
 
     _engine: Engine
     _session: Session | None
+    _owns_session: bool
 
-    def __init__(self):
+    def __init__(self, session: Session | None = None):
         self._engine = engine
-        self._session = None
+        self._session = session
+        self._owns_session = session is None
 
     def __enter__(self) -> Self:
-        # Create the session when entering the context
-        self._session = Session(self._engine)
+        # Create a session only when one was not injected from outside.
+        if self._session is None:
+            self._session = Session(self._engine)
         return self
 
     def __exit__(
@@ -34,7 +37,8 @@ class DatabaseManagerBase:
     def close(self) -> None:
         """Manual close method for when not using as context manager"""
         if self._session:
-            self._session.close()
+            if self._owns_session:
+                self._session.close()
             self._session = None
 
     def _ensure_session(self) -> Session:

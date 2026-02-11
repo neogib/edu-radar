@@ -33,4 +33,4 @@ class ScoreType(Enum):
 @final
 class CalculationSettings:
     MEAN_PENALTY = 0.7  # 30% penalty for subject with no median
-    DECAY_FACTOR = 0.8  # 20% decline per year in score calculation
+    DECAY_FACTOR = 0.7  # 20% decline per year in score calculation

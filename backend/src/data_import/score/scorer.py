@@ -1,6 +1,9 @@
 import logging
+from collections import defaultdict
+from typing import cast
 
-from sqlmodel import col, func, select
+from sqlalchemy import bindparam, update
+from sqlmodel import Session, col, func, select
 
 from src.app.models.exam_results import Przedmiot, WynikE8
 from src.app.models.schools import Szkola
@@ -78,119 +81,137 @@ class Scorer(DatabaseManagerBase):
     _subject_weights_map: dict[str, float]
     _schools_ids: list[int]
     _subjects: list[Przedmiot]
+    _subject_ids: list[int]
     _most_recent_year: int = 0
     _table_type: type[WynikTable]
 
-    def __init__(self, score_type: ScoreType):
-        super().__init__()
+    def __init__(self, score_type: ScoreType, session: Session | None = None):
+        super().__init__(session=session)
         self._subject_weights_map = score_type.subject_weights_map
         self._table_type = score_type.table_type
         self._schools_ids = []
         self._subjects = []
+        self._subject_ids = []
 
-    def calculate_scores(self):
+    def calculate_scores(self, commit: bool = True) -> None:
         session = self._ensure_session()
+
         try:
             self._initialize_required_data()
-        except ValueError as e:
-            logger.error(
-                f"⚙️ Initialization error: {e}. Aborting school scoring process."
-            )
-            return
-        processed_schools = 0
-
-        for id in self._schools_ids:
-            school = self._select_where(Szkola, Szkola.id == id)
-            if not school:
-                logger.error(
-                    f"🔍 School with ID {id} not found in database. Cannot update score."
-                )
-                continue
-
-            final_score = 0.0
-
-            for subject in self._subjects:
-                subject_score = self._calculate_subject_score(subject, id)
-                if subject_score is None:  # skip this school and set score to NULL
-                    # missing results for this school or no results in the most recent year
-                    logger.info(
-                        f"⏩ School ID {id} missing '{subject.nazwa}' results. Setting score to NULL."
-                    )
-                    school.wynik = None
-                    session.add(school)
-                    processed_schools += 1
-                    break
-                weight = self._subject_weights_map[subject.nazwa]
-                final_score += subject_score * weight
-            else:
-                # Loop completed without break - all subjects processed
-                if final_score == 0.0:
-                    logger.warning(
-                        f"⚠️ Final score for school (id: {id}) is 0. Possible missing data. Setting score to NULL."
-                    )
-                    school.wynik = None
-                else:
-                    school.wynik = final_score
-                    logger.info(
-                        f"🎯 Score updated for school (RSPO: {school.numer_rspo}): {final_score:.2f}"
-                    )
-                session.add(school)
-                processed_schools += 1
-
-            if processed_schools % 100 == 0:
+            indexed_results = self._load_indexed_results()
+            score_payload = self._build_score_payload(indexed_results)
+            self._bulk_update_scores(score_payload)
+            if commit:
                 session.commit()
-                logger.info(
-                    f"💾 Committed scores for {processed_schools} schools so far..."
-                )
+        except Exception:
+            session.rollback()
+            logger.exception("❌ Score calculation failed. Rolling back changes.")
+            raise
 
-        # Final commit after processing all schools
-        session.commit()
-
-    def _calculate_subject_score(
-        self, subject: Przedmiot, school_id: int
-    ) -> float | None:
-        """
-        Calculate score for a specific subject and school.
-
-        Returns:
-            float: The calculated score (0.0 if no valid data)
-            None: If school has no results for this subject in the most recent year
-        """
-        session = self._ensure_session()
-        statement = select(self._table_type).where(
-            self._table_type.szkola_id == school_id,
-            self._table_type.przedmiot_id == subject.id,
-        )
-        subject_results = list(session.exec(statement).all())
-
-        subject_score, denominator_is_zero = _calculate_weighted_score(
-            subject_results=subject_results,
-            most_recent_year=self._most_recent_year,
-        )
-
-        if denominator_is_zero:  # this should not happen if data in database is correct, log it just in case to identify potential data issues
-            logger.warning(
-                f"🔢 Denominator is zero for school ID {school_id}, subject '{subject.nazwa}' (total 'liczba_zdajacych' is 0). Assigning score 0 for this subject."
-            )
-
-        return subject_score
-
-    def _initialize_required_data(self):
+    def _initialize_required_data(self) -> None:
         self._most_recent_year = self._get_most_recent_year()
         self._load_school_ids()
         self._load_subjects()
+        self._subject_ids = [
+            subject.id for subject in self._subjects if subject.id is not None
+        ]
 
-    def _load_school_ids(self):
+    def _load_indexed_results(self) -> dict[int, dict[int, list[WynikTable]]]:
+        session = self._ensure_session()
+
+        statement = select(self._table_type).where(
+            col(self._table_type.szkola_id).in_(self._schools_ids),
+            col(self._table_type.przedmiot_id).in_(self._subject_ids),
+        )
+
+        results = session.exec(statement).all()
+
+        indexed_results: dict[int, dict[int, list[WynikTable]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
+
+        for result in results:
+            indexed_results[result.szkola_id][result.przedmiot_id].append(result)
+
+        return indexed_results
+
+    def _build_score_payload(
+        self, indexed_results: dict[int, dict[int, list[WynikTable]]]
+    ) -> list[dict[str, float | int]]:
+        score_payload: list[dict[str, float | int]] = []
+        missing_subject_count = 0
+        zero_score_count = 0
+        denominator_zero_count = 0
+
+        for school_id in self._schools_ids:
+            final_score = 0.0
+            school_results = indexed_results.get(school_id, {})
+
+            for subject in self._subjects:
+                subject_id = cast(int, subject.id)
+
+                subject_results = school_results.get(subject_id, [])
+                subject_score, denominator_is_zero = _calculate_weighted_score(
+                    subject_results=subject_results,
+                    most_recent_year=self._most_recent_year,
+                )
+
+                if denominator_is_zero:
+                    denominator_zero_count += 1
+
+                if subject_score is None:
+                    missing_subject_count += 1
+                    break
+
+                weight = self._subject_weights_map[subject.nazwa]
+                final_score += subject_score * weight
+            else:
+                if final_score == 0.0:
+                    zero_score_count += 1
+                    continue
+
+                score_payload.append(
+                    {
+                        "school_id_param": school_id,
+                        "score_param": final_score,
+                    }
+                )
+
+        if denominator_zero_count:
+            logger.warning(
+                f"🔢 Denominator was zero for {denominator_zero_count} school/subject combinations."
+            )
+
+        logger.info(
+            f"📊 Score summary ({self._table_type.__name__}, year: {self._most_recent_year}): updated={len(score_payload)}, missing_subject={missing_subject_count}, zero_score={zero_score_count}"
+        )
+        return score_payload
+
+    def _bulk_update_scores(self, score_payload: list[dict[str, float | int]]) -> None:
+        if not score_payload:
+            logger.warning("⚠️ No valid scores to update.")
+            return
+
+        session = self._ensure_session()
+        szkola_table = Szkola.__table__
+        statement = (
+            update(szkola_table)
+            .where(szkola_table.c.id == bindparam("school_id_param"))
+            .values(wynik=bindparam("score_param"))
+        )
+        _ = session.exec(statement, params=score_payload)
+
+    def _load_school_ids(self) -> None:
         session = self._ensure_session()
         stmt = select(self._table_type.szkola_id).where(
             self._table_type.rok == self._most_recent_year
         )
-        ids = session.exec(stmt).unique()
+        ids = list(session.exec(stmt).unique().all())
         if not ids:
             raise ValueError("No school IDs found in the database.")
-        self._schools_ids = list(ids)
+        self._schools_ids = ids
 
-    def _load_subjects(self):
+    def _load_subjects(self) -> None:
         session = self._ensure_session()
         subject_names = list(self._subject_weights_map.keys())
         statement = select(Przedmiot).where(col(Przedmiot.nazwa).in_(subject_names))

@@ -1,6 +1,11 @@
 import argparse
 import logging
 
+from sqlalchemy import update
+from sqlmodel import Session
+
+from src.app.core.database import engine
+from src.app.models.schools import Szkola
 from src.data_import.config.score import ScoreType
 from src.data_import.score.ranking_calculator import RankingCalculator
 from src.data_import.score.scorer import Scorer
@@ -10,10 +15,21 @@ logger = logging.getLogger(__name__)
 
 
 def update_scoring() -> None:
-    for score_type in ScoreType:
-        logger.info(f"📊 Processing {score_type.name} scores...")
-        with Scorer(score_type) as scorer:
-            scorer.calculate_scores()
+    with Session(engine) as session:
+        try:
+            logger.info("🧹 Resetting all school scores to NULL...")
+            _ = session.exec(update(Szkola).values(wynik=None))
+
+            for score_type in ScoreType:
+                logger.info(f"📊 Processing {score_type.name} scores...")
+                scorer = Scorer(score_type, session=session)
+                scorer.calculate_scores(commit=False)
+
+            session.commit()
+        except Exception:
+            session.rollback()
+            logger.exception("❌ Score calculation transaction failed.")
+            raise
 
     logger.info("🎉 Score calculation completed")
 
