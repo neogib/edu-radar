@@ -38,3 +38,6 @@ export type SchoolFeature = GeoJSON.Feature<
     GeoJSON.Point,
     SchoolFeatureProperties
 >
+export type WynikPublicWithPrzedmiot =
+    | WynikE8PublicWithPrzedmiot
+    | WynikEMPublicWithPrzedmiot
