@@ -1,7 +1,9 @@
 import logging
 import math
 
-from sqlmodel import Numeric, cast, func, select, tuple_
+from geoalchemy2 import WKBElement
+from sqlalchemy import bindparam, update
+from sqlmodel import Numeric, cast, col, func, select, tuple_
 
 from src.app.models.schools import Szkola
 from src.data_import.config.geo import ShifterSettings
@@ -94,7 +96,7 @@ class SchoolLocationShifter(DatabaseManagerBase):
         """
         Args:
             shift_value (float): The value by which to shift the coordinates in degrees.
-                                Default: 0.0001 (≈11 meters)
+                                Default: 0.00005 (≈5.5 meters)
         """
         super().__init__()
         self.shift_value: float = shift_value
@@ -172,22 +174,26 @@ class SchoolLocationShifter(DatabaseManagerBase):
             return 0
 
         session = self._ensure_session()
-        updated_count = 0
+        update_payload: list[dict[str, int | WKBElement]] = []
 
         for school, new_lat, new_lon in schools_to_shift:
-            # Update PostGIS geometry column (lon, lat order for POINT)
-            school.geom = create_geom_point(new_lon, new_lat)
-            session.add(school)
-            updated_count += 1
+            if school.id is None:
+                raise ValueError("School ID is missing. Cannot update coordinates.")
 
-            if updated_count % 1000 == 0:
-                # commit in batches to avoid large transactions
-                logger.info(
-                    f"Committed {updated_count} school location shifts so far..."
-                )
-                session.commit()
+            update_payload.append(
+                {
+                    "school_id_param": school.id,
+                    "geom_param": create_geom_point(new_lon, new_lat),
+                }
+            )
 
-        # final commit for any remaining updates
+        statement = (
+            update(Szkola)
+            .where(col(Szkola.id) == bindparam("school_id_param"))
+            .values(geom=bindparam("geom_param"))
+        )
+
+        _ = session.connection().execute(statement, update_payload)
         session.commit()
 
-        return updated_count
+        return len(update_payload)

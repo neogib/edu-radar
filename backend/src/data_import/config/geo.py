@@ -4,7 +4,7 @@ from typing import ClassVar, final
 
 @final
 class ShifterSettings:
-    SHIFT_VALUE = 0.0001  # ≈11 meters
+    SHIFT_VALUE = 0.00005  # ≈5.5 meters
     POINTS_PER_CIRCLE = 6
 
 
