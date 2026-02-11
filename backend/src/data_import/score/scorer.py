@@ -193,13 +193,12 @@ class Scorer(DatabaseManagerBase):
             return
 
         session = self._ensure_session()
-        szkola_table = Szkola.__table__
         statement = (
-            update(szkola_table)
-            .where(szkola_table.c.id == bindparam("school_id_param"))
+            update(Szkola)
+            .where(col(Szkola.id) == bindparam("school_id_param"))
             .values(wynik=bindparam("score_param"))
         )
-        _ = session.exec(statement, params=score_payload)
+        _ = session.connection().execute(statement, score_payload)
 
     def _load_school_ids(self) -> None:
         session = self._ensure_session()
