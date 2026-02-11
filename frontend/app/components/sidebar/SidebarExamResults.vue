@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { EM_PRIORITY_SUBJECTS } from "~/constants/subjects"
+import {
+    EM_PRIORITY_SUBJECTS,
+    SUBJECT_WEIGHTS,
+    WEIGHTED_SUBJECTS,
+} from "~/constants/subjects"
 import type {
     WynikE8PublicWithPrzedmiot,
     WynikEMPublicWithPrzedmiot,
+    WynikPublicWithPrzedmiot,
 } from "~/types/schools"
+import type {
+    ExamSection,
+    ExamSectionKey,
+    GroupedResults,
+    WeightedPoint,
+} from "~/types/subjects"
 
 interface Props {
     wynikiE8: WynikE8PublicWithPrzedmiot[]
@@ -12,24 +23,6 @@ interface Props {
 
 const { wynikiE8, wynikiEm } = defineProps<Props>()
 
-type WynikPublicWithPrzedmiot =
-    | WynikE8PublicWithPrzedmiot
-    | WynikEMPublicWithPrzedmiot
-
-type GroupedResults = Record<
-    string,
-    {
-        usesFallback: boolean
-        years: Record<
-            number,
-            {
-                wynik: number | null
-                liczba_zdajacych: number | null
-            }
-        >
-    }
->
-
 const emPriorityOrder = new Map(
     EM_PRIORITY_SUBJECTS.map((subject, index) => [
         normalizeSubjectName(subject),
@@ -37,11 +30,57 @@ const emPriorityOrder = new Map(
     ]),
 )
 
+const getWeightedData = <T extends WynikPublicWithPrzedmiot>(
+    key: ExamSectionKey,
+    results: T[],
+    years: number[],
+): WeightedPoint[] => {
+    if (!results.length || !years.length) return []
+
+    const byYear = new Map<number, Map<string, number>>()
+
+    for (const result of results) {
+        if (result.mediana === null || result.mediana === undefined) continue
+
+        const subject = normalizeSubjectName(result.przedmiot.nazwa)
+        if (!byYear.has(result.rok)) {
+            byYear.set(result.rok, new Map())
+        }
+
+        byYear.get(result.rok)?.set(subject, result.mediana)
+    }
+
+    const points: WeightedPoint[] = []
+    const weightedSubjects = WEIGHTED_SUBJECTS[key]
+
+    for (const year of years) {
+        const yearMap = byYear.get(year)
+        if (!yearMap) continue
+
+        const math = yearMap.get(weightedSubjects.math)
+        const polish = yearMap.get(weightedSubjects.polish)
+        const english = yearMap.get(weightedSubjects.english)
+
+        if (math === undefined || polish === undefined || english === undefined)
+            continue
+
+        points.push({
+            year,
+            weighted:
+                math * SUBJECT_WEIGHTS.math +
+                polish * SUBJECT_WEIGHTS.polish +
+                english * SUBJECT_WEIGHTS.english,
+        })
+    }
+
+    return points
+}
+
 const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
-    key: "e8" | "em",
+    key: ExamSectionKey,
     title: string,
     results: T[],
-) => {
+): ExamSection => {
     const yearsSet = new Set<number>()
     const grouped: GroupedResults = {}
 
@@ -58,7 +97,7 @@ const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
 
         const median = result.mediana ?? null
         const fallback =
-            key == "e8"
+            key === "e8"
                 ? (result as WynikE8PublicWithPrzedmiot).wynik_sredni
                 : (result as WynikEMPublicWithPrzedmiot).sredni_wynik
         const wynik = median ?? fallback
@@ -73,16 +112,19 @@ const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
         }
     }
 
+    const years = Array.from(yearsSet).sort((a, b) => a - b)
+
     return {
         key,
         title,
-        years: Array.from(yearsSet).sort((a, b) => a - b),
+        years,
         grouped,
+        weightedData: getWeightedData(key, results, years),
     }
 }
 
 const examSections = computed(() => {
-    const sections = []
+    const sections: ExamSection[] = []
 
     if (wynikiE8.length) {
         sections.push(
@@ -101,10 +143,7 @@ const examSections = computed(() => {
 
 const hasExamResults = computed(() => examSections.value.length > 0)
 
-const getOrderedSubjects = (section: {
-    key: "e8" | "em"
-    grouped: GroupedResults
-}) => {
+const getOrderedSubjects = (section: ExamSection) => {
     const entries = Object.entries(section.grouped)
 
     // only prioritize EM subjects, for E8 we can keep the original order
@@ -131,6 +170,26 @@ const getOrderedSubjects = (section: {
 
     return [...prioritized, ...rest]
 }
+
+const chartCategories = {
+    weighted: {
+        name: "Wynik",
+        color: "#2563eb",
+    },
+}
+
+const weightedMarkerConfig: MarkerConfig = {
+    id: "weighted-chart",
+    config: {
+        weighted: {
+            type: "circle",
+            size: 8,
+            color: "#2563eb",
+            strokeColor: "#2563eb",
+            strokeWidth: 2,
+        },
+    },
+}
 </script>
 
 <template>
@@ -149,6 +208,30 @@ const getOrderedSubjects = (section: {
             <h5 class="text-sm font-semibold text-gray-700 mb-2">
                 {{ section.title }}
             </h5>
+
+            <div
+                v-if="section.weightedData.length"
+                class="weighted-chart-markers mb-4 rounded-lg border border-gray-200 bg-white p-2">
+                <LineChart
+                    :data="section.weightedData"
+                    :categories="chartCategories"
+                    :height="180"
+                    :x-formatter="
+                        (tick: number): string =>
+                            `${section.weightedData[tick]?.year ?? ''}`
+                    "
+                    :x-num-ticks="section.weightedData.length"
+                    :y-num-ticks="3"
+                    :marker-config="weightedMarkerConfig"
+                    :hide-legend="true"
+                    :line-width="3"
+                    :y-grid-line="true"
+                    y-label="Wynik" />
+            </div>
+            <p v-else class="mb-4 text-xs text-gray-500">
+                Brak kompletnych danych mediany do obliczenia trendu.
+            </p>
+
             <table class="w-full text-sm">
                 <thead>
                     <tr class="border-b border-gray-300">
@@ -227,3 +310,9 @@ const getOrderedSubjects = (section: {
         </div>
     </div>
 </template>
+
+<style scoped>
+.weighted-chart-markers :deep(*[stroke="#2563eb"]) {
+    marker: url("#weighted-chart-weighted");
+}
+</style>
