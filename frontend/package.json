@@ -27,6 +27,7 @@
         "@vueuse/router": "^14.1.0",
         "maplibre-gl": "^5.16.0",
         "nuxt": "^4.2.2",
+        "nuxt-charts": "^2.1.1",
         "nuxt-maplibre": "^1.2.2",
         "pinia": "^3.0.4",
         "tailwindcss": "^4.1.18",
@@ -35,7 +36,9 @@
         "vue-router": "4"
     },
     "devDependencies": {
+        "@iconify-json/heroicons": "^1.2.3",
         "@iconify-json/line-md": "^1.2.13",
+        "@iconify-json/lucide": "^1.2.90",
         "@iconify-json/mdi": "^1.2.3",
         "@types/geojson": "^7946.0.16",
         "eslint-config-prettier": "^10.1.8",

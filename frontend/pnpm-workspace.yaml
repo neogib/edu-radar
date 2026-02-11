@@ -1,5 +1,6 @@
 onlyBuiltDependencies:
-    - "@parcel/watcher"
-    - esbuild
-    - unrs-resolver
-    - vue-demi
+  - '@parcel/watcher'
+  - esbuild
+  - maplibre-gl
+  - unrs-resolver
+  - vue-demi

@@ -3,7 +3,13 @@ import tailwindcss from "@tailwindcss/vite"
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
     devtools: { enabled: true },
-    modules: ["@nuxt/eslint", "@nuxt/ui", "nuxt-maplibre", "@pinia/nuxt"],
+    modules: [
+        "@nuxt/eslint",
+        "@nuxt/ui",
+        "nuxt-maplibre",
+        "@pinia/nuxt",
+        "nuxt-charts",
+    ],
     // Runtime environment configuration
     runtimeConfig: {
         proxyURL: "http://localhost:8000",
