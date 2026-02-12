@@ -114,7 +114,7 @@ const handlePanelSubmit = () => {
     <!-- Overlay for closing search input/filter panel when clicking outside -->
     <div
         v-if="isFilterPanelOpen || searchRef?.isSearchFocused"
-        class="fixed inset-0 bg-black opacity-25 z-10"
+        class="fixed inset-0 z-10 bg-black/25 dark:bg-black/45"
         @click="handlePanelClose" />
 </template>
 

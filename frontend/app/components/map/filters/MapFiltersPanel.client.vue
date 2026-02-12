@@ -52,7 +52,7 @@ const canAddMore = (
 <template>
     <!-- Filter Panel -->
     <div
-        class="backdrop-blur-md bg-white/95 rounded-xl shadow-2xl border border-white/20 p-3 max-w-full max-h-[70vh] overflow-x-auto overflow-y-auto">
+        class="max-h-[70vh] max-w-full overflow-x-auto overflow-y-auto rounded-xl border border-default bg-default/95 p-3 shadow-2xl backdrop-blur-md">
         <!-- Filter Options -->
         <div class="flex flex-col gap-2">
             <!-- Dynamic Filter Selects -->
@@ -61,7 +61,7 @@ const canAddMore = (
                     v-for="filter in multiSelectFilters"
                     :key="filter.key"
                     class="flex flex-col gap-2 min-w-50 flex-1 max-w-75">
-                    <label class="text-xs font-medium text-neutral-600">
+                    <label class="text-xs font-medium text-toned">
                         {{ filter.label }}
                     </label>
 
@@ -184,16 +184,16 @@ const canAddMore = (
 
             <!-- Score Range Section -->
             <div
-                class="bg-neutral-50 rounded-lg p-2 flex flex-row flex-wrap gap-x-6 gap-y-2 items-center justify-center">
+                class="bg-muted rounded-lg p-2 flex flex-row flex-wrap gap-x-6 gap-y-2 items-center justify-center">
                 <div class="flex items-center gap-1.5">
                     <UIcon name="i-mdi-star" class="text-amber-500 size-4" />
-                    <span class="text-sm font-medium text-neutral-600"
+                    <span class="text-sm font-medium text-toned"
                         >Punkty (0-100)</span
                     >
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-1">
-                        <span class="text-xs text-neutral-500">Min</span>
+                        <span class="text-xs text-muted">Min</span>
                         <UInputNumber
                             v-model="min_score"
                             :min="0"
@@ -202,9 +202,9 @@ const canAddMore = (
                             placeholder="0"
                             class="w-25" />
                     </div>
-                    <span class="text-neutral-400 text-xs">—</span>
+                    <span class="text-dimmed text-xs">—</span>
                     <div class="flex items-center gap-1">
-                        <span class="text-xs text-neutral-500">Max</span>
+                        <span class="text-xs text-muted">Max</span>
                         <UInputNumber
                             v-model="max_score"
                             placeholder="100"
@@ -218,7 +218,7 @@ const canAddMore = (
 
             <!-- Actions -->
             <div
-                class="flex justify-between items-center pt-2 border-t border-neutral-200">
+                class="flex justify-between items-center pt-2 border-t border-default">
                 <UButton
                     v-if="hasActiveFilters"
                     icon="i-mdi-close-circle"

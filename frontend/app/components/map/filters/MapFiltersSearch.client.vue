@@ -246,7 +246,7 @@ defineExpose({
     <!-- Search Suggestions Dropdown (spans full width) -->
     <div
         v-show="isSearchFocused && searchSuggestions.length > 0"
-        class="absolute top-full mt-1 bg-white rounded-lg shadow-xl border border-gray-100 z-50 py-1">
+        class="absolute top-full mt-1 z-50 rounded-lg border border-default bg-default py-1 shadow-xl">
         <div ref="suggestionsList" class="max-h-60 overflow-y-auto">
             <div
                 v-for="(school, index) in searchSuggestions"
@@ -254,15 +254,15 @@ defineExpose({
                 :class="[
                     'px-3 py-2 cursor-pointer flex flex-col gap-0.5 transition-colors',
                     highlightedIndex === index
-                        ? 'bg-blue-50'
-                        : 'hover:bg-gray-50',
+                        ? 'bg-primary/10'
+                        : 'hover:bg-elevated',
                 ]"
                 @click="handleSelectSuggestion(school)"
                 @mouseenter="highlightedIndex = index">
-                <span class="text-sm font-medium text-gray-900">{{
+                <span class="text-sm font-medium text-highlighted">{{
                     school.nazwa
                 }}</span>
-                <div class="flex gap-2 items-center text-xs text-gray-500">
+                <div class="flex gap-2 items-center text-xs text-muted">
                     <span>{{ school.status }}</span>
                     <span>•</span>
                     <span>{{ school.typ }}</span>
@@ -270,7 +270,7 @@ defineExpose({
             </div>
         </div>
         <div
-            class="px-3 py-2 bg-white border-t border-gray-100 flex items-center gap-3 text-xs text-gray-500">
+            class="px-3 py-2 bg-default border-t border-default flex items-center gap-3 text-xs text-muted">
             <span class="flex items-center gap-1">
                 <UIcon name="i-mdi-arrow-up" class="size-3.5" />
                 <UIcon name="i-mdi-arrow-down" class="size-3.5" />
