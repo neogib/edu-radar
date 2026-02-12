@@ -16,7 +16,8 @@ function handlePathClick(event: Event) {
 </script>
 
 <template>
-    <div class="flex justify-center h-auto w-full max-w-5xl mx-auto md:p-6">
+    <div
+        class="map-container flex justify-center h-auto w-full max-w-5xl mx-auto md:p-6">
         <svg
             id="svg2"
             viewBox="0 0 500 500"
@@ -41,7 +42,20 @@ function handlePathClick(event: Event) {
 @reference "tailwindcss";
 
 .voivodeship {
-    @apply cursor-pointer fill-[#94add6] hover:fill-[#5c7caa] hover:drop-shadow-xl hover:stroke-amber-300 hover:scale-[1.03] transition duration-300 ease-in-out stroke-2 stroke-transparent origin-center active:fill-[#3b4a76] active:stroke-amber-300 active:scale-[1.03] focus:fill-[#3b4a76];
+    @apply cursor-pointer transition duration-300 ease-in-out stroke-2 origin-center hover:drop-shadow-xl hover:scale-[1.03] active:scale-[1.03];
     transform-box: fill-box;
+    fill: var(--voivodeship-fill);
+    stroke: transparent;
+}
+
+.voivodeship:hover {
+    fill: var(--voivodeship-fill-hover);
+    stroke: var(--voivodeship-stroke);
+}
+
+.voivodeship:active,
+.voivodeship:focus-visible {
+    fill: var(--voivodeship-fill-active);
+    stroke: var(--voivodeship-stroke);
 }
 </style>

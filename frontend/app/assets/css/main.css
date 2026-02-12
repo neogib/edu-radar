@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+:root {
+    --voivodeship-fill: #94add6;
+    --voivodeship-fill-hover: #5c7caa;
+    --voivodeship-fill-active: #3b4a76;
+    --voivodeship-stroke: #fcd34d;
+}
+
+.dark,
+.dark-mode,
+[data-theme="dark"] {
+    --voivodeship-fill: #5f79a6;
+    --voivodeship-fill-hover: #7f9dd0;
+    --voivodeship-fill-active: #a5b9de;
+    --voivodeship-stroke: #fde68a;
+}
+
 /* MapLibre popup custom styling - remove default padding and background */
 .maplibregl-popup-content {
     padding: 0 !important;
