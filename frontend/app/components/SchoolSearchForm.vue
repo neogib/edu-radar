@@ -64,7 +64,7 @@ onMounted(() => {
     <div class="grid lg:grid-cols-12 gap-6 items-start">
         <!-- Sidebar: Filters (Takes 4 cols) -->
         <div
-            class="lg:col-span-4 rounded-xl border border-default bg-default shadow-sm p-6">
+            class="lg:col-span-4 rounded-xl border border-default bg-muted shadow-sm p-6">
             <h2 class="font-bold text-xl text-highlighted mb-1">
                 Rodzaj szkoły
             </h2>
@@ -81,7 +81,7 @@ onMounted(() => {
                     v-for="type in schoolTypes as TypSzkolyPublic[]"
                     v-else
                     :key="type.id"
-                    class="flex items-center p-3 border border-default rounded-lg cursor-pointer transition-colors hover:bg-elevated has-checked:border-primary has-checked:bg-primary/10">
+                    class="flex items-center p-3 border border-default rounded-lg cursor-pointer transition-colors hover:bg-accented has-checked:border-primary has-checked:bg-primary/15">
                     <!-- Native checkbox with accent color saves tons of CSS -->
                     <input
                         v-model="selectedSchoolTypes"
@@ -101,7 +101,7 @@ onMounted(() => {
 
         <!-- Main: Map (Takes 8 cols) -->
         <div
-            class="lg:col-span-8 rounded-xl border border-default bg-default shadow-sm p-2 md:p-6">
+            class="lg:col-span-8 rounded-xl border border-default bg-muted shadow-sm p-2 md:p-6">
             <h2
                 class="font-bold text-xl text-highlighted pl-2 pt-2 md:p-0 md:mb-2">
                 Mapa województw
