@@ -34,7 +34,6 @@ export const useSchoolGeoJSONSource = () => {
                     id: "zoom-threshold-warning", // unique ID to prevent multiples
                     color: "warning",
                     icon: "i-mdi-magnify-plus",
-                    duration: 2000,
                 })
                 return
             }

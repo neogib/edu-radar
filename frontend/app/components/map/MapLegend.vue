@@ -3,28 +3,23 @@ const items = [
     [
         {
             label: "Przedszkole",
-            icon: "i-mdi-triangle",
-            color: "text-orange-500",
+            icon: "i-mdi-teddy-bear",
         },
         {
             label: "Szkoła podstawowa",
-            icon: "i-mdi-square",
-            color: "text-blue-500",
+            icon: "i-mdi-book-open-page-variant",
         },
         {
             label: "Liceum ogólnokształcące",
-            icon: "i-carbon-diamond-solid",
-            color: "text-purple-500",
+            icon: "i-mdi-school",
         },
         {
             label: "Technikum",
-            icon: "i-mdi-hexagon",
-            color: "text-pink-500",
+            icon: "i-mdi-cog",
         },
         {
             label: "Inne",
             icon: "i-mdi-star",
-            color: "text-yellow-500",
         },
     ],
 ]
@@ -46,10 +41,7 @@ const items = [
 
             <template #item="{ item }">
                 <div class="flex items-center gap-3 py-1">
-                    <UIcon
-                        :name="item.icon"
-                        class="h-6 w-6"
-                        :class="item.color" />
+                    <UIcon :name="item.icon" class="h-6 w-6 text-secondary" />
                     <span
                         class="text-sm font-medium text-gray-700 dark:text-gray-200">
                         {{ item.label }}
