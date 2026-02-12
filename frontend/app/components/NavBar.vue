@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui"
+import logoFullHorizontal from "@/assets/logo/logo-full-horizontal.svg"
+import logoHorizontalSmall from "@/assets/logo/logo-full-horizontal-small.svg"
 
 const route = useRoute()
 const props = withDefaults(
@@ -52,16 +54,14 @@ const items = computed<NavigationMenuItem[]>(() => [
         :ui="headerUi"
         mode="slideover">
         <template #title>
-            <h1 class="text-2xl font-bold group">
-                <span
-                    class="text-highlighted group-hover:text-primary transition-colors duration-200"
-                    >Ranking</span
-                >
-                <span
-                    class="text-primary group-hover:text-secondary transition-colors duration-200"
-                    >Szkół</span
-                >
-            </h1>
+            <img
+                :src="logoHorizontalSmall"
+                alt="Ranking Szkół"
+                class="h-8 w-auto md:hidden" />
+            <img
+                :src="logoFullHorizontal"
+                alt="Ranking Szkół"
+                class="hidden h-10 w-auto md:block" />
         </template>
 
         <UNavigationMenu :items="items" />
