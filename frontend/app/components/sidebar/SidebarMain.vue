@@ -84,7 +84,7 @@ const scoreColor = computed(() => {
             body: 'overflow-x-hidden p-0 sm:p-0',
         }">
         <template #body>
-            <div class="relative pb-20">
+            <div class="relative">
                 <div
                     class="p-4 bg-linear-to-br from-blue-50 to-indigo-50 border-b">
                     <h3 class="text-xl font-bold text-gray-900 mb-3">
