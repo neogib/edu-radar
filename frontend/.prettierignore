@@ -16,3 +16,12 @@ build
 
 # system
 .DS_Store
+
+# auto-generated openapi-typescript
+app/types/api.d.ts
+
+# download openapi spec
+openapi/openapi.json
+
+# generated map styles
+public/map-styles/*.json

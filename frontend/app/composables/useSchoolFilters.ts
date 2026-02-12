@@ -14,9 +14,7 @@ const normalizeArray = (arr: number[] | undefined): string[] | undefined => {
 export const useSchoolFilters = () => {
     const route = useRoute()
 
-    const updateQuery = async (
-        updates: Record<string, RouteQueryValue>,
-    ) => {
+    const updateQuery = async (updates: Record<string, RouteQueryValue>) => {
         const query = Object.fromEntries(
             Object.entries({ ...route.query, ...updates }).filter(
                 ([, value]) => value !== undefined,
