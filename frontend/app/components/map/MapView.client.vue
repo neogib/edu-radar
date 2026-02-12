@@ -113,10 +113,10 @@ const initializeWithSource = async (map: maplibregl.Map) => {
             :offset="20"
             :coordinates="popupCoordinates">
             <div
-                class="min-w-55 max-w-70 overflow-hidden rounded-xl shadow-2xl">
+                class="min-w-55 max-w-70 overflow-hidden rounded-xl border border-default bg-default shadow-2xl">
                 <!-- Status -->
                 <div
-                    class="bg-linear-to-r from-blue-500 to-indigo-600 px-2 py-1.5">
+                    class="bg-linear-to-r from-blue-500 to-indigo-600 dark:from-blue-600 dark:to-violet-700 px-2 py-1.5">
                     <div class="flex items-center gap-2">
                         <UIcon
                             :name="statusIcon"
@@ -128,19 +128,20 @@ const initializeWithSource = async (map: maplibregl.Map) => {
                 </div>
 
                 <!-- School Name -->
-                <div class="bg-white px-2 py-2">
-                    <h4 class="font-semibold text-gray-900 text-xs">
+                <div class="bg-default px-2 py-2">
+                    <h4 class="font-semibold text-highlighted text-xs">
                         {{ hoveredSchool.nazwa }}
                     </h4>
                 </div>
 
                 <!-- School Type -->
-                <div class="bg-gray-50 px-2 py-1.5 border-t border-gray-100">
+                <div
+                    class="bg-muted px-2 py-1.5 border-t border-default dark:bg-elevated">
                     <div class="flex items-center gap-2">
                         <UIcon
                             name="i-mdi-school"
-                            class="text-gray-500 text-lg shrink-0" />
-                        <span class="text-xs text-gray-700 font-medium">
+                            class="text-muted text-lg shrink-0" />
+                        <span class="text-xs text-default font-medium">
                             {{ hoveredSchool.typ }}
                         </span>
                     </div>
