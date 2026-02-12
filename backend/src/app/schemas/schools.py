@@ -12,9 +12,10 @@ from src.app.schemas.exam_results import (
     WynikEMPublicWithPrzedmiot,
 )
 from src.app.schemas.locations import MiejscowoscPublic, UlicaPublic
+from src.app.schemas.mixins import APIResponseConfig
 
 
-class SzkolaPublic(SzkolaAllData):
+class SzkolaPublic(APIResponseConfig, SzkolaAllData):
     id: int
 
 
