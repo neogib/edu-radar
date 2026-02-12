@@ -86,40 +86,44 @@ const scoreColor = computed(() => {
         <template #body>
             <div class="relative">
                 <div
-                    class="p-4 bg-linear-to-br from-blue-50 to-indigo-50 border-b">
-                    <h3 class="text-xl font-bold text-gray-900 mb-3">
+                    class="p-4 border-b border-default bg-linear-to-br from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-950/75 dark:via-indigo-950/70 dark:to-violet-950/65">
+                    <h3 class="text-xl font-bold text-highlighted mb-3">
                         {{ selectedPoint.nazwa }}
                     </h3>
 
                     <div class="flex flex-wrap gap-2 mb-4">
-                        <span class="badge badge-blue">
-                            <Icon
-                                name="mdi:school-outline"
-                                class="badge-icon" />
-                            {{ selectedPoint.typ.nazwa || "Szkoła" }}
-                        </span>
+                        <UBadge
+                            color="primary"
+                            variant="soft"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium">
+                            <UIcon
+                                name="i-mdi-school-outline"
+                                class="size-3.5" />
+                            {{ selectedPoint.typ.nazwa }}
+                        </UBadge>
 
-                        <span
-                            class="badge"
-                            :class="[
+                        <UBadge
+                            :color="
                                 isPublicSchool(
-                                    selectedPoint.status_publicznoprawny
-                                        .nazwa || '',
+                                    selectedPoint.status_publicznoprawny.nazwa,
                                 )
-                                    ? 'badge-green'
-                                    : 'badge-purple',
-                            ]">
-                            <Icon
+                                    ? 'success'
+                                    : 'secondary'
+                            "
+                            variant="soft"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium">
+                            <UIcon
                                 v-if="
                                     isPublicSchool(
                                         selectedPoint.status_publicznoprawny
-                                            .nazwa || '',
+                                            .nazwa,
                                     )
                                 "
-                                name="mdi:check-decagram" />
-                            <Icon v-else name="mdi:lock" />
+                                name="i-mdi-check-decagram"
+                                class="size-3.5" />
+                            <UIcon v-else name="i-mdi-lock" class="size-3.5" />
                             {{ selectedPoint.status_publicznoprawny.nazwa }}
-                        </span>
+                        </UBadge>
                     </div>
 
                     <div
@@ -127,11 +131,11 @@ const scoreColor = computed(() => {
                             selectedPoint.wynik !== null &&
                             selectedPoint.wynik !== undefined
                         "
-                        class="bg-white rounded-xl p-4 shadow-sm">
+                        class="rounded-xl border border-default bg-default/95 p-4 shadow-sm dark:bg-elevated/70">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p
-                                    class="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                                    class="text-xs text-muted uppercase tracking-wide mb-1">
                                     Wynik ogólny
                                 </p>
                                 <div class="flex items-baseline">
@@ -146,7 +150,8 @@ const scoreColor = computed(() => {
                             </div>
                         </div>
 
-                        <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                        <div
+                            class="mt-3 h-2 w-full rounded-full bg-accented/80 dark:bg-accented/60">
                             <div
                                 :class="[
                                     'h-2 rounded-full transition-all duration-500',
@@ -167,23 +172,3 @@ const scoreColor = computed(() => {
         </template>
     </USlideover>
 </template>
-
-<style scoped>
-@reference "tailwindcss";
-
-.badge-icon {
-    @apply w-3 h-3 mr-1.5;
-}
-.badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
-}
-.badge-blue {
-    @apply bg-blue-100 text-blue-800;
-}
-.badge-green {
-    @apply bg-green-100 text-green-800;
-}
-.badge-purple {
-    @apply bg-purple-100 text-purple-800;
-}
-</style>

@@ -128,8 +128,8 @@ const identifierItems = computed(() =>
                 <div class="flex items-center gap-2">
                     <UIcon
                         name="i-mdi-school-outline"
-                        class="size-4 text-blue-500" />
-                    <h4 class="text-sm font-semibold text-gray-900">
+                        class="size-4 text-primary" />
+                    <h4 class="text-sm font-semibold text-highlighted">
                         Informacje o szkole
                     </h4>
                 </div>
@@ -142,9 +142,9 @@ const identifierItems = computed(() =>
                     class="grid grid-cols-[1rem_1fr] items-start gap-3">
                     <UIcon
                         :name="item.icon"
-                        class="mt-0.5 size-4 text-gray-400" />
+                        class="mt-0.5 size-4 text-dimmed" />
                     <div class="min-w-0">
-                        <p class="text-xs text-gray-500">
+                        <p class="text-xs text-muted">
                             {{ item.label }}
                         </p>
                         <a
@@ -156,14 +156,14 @@ const identifierItems = computed(() =>
                                     ? 'noopener noreferrer'
                                     : undefined
                             "
-                            class="break-all text-sm text-blue-600 hover:text-blue-700">
+                            class="break-all text-sm text-primary hover:text-secondary">
                             {{ item.lines[0] }}
                         </a>
                         <template v-else>
                             <p
                                 v-for="line in item.lines"
                                 :key="`${item.key}-${line}`"
-                                class="text-sm text-gray-900">
+                                class="text-sm text-highlighted">
                                 {{ line }}
                             </p>
                         </template>
@@ -197,8 +197,8 @@ const identifierItems = computed(() =>
                         v-for="identifier in identifierItems"
                         :key="identifier.label"
                         class="flex items-center justify-between gap-3">
-                        <dt class="text-gray-500">{{ identifier.label }}:</dt>
-                        <dd class="font-mono text-gray-700">
+                        <dt class="text-muted">{{ identifier.label }}:</dt>
+                        <dd class="font-mono text-default">
                             {{ identifier.value }}
                         </dd>
                     </div>

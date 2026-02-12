@@ -194,8 +194,8 @@ const weightedMarkerConfig: MarkerConfig = {
 
 <template>
     <!-- Exam Results Section -->
-    <div v-if="hasExamResults" class="p-4 border-b">
-        <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+    <div v-if="hasExamResults" class="p-4 border-b border-default">
+        <h4 class="text-sm font-medium text-default mb-3 flex items-center">
             <Icon name="mdi:school" class="w-4 h-4 mr-2 text-green-500" />
             Wyniki z egzaminów
         </h4>
@@ -205,13 +205,13 @@ const weightedMarkerConfig: MarkerConfig = {
             :key="section.key"
             class="overflow-x-auto"
             :class="{ 'mb-6': sectionIndex < examSections.length - 1 }">
-            <h5 class="text-sm font-semibold text-gray-700 mb-2">
+            <h5 class="text-sm font-semibold text-default mb-2">
                 {{ section.title }}
             </h5>
 
             <div
                 v-if="section.weightedData.length"
-                class="weighted-chart-markers mb-4 rounded-lg border border-gray-200 bg-white p-2">
+                class="weighted-chart-markers mb-4 rounded-lg border border-default bg-default p-2">
                 <LineChart
                     :data="section.weightedData"
                     :categories="chartCategories"
@@ -228,21 +228,21 @@ const weightedMarkerConfig: MarkerConfig = {
                     :y-grid-line="true"
                     y-label="Wynik" />
             </div>
-            <p v-else class="mb-4 text-xs text-gray-500">
+            <p v-else class="mb-4 text-xs text-muted">
                 Brak kompletnych danych mediany do obliczenia trendu.
             </p>
 
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-gray-300">
+                    <tr class="border-b border-default">
                         <th
-                            class="text-left py-2 px-1 font-semibold text-gray-700 max-w-30 w-30">
+                            class="text-left py-2 px-1 font-semibold text-default max-w-30 w-30">
                             Przedmiot
                         </th>
                         <th
                             v-for="year in section.years"
                             :key="`year-${section.key}-${year}`"
-                            class="text-center py-2 px-1 font-semibold text-gray-700">
+                            class="text-center py-2 px-1 font-semibold text-default">
                             {{ year }}
                         </th>
                     </tr>
@@ -253,8 +253,8 @@ const weightedMarkerConfig: MarkerConfig = {
                             section,
                         )"
                         :key="`${section.key}-${subject}`"
-                        class="border-b border-gray-200">
-                        <td class="py-3 px-1 text-gray-900">
+                        class="border-b border-default">
+                        <td class="py-3 px-1 text-highlighted">
                             <div
                                 class="inline-flex items-center gap-1 font-medium"
                                 :title="subject">
@@ -264,12 +264,12 @@ const weightedMarkerConfig: MarkerConfig = {
                                         icon="i-mdi-information-outline"
                                         variant="ghost"
                                         size="xs"
-                                        class="text-gray-500 hover:text-gray-700"
+                                        class="text-muted hover:text-default"
                                         aria-label="Informacja o braku mediany" />
 
                                     <template #content>
                                         <div
-                                            class="max-w-64 p-2 text-xs text-gray-700">
+                                            class="max-w-64 bg-default p-2 text-xs text-default">
                                             Dla wyników z tego przedmiotu
                                             mediana nie była dostępna, więc
                                             pokazana jest średnia.
@@ -296,13 +296,13 @@ const weightedMarkerConfig: MarkerConfig = {
                                         )
                                     }}
                                 </div>
-                                <div class="text-xs text-gray-500">
+                                <div class="text-xs text-muted">
                                     {{
                                         `#${subjectData.years[year]?.liczba_zdajacych}`
                                     }}
                                 </div>
                             </template>
-                            <span v-else class="text-gray-300">-</span>
+                            <span v-else class="text-dimmed">-</span>
                         </td>
                     </tr>
                 </tbody>
