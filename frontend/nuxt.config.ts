@@ -24,4 +24,12 @@ export default defineNuxtConfig({
     devServer: {
         host: "0.0.0.0",
     },
+    app: {
+        head: {
+            title: "EduRadar",
+            link: [
+                { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+            ],
+        },
+    },
 })
