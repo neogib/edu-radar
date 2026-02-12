@@ -49,8 +49,20 @@ const items = computed<NavigationMenuItem[]>(() => [
             </h1>
         </template>
 
+        <UNavigationMenu :items="items" />
+
         <template #right>
-            <UNavigationMenu :items="items" class="hidden lg:flex" />
+            <UColorModeButton />
+
+            <UTooltip text="Open on GitHub" :kbds="['meta', 'G']">
+                <UButton
+                    color="neutral"
+                    variant="ghost"
+                    to="https://github.com/neogib/edu-map-rankings"
+                    target="_blank"
+                    icon="i-simple-icons-github"
+                    aria-label="GitHub" />
+            </UTooltip>
         </template>
 
         <template #body>
@@ -59,8 +71,8 @@ const items = computed<NavigationMenuItem[]>(() => [
                 orientation="vertical"
                 class="-mx-2.5"
                 :ui="{
-                    link: 'px-3 py-2.5 text-base', // Bigger padding and font size for main items
-                    linkLeadingIcon: 'size-6', // Bigger icon
+                    link: 'px-3 py-2.5 text-base',
+                    linkLeadingIcon: 'size-6',
                 }" />
         </template>
     </UHeader>
