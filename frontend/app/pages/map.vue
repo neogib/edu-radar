@@ -5,6 +5,18 @@ definePageMeta({
     middleware: "redirect-map",
 })
 
+useSeoMeta({
+    title: "Mapa szkół w Polsce - Ranking | EduRadar",
+    description:
+        "Interaktywna mapa szkół w Polsce z rankingami, wynikami egzaminów i filtrowaniem.",
+    ogTitle: "Sprawdź ranking swojej szkoły – EduRadar",
+    ogDescription:
+        "Znajdź najlepsze szkoły w swojej okolicy. Przeszukuj szkoły, porównuj rankingi i sprawdzaj najnowsze wyniki.",
+    ogImage: "/og-image.png",
+    twitterImage: "/og-image.png",
+    twitterCard: "summary_large_image",
+})
+
 const selectedSchool = ref<SzkolaPublicWithRelations | null>(null)
 const overlay = useOverlay()
 const sidebar = overlay.create(LazySidebarMain)
@@ -57,6 +69,7 @@ onUnmounted(() => {
 
 <template>
     <div class="relative h-dvh w-screen overflow-hidden">
+        <h1 class="sr-only">Mapa szkół w Polsce</h1>
         <NavBar overlay />
         <MapLegend />
 
