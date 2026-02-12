@@ -239,6 +239,18 @@
             }
           },
           {
+            "name": "closed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include closed/liquidated schools in the results",
+              "default": false,
+              "title": "Closed"
+            },
+            "description": "Include closed/liquidated schools in the results"
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -556,6 +568,18 @@
             }
           },
           {
+            "name": "closed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include closed/liquidated schools in the results",
+              "default": false,
+              "title": "Closed"
+            },
+            "description": "Include closed/liquidated schools in the results"
+          },
+          {
             "name": "limit",
             "in": "query",
             "required": false,
@@ -861,14 +885,7 @@
             "title": "Teryt"
           },
           "gmina_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "integer",
             "title": "Gmina Id"
           },
           "id": {
@@ -880,6 +897,7 @@
         "required": [
           "nazwa",
           "teryt",
+          "gmina_id",
           "id"
         ],
         "title": "MiejscowoscPublic"
@@ -1003,7 +1021,14 @@
             "title": "Nip"
           },
           "regon": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Regon"
           },
           "liczba_uczniow": {
@@ -1041,7 +1066,14 @@
             "title": "Dyrektor Nazwisko"
           },
           "kod_pocztowy": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Kod Pocztowy"
           },
           "numer_budynku": {
@@ -1099,8 +1131,41 @@
             ],
             "title": "Strona Internetowa"
           },
-          "geom": {
-            "title": "Geom"
+          "data_zalozenia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Zalozenia"
+          },
+          "data_rozpoczecia": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Rozpoczecia"
+          },
+          "data_likwidacji": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Likwidacji"
           },
           "wynik": {
             "anyOf": [
@@ -1115,48 +1180,25 @@
             ],
             "title": "Wynik"
           },
+          "zlikwidowana": {
+            "type": "boolean",
+            "title": "Zlikwidowana",
+            "default": false
+          },
           "typ_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "integer",
             "title": "Typ Id"
           },
           "status_publicznoprawny_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "integer",
             "title": "Status Publicznoprawny Id"
           },
           "kategoria_uczniow_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "integer",
             "title": "Kategoria Uczniow Id"
           },
           "miejscowosc_id": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "integer",
             "title": "Miejscowosc Id"
           },
           "ulica_id": {
@@ -1229,9 +1271,28 @@
         "required": [
           "nazwa",
           "numer_rspo",
+          "nazwa_skrocona",
+          "nip",
           "regon",
+          "liczba_uczniow",
+          "dyrektor_imie",
+          "dyrektor_nazwisko",
           "kod_pocztowy",
-          "geom",
+          "numer_budynku",
+          "numer_lokalu",
+          "telefon",
+          "email",
+          "strona_internetowa",
+          "data_zalozenia",
+          "data_rozpoczecia",
+          "data_likwidacji",
+          "wynik",
+          "zlikwidowana",
+          "typ_id",
+          "status_publicznoprawny_id",
+          "kategoria_uczniow_id",
+          "miejscowosc_id",
+          "ulica_id",
           "id",
           "etapy_edukacji",
           "typ",

@@ -186,7 +186,7 @@ export interface components {
             /** Teryt */
             teryt: string;
             /** Gmina Id */
-            gmina_id?: number | null;
+            gmina_id: number;
             /** Id */
             id: number;
         };
@@ -228,43 +228,52 @@ export interface components {
             /** Numer Rspo */
             numer_rspo: number;
             /** Nazwa Skrocona */
-            nazwa_skrocona?: string | null;
+            nazwa_skrocona: string | null;
             /** Nip */
-            nip?: string | null;
+            nip: string | null;
             /** Regon */
-            regon: string;
+            regon: string | null;
             /** Liczba Uczniow */
-            liczba_uczniow?: number | null;
+            liczba_uczniow: number | null;
             /** Dyrektor Imie */
-            dyrektor_imie?: string | null;
+            dyrektor_imie: string | null;
             /** Dyrektor Nazwisko */
-            dyrektor_nazwisko?: string | null;
+            dyrektor_nazwisko: string | null;
             /** Kod Pocztowy */
-            kod_pocztowy: string;
+            kod_pocztowy: string | null;
             /** Numer Budynku */
-            numer_budynku?: string | null;
+            numer_budynku: string | null;
             /** Numer Lokalu */
-            numer_lokalu?: string | null;
+            numer_lokalu: string | null;
             /** Telefon */
-            telefon?: string | null;
+            telefon: string | null;
             /** Email */
-            email?: string | null;
+            email: string | null;
             /** Strona Internetowa */
-            strona_internetowa?: string | null;
-            /** Geom */
-            geom: unknown;
+            strona_internetowa: string | null;
+            /** Data Zalozenia */
+            data_zalozenia: string | null;
+            /** Data Rozpoczecia */
+            data_rozpoczecia: string | null;
+            /** Data Likwidacji */
+            data_likwidacji: string | null;
             /** Wynik */
-            wynik?: number | null;
+            wynik: number | null;
+            /**
+             * Zlikwidowana
+             * @default false
+             */
+            zlikwidowana: boolean;
             /** Typ Id */
-            typ_id?: number | null;
+            typ_id: number;
             /** Status Publicznoprawny Id */
-            status_publicznoprawny_id?: number | null;
+            status_publicznoprawny_id: number;
             /** Kategoria Uczniow Id */
-            kategoria_uczniow_id?: number | null;
+            kategoria_uczniow_id: number;
             /** Miejscowosc Id */
-            miejscowosc_id?: number | null;
+            miejscowosc_id: number;
             /** Ulica Id */
-            ulica_id?: number | null;
+            ulica_id: number | null;
             /** Id */
             id: number;
             /** Etapy Edukacji */
@@ -375,6 +384,8 @@ export interface operations {
                 career?: number[] | null;
                 min_score?: number | null;
                 max_score?: number | null;
+                /** @description Include closed/liquidated schools in the results */
+                closed?: boolean;
                 limit?: number | null;
             };
             header?: never;
@@ -454,6 +465,8 @@ export interface operations {
                 career?: number[] | null;
                 min_score?: number | null;
                 max_score?: number | null;
+                /** @description Include closed/liquidated schools in the results */
+                closed?: boolean;
                 limit?: number | null;
             };
             header?: never;
