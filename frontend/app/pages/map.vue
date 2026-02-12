@@ -2,7 +2,6 @@
 import { LazySidebarMain } from "#components"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 definePageMeta({
-    colorMode: "light",
     middleware: "redirect-map",
 })
 
@@ -58,7 +57,7 @@ onUnmounted(() => {
 
 <template>
     <div class="relative h-dvh w-screen overflow-hidden">
-        <NavBar class="absolute w-full" />
+        <NavBar overlay />
         <MapLegend />
 
         <div v-show="!selectedSchool">

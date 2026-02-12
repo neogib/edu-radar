@@ -2,6 +2,22 @@
 import type { NavigationMenuItem } from "@nuxt/ui"
 
 const route = useRoute()
+const props = withDefaults(
+    defineProps<{
+        overlay?: boolean
+    }>(),
+    {
+        overlay: false,
+    },
+)
+
+const headerUi = computed(() =>
+    props.overlay
+        ? {
+              root: "backdrop-blur-[2px]",
+          }
+        : undefined,
+)
 
 // 'active' state automatically updates when the route changes
 const items = computed<NavigationMenuItem[]>(() => [
@@ -28,22 +44,21 @@ const items = computed<NavigationMenuItem[]>(() => [
 
 <template>
     <UHeader
+        :class="props.overlay ? 'absolute inset-x-0 top-0' : undefined"
         :toggle="{
             color: 'primary',
             class: 'rounded-full',
         }"
-        :ui="{
-            root: 'backdrop-blur-[2px]',
-        }"
+        :ui="headerUi"
         mode="slideover">
         <template #title>
             <h1 class="text-2xl font-bold group">
                 <span
-                    class="text-gray-800 group-hover:text-indigo-600 transition-colors duration-200"
+                    class="text-highlighted group-hover:text-primary transition-colors duration-200"
                     >Ranking</span
                 >
                 <span
-                    class="text-indigo-600 group-hover:text-indigo-900 transition-colors duration-200"
+                    class="text-primary group-hover:text-secondary transition-colors duration-200"
                     >Szkół</span
                 >
             </h1>
@@ -52,7 +67,7 @@ const items = computed<NavigationMenuItem[]>(() => [
         <UNavigationMenu :items="items" />
 
         <template #right>
-            <UColorModeButton />
+            <UColorModeSelect size="sm" />
 
             <UTooltip text="Open on GitHub" :kbds="['meta', 'G']">
                 <UButton
