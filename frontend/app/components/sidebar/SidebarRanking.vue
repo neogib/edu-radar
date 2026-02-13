@@ -42,7 +42,7 @@ const { rankingGroups, hasRankingGroups } = useRankingGroups({
                     <div
                         v-if="row.medalIcon"
                         class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-base">
-                        <Icon
+                        <UIcon
                             :name="row.medalIcon"
                             mode="svg"
                             class="size-6 shrink-0" />

@@ -196,8 +196,24 @@ const weightedMarkerConfig: MarkerConfig = {
     <!-- Exam Results Section -->
     <div v-if="hasExamResults" class="p-4 border-b border-default">
         <h4 class="text-sm font-medium text-default mb-3 flex items-center">
-            <Icon name="mdi:school" class="w-4 h-4 mr-2 text-green-500" />
+            <UIcon name="i-mdi-school" class="w-4 h-4 mr-2 text-green-500" />
             Wyniki z egzaminów
+            <UPopover>
+                <UButton
+                    icon="i-mdi-information-outline"
+                    variant="ghost"
+                    size="xs"
+                    class="ml-1 text-muted hover:text-default"
+                    aria-label="Informacja o medianie i średniej" />
+
+                <template #content>
+                    <div class="max-w-64 bg-elevated p-2 text-xs text-default">
+                        Domyślnie pokazujemy medianę z wyników dla przedmiotu.
+                        Jeśli mediana nie jest dostępna, pokazujemy średnią
+                        wyników z egzaminów.
+                    </div>
+                </template>
+            </UPopover>
         </h4>
 
         <div
@@ -269,7 +285,7 @@ const weightedMarkerConfig: MarkerConfig = {
 
                                     <template #content>
                                         <div
-                                            class="max-w-64 bg-default p-2 text-xs text-default">
+                                            class="max-w-64 bg-elevated p-2 text-xs text-default">
                                             Dla wyników z tego przedmiotu
                                             mediana nie była dostępna, więc
                                             pokazana jest średnia.
@@ -296,9 +312,11 @@ const weightedMarkerConfig: MarkerConfig = {
                                         )
                                     }}
                                 </div>
-                                <div class="text-xs text-muted">
+                                <div
+                                    class="inline-flex items-center gap-1 text-xs text-muted">
+                                    <UIcon name="i-lucide-users" class="size-3" />
                                     {{
-                                        `#${subjectData.years[year]?.liczba_zdajacych}`
+                                        `${subjectData.years[year]?.liczba_zdajacych}`
                                     }}
                                 </div>
                             </template>
