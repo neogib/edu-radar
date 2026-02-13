@@ -134,10 +134,14 @@ const scoreColor = computed(() => {
                         class="rounded-xl border border-default bg-default/95 p-4 shadow-sm dark:bg-elevated/70">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p
-                                    class="text-xs text-muted uppercase tracking-wide mb-1">
-                                    Wynik ogólny
-                                </p>
+                                <div
+                                    class="mb-1 inline-flex items-center gap-1">
+                                    <p
+                                        class="text-xs text-muted uppercase tracking-wide">
+                                        Wynik ogólny
+                                    </p>
+                                    <SidebarScoreInfoPopover />
+                                </div>
                                 <div class="flex items-baseline">
                                     <span
                                         :class="'text-3xl font-bold'"
