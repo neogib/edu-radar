@@ -48,6 +48,9 @@ class RankingBase(SQLModel):
     miejsce_powiat: int = Field(ge=1, index=True)
     liczba_szkol_powiat: int = Field(ge=1)
 
+    # foreign_key
+    szkola_id: int = Field(foreign_key="szkola.id", index=True)
+
 
 class Ranking(RankingBase, table=True):
     __table_args__: tuple[UniqueConstraint] = (
@@ -60,10 +63,5 @@ class Ranking(RankingBase, table=True):
     )
 
     id: int | None = Field(default=None, primary_key=True)
-
-    szkola_id: int = Field(
-        foreign_key="szkola.id",
-        index=True,
-    )
 
     szkola: "Szkola" = Relationship(back_populates="rankingi")  # pyright: ignore[reportAny]
