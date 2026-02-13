@@ -197,6 +197,41 @@ export interface components {
             /** Id */
             id: number;
         };
+        /** RankingPublic */
+        RankingPublic: {
+            /** Rok */
+            rok: number;
+            rodzaj_rankingu: components["schemas"]["RodzajRankingu"];
+            /** Wynik */
+            wynik: number;
+            /** Percentyl Kraj */
+            percentyl_kraj: number;
+            /** Miejsce Kraj */
+            miejsce_kraj: number;
+            /** Liczba Szkol Kraj */
+            liczba_szkol_kraj: number;
+            /** Percentyl Wojewodztwo */
+            percentyl_wojewodztwo: number;
+            /** Miejsce Wojewodztwo */
+            miejsce_wojewodztwo: number;
+            /** Liczba Szkol Wojewodztwo */
+            liczba_szkol_wojewodztwo: number;
+            /** Percentyl Powiat */
+            percentyl_powiat: number;
+            /** Miejsce Powiat */
+            miejsce_powiat: number;
+            /** Liczba Szkol Powiat */
+            liczba_szkol_powiat: number;
+            /** Szkola Id */
+            szkola_id: number;
+            /** Id */
+            id: number;
+        };
+        /**
+         * RodzajRankingu
+         * @enum {string}
+         */
+        RodzajRankingu: "E8" | "EM_LO" | "EM_TECH";
         /** StatusPublicznoprawnyPublic */
         StatusPublicznoprawnyPublic: {
             /** Nazwa */
@@ -289,6 +324,8 @@ export interface components {
             wyniki_e8: components["schemas"]["WynikE8PublicWithPrzedmiot"][];
             /** Wyniki Em */
             wyniki_em: components["schemas"]["WynikEMPublicWithPrzedmiot"][];
+            /** Rankingi */
+            rankingi: components["schemas"]["RankingPublic"][];
         };
         /** TypSzkolyPublic */
         TypSzkolyPublic: {

@@ -920,6 +920,107 @@
         ],
         "title": "PrzedmiotPublic"
       },
+      "RankingPublic": {
+        "properties": {
+          "rok": {
+            "type": "integer",
+            "minimum": 2000,
+            "title": "Rok"
+          },
+          "rodzaj_rankingu": {
+            "$ref": "#/components/schemas/RodzajRankingu"
+          },
+          "wynik": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Wynik"
+          },
+          "percentyl_kraj": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Percentyl Kraj"
+          },
+          "miejsce_kraj": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Miejsce Kraj"
+          },
+          "liczba_szkol_kraj": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Liczba Szkol Kraj"
+          },
+          "percentyl_wojewodztwo": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Percentyl Wojewodztwo"
+          },
+          "miejsce_wojewodztwo": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Miejsce Wojewodztwo"
+          },
+          "liczba_szkol_wojewodztwo": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Liczba Szkol Wojewodztwo"
+          },
+          "percentyl_powiat": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Percentyl Powiat"
+          },
+          "miejsce_powiat": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Miejsce Powiat"
+          },
+          "liczba_szkol_powiat": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Liczba Szkol Powiat"
+          },
+          "szkola_id": {
+            "type": "integer",
+            "title": "Szkola Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rok",
+          "rodzaj_rankingu",
+          "wynik",
+          "percentyl_kraj",
+          "miejsce_kraj",
+          "liczba_szkol_kraj",
+          "percentyl_wojewodztwo",
+          "miejsce_wojewodztwo",
+          "liczba_szkol_wojewodztwo",
+          "percentyl_powiat",
+          "miejsce_powiat",
+          "liczba_szkol_powiat",
+          "szkola_id",
+          "id"
+        ],
+        "title": "RankingPublic"
+      },
+      "RodzajRankingu": {
+        "type": "string",
+        "enum": [
+          "E8",
+          "EM_LO",
+          "EM_TECH"
+        ],
+        "title": "RodzajRankingu"
+      },
       "StatusPublicznoprawnyPublic": {
         "properties": {
           "nazwa": {
@@ -1265,6 +1366,13 @@
             },
             "type": "array",
             "title": "Wyniki Em"
+          },
+          "rankingi": {
+            "items": {
+              "$ref": "#/components/schemas/RankingPublic"
+            },
+            "type": "array",
+            "title": "Rankingi"
           }
         },
         "type": "object",
@@ -1302,7 +1410,8 @@
           "ulica",
           "ksztalcenie_zawodowe",
           "wyniki_e8",
-          "wyniki_em"
+          "wyniki_em",
+          "rankingi"
         ],
         "title": "SzkolaPublicWithRelations"
       },
