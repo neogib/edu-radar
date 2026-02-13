@@ -3,9 +3,12 @@ from typing import Annotated, cast
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import TypeAdapter
-from sqlalchemy.orm import Session
-from sqlmodel import col
+from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlmodel import col, select
 
+from src.app.core.sqlalchemy_typing import orm_rel_attr
+from src.app.models.exam_results import WynikE8, WynikEM
+from src.app.models.locations import Gmina, Miejscowosc, Powiat
 from src.app.models.schools import (
     Szkola,
 )
@@ -71,7 +74,30 @@ async def stream_schools(
 
 @router.get("/{school_id}", response_model=SzkolaPublicWithRelations)
 async def read_school(school_id: int, session: SessionDep) -> Szkola:
-    school = session.get(Szkola, school_id)
+    stmt = (
+        select(Szkola)
+        .where(Szkola.id == school_id)
+        .options(
+            joinedload(orm_rel_attr(Szkola.typ)),
+            joinedload(orm_rel_attr(Szkola.status_publicznoprawny)),
+            joinedload(orm_rel_attr(Szkola.kategoria_uczniow)),
+            joinedload(orm_rel_attr(Szkola.ulica)),
+            joinedload(orm_rel_attr(Szkola.miejscowosc))
+            .joinedload(orm_rel_attr(Miejscowosc.gmina))
+            .joinedload(orm_rel_attr(Gmina.powiat))
+            .joinedload(orm_rel_attr(Powiat.wojewodztwo)),
+            selectinload(orm_rel_attr(Szkola.etapy_edukacji)),
+            selectinload(orm_rel_attr(Szkola.ksztalcenie_zawodowe)),
+            selectinload(orm_rel_attr(Szkola.wyniki_e8)).joinedload(
+                orm_rel_attr(WynikE8.przedmiot)
+            ),
+            selectinload(orm_rel_attr(Szkola.wyniki_em)).joinedload(
+                orm_rel_attr(WynikEM.przedmiot)
+            ),
+            selectinload(orm_rel_attr(Szkola.rankingi)),
+        )
+    )
+    school = session.exec(stmt).first()
     if not school:
         raise HTTPException(status_code=404, detail="School not found")
     return school
