@@ -1,5 +1,7 @@
 from enum import Enum
-from typing import final
+from typing import Final, final
+
+EM_FORMULA_PRIORITY: Final[dict[str, int]] = {"EM2023": 0, "EM2015": 1}
 
 
 @final

@@ -1,16 +1,35 @@
 import logging
+import re
 from collections.abc import Iterator
+from dataclasses import dataclass
 from pathlib import Path
+from typing import ClassVar
 
 import pandas as pd
 
-from src.data_import.config.excel import ExamType, ExcelFile
+from src.data_import.config.excel import EM_FORMULA_PRIORITY, ExamType, ExcelFile
 
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class _FileMetadata:
+    path: Path
+    year: int
+    priority: int
+
+
 class ExcelReader:
     base_data_path: Path = Path(__file__).parent
+    _year_only_pattern: ClassVar[re.Pattern[str]] = re.compile(
+        r"^(?P<year>\d{4})\.xlsx$", re.IGNORECASE
+    )
+    _e8_year_pattern: ClassVar[re.Pattern[str]] = re.compile(
+        r"^e8_(?P<year>\d{4})\.xlsx$", re.IGNORECASE
+    )
+    _em_formula_pattern: ClassVar[re.Pattern[str]] = re.compile(
+        r"^(?P<formula>em\d{4})_(?P<year>\d{4})\.xlsx$", re.IGNORECASE
+    )
 
     def __init__(self, base_data_path: Path | None = None):
         """
@@ -41,22 +60,56 @@ class ExcelReader:
         if not directory_path.exists():
             logger.error(f"Directory not found: {directory_path}")
             return
+        files_metadata: list[_FileMetadata] = []
+
         for file_path in directory_path.glob("*.xlsx"):
-            file_name = file_path.name
+            metadata = self._parse_file_metadata(file_path, exam_type)
+            if metadata is None:
+                continue
+            files_metadata.append(metadata)
+
+        for metadata in sorted(
+            files_metadata,
+            key=lambda item: (item.year, item.priority, item.path.name.lower()),
+        ):
+            file_name = metadata.path.name
             logger.info(f"📄 Processing file: {file_name}")
             try:
                 df = pd.read_excel(  # pyright: ignore[reportUnknownMemberType]
-                    file_path,
+                    metadata.path,
                     sheet_name=ExcelFile.SHEET_NAME,
                     header=exam_type.header,
                     skiprows=exam_type.skiprows,
                 )
-                try:
-                    file_number = int(file_name.split(".")[0])
-                    yield file_number, df
-                except ValueError:
-                    logger.error(
-                        f"Invalid filename format: {file_name}. Expected format: 'number.xlsx'"
-                    )
+                yield metadata.year, df
             except Exception as e:
                 logger.error(f"Error reading file {file_name}: {e}")
+
+    def _parse_file_metadata(
+        self, file_path: Path, exam_type: ExamType
+    ) -> _FileMetadata | None:
+        file_name = file_path.name
+
+        if exam_type is ExamType.EM:
+            em_match = self._em_formula_pattern.match(file_name)
+            if em_match:
+                year = int(em_match.group("year"))
+                formula = em_match.group("formula").upper()
+                # For the same year we process EM2023 first, then EM2015.
+                priority: int = EM_FORMULA_PRIORITY.get(formula, 2)
+                return _FileMetadata(path=file_path, year=year, priority=priority)
+
+        year_match = self._year_only_pattern.match(file_name)
+        if year_match:
+            return _FileMetadata(path=file_path, year=int(year_match.group("year")), priority=0)
+
+        if exam_type is ExamType.E8:
+            e8_match = self._e8_year_pattern.match(file_name)
+            if e8_match:
+                year = int(e8_match.group("year"))
+                return _FileMetadata(path=file_path, year=year, priority=0)
+
+        logger.error(
+            f"Invalid filename format: {file_name}. Expected EM: 'EM<formula_year>_<year>.xlsx' or '<year>.xlsx'; Expected E8: 'E8_<year>.xlsx' or '<year>.xlsx'"
+        )
+        return None
