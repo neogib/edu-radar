@@ -13,6 +13,7 @@ from src.app.schemas.exam_results import (
 )
 from src.app.schemas.locations import MiejscowoscPublic, UlicaPublic
 from src.app.schemas.mixins import APIResponseConfig
+from src.app.schemas.ranking import RankingPublic
 
 
 class SzkolaPublic(APIResponseConfig, SzkolaAllData):
@@ -40,6 +41,7 @@ class SzkolaPublicWithRelations(SzkolaPublic):
     ksztalcenie_zawodowe: list["KsztalcenieZawodowePublic"]
     wyniki_e8: list[WynikE8PublicWithPrzedmiot]
     wyniki_em: list[WynikEMPublicWithPrzedmiot]
+    rankingi: list[RankingPublic]
 
 
 class KsztalcenieZawodowePublic(KsztalcenieZawodoweBase):
