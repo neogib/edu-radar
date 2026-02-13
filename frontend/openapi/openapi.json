@@ -825,6 +825,38 @@
         ],
         "title": "FiltersResponse"
       },
+      "GminaPublicWithPowiat": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "teryt": {
+            "type": "string",
+            "title": "Teryt"
+          },
+          "powiat_id": {
+            "type": "integer",
+            "title": "Powiat Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "powiat": {
+            "$ref": "#/components/schemas/PowiatPublicWithWojewodztwo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "teryt",
+          "powiat_id",
+          "id",
+          "powiat"
+        ],
+        "title": "GminaPublicWithPowiat"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -874,7 +906,7 @@
         ],
         "title": "KsztalcenieZawodowePublic"
       },
-      "MiejscowoscPublic": {
+      "MiejscowoscPublicWithGmina": {
         "properties": {
           "nazwa": {
             "type": "string",
@@ -891,6 +923,9 @@
           "id": {
             "type": "integer",
             "title": "Id"
+          },
+          "gmina": {
+            "$ref": "#/components/schemas/GminaPublicWithPowiat"
           }
         },
         "type": "object",
@@ -898,9 +933,42 @@
           "nazwa",
           "teryt",
           "gmina_id",
-          "id"
+          "id",
+          "gmina"
         ],
-        "title": "MiejscowoscPublic"
+        "title": "MiejscowoscPublicWithGmina"
+      },
+      "PowiatPublicWithWojewodztwo": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "teryt": {
+            "type": "string",
+            "title": "Teryt"
+          },
+          "wojewodztwo_id": {
+            "type": "integer",
+            "title": "Wojewodztwo Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "wojewodztwo": {
+            "$ref": "#/components/schemas/WojewodztwoPublic"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "teryt",
+          "wojewodztwo_id",
+          "id",
+          "wojewodztwo"
+        ],
+        "title": "PowiatPublicWithWojewodztwo"
       },
       "PrzedmiotPublic": {
         "properties": {
@@ -1334,7 +1402,7 @@
             "$ref": "#/components/schemas/KategoriaUczniowPublic"
           },
           "miejscowosc": {
-            "$ref": "#/components/schemas/MiejscowoscPublic"
+            "$ref": "#/components/schemas/MiejscowoscPublicWithGmina"
           },
           "ulica": {
             "anyOf": [
@@ -1488,6 +1556,29 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WojewodztwoPublic": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "teryt": {
+            "type": "string",
+            "title": "Teryt"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "teryt",
+          "id"
+        ],
+        "title": "WojewodztwoPublic"
       },
       "WynikE8PublicWithPrzedmiot": {
         "properties": {

@@ -160,6 +160,18 @@ export interface components {
             /** Vocational Training */
             vocational_training: components["schemas"]["KsztalcenieZawodowePublic"][];
         };
+        /** GminaPublicWithPowiat */
+        GminaPublicWithPowiat: {
+            /** Nazwa */
+            nazwa: string;
+            /** Teryt */
+            teryt: string;
+            /** Powiat Id */
+            powiat_id: number;
+            /** Id */
+            id: number;
+            powiat: components["schemas"]["PowiatPublicWithWojewodztwo"];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -179,8 +191,8 @@ export interface components {
             /** Id */
             id: number;
         };
-        /** MiejscowoscPublic */
-        MiejscowoscPublic: {
+        /** MiejscowoscPublicWithGmina */
+        MiejscowoscPublicWithGmina: {
             /** Nazwa */
             nazwa: string;
             /** Teryt */
@@ -189,6 +201,19 @@ export interface components {
             gmina_id: number;
             /** Id */
             id: number;
+            gmina: components["schemas"]["GminaPublicWithPowiat"];
+        };
+        /** PowiatPublicWithWojewodztwo */
+        PowiatPublicWithWojewodztwo: {
+            /** Nazwa */
+            nazwa: string;
+            /** Teryt */
+            teryt: string;
+            /** Wojewodztwo Id */
+            wojewodztwo_id: number;
+            /** Id */
+            id: number;
+            wojewodztwo: components["schemas"]["WojewodztwoPublic"];
         };
         /** PrzedmiotPublic */
         PrzedmiotPublic: {
@@ -316,7 +341,7 @@ export interface components {
             typ: components["schemas"]["TypSzkolyPublic"];
             status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
             kategoria_uczniow: components["schemas"]["KategoriaUczniowPublic"];
-            miejscowosc: components["schemas"]["MiejscowoscPublic"];
+            miejscowosc: components["schemas"]["MiejscowoscPublicWithGmina"];
             ulica: components["schemas"]["UlicaPublic"] | null;
             /** Ksztalcenie Zawodowe */
             ksztalcenie_zawodowe: components["schemas"]["KsztalcenieZawodowePublic"][];
@@ -351,6 +376,15 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /** WojewodztwoPublic */
+        WojewodztwoPublic: {
+            /** Nazwa */
+            nazwa: string;
+            /** Teryt */
+            teryt: string;
+            /** Id */
+            id: number;
         };
         /** WynikE8PublicWithPrzedmiot */
         WynikE8PublicWithPrzedmiot: {
