@@ -164,6 +164,7 @@ const scoreColor = computed(() => {
                     </div>
                 </div>
 
+                <SidebarRanking :selected-point="selectedPoint" />
                 <SidebarExamResults
                     :wyniki-e8="selectedPoint.wyniki_e8"
                     :wyniki-em="selectedPoint.wyniki_em" />

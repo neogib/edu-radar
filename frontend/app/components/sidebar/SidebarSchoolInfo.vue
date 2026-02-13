@@ -130,7 +130,7 @@ const identifierItems = computed(() =>
                         name="i-mdi-school-outline"
                         class="size-4 text-primary" />
                     <h4 class="text-sm font-semibold text-highlighted">
-                        Informacje o szkole
+                        Informacje o placówce
                     </h4>
                 </div>
             </template>
