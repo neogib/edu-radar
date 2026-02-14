@@ -45,12 +45,21 @@ class SzkolaAPIResponse(SzkolaExtendedData):
         if not isinstance(data, dict):
             raise ValueError(f"Expected data to be a dictionary, but got {data}")
 
-        # Convert empty strings to None for all fields
-        for field_name, field_value in list(cast(dict[str, object], data).items()):
+        raw_data = cast(dict[str, object], data)
+
+        # New RSPO API returns geolokalizacja as a one-element list.
+        geolocation = raw_data.get("geolokalizacja")
+        if isinstance(geolocation, list) and geolocation:
+            first_location = geolocation[0]  # pyright: ignore[reportUnknownVariableType]
+            if isinstance(first_location, dict):
+                raw_data["geolokalizacja"] = first_location
+
+        # Convert empty strings and empty lists to None for all fields.
+        for field_name, field_value in list(raw_data.items()):
             if (
                 field_value == "" or field_value == []
             ):  # "" or [] are considered empty, 0 is a normal value
-                data[field_name] = None
+                raw_data[field_name] = None
 
         return cast(T, data)
 

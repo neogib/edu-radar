@@ -1,13 +1,26 @@
+from pathlib import Path
 from typing import ClassVar, final
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 @final
 class APISettings:
-    API_SCHOOLS_URL: str = "https://api-rspo.men.gov.pl/api/placowki/?zlikwidowana=true"
-    HEADERS: ClassVar[dict[str, str]] = {"accept": "application/ld+json"}
-    START_PAGE: int = 201
-    PAGE_LIMIT: int | None = None  # the last page to fetch, if None there is no limit
-    MAX_SCHOOLS_SEGMENT: int = 500
+    API_SCHOOLS_URL: str = "https://api.rspo.gov.pl/api/placowki/"
+    HEADERS: ClassVar[dict[str, str]] = {"accept": "application/json"}
+    START_PAGE: int = 1
+    CONCURRENT_REQUESTS: int = 10
+
+
+class APIAuthSettings(BaseSettings):
+    RSPO_USERNAME: str
+    RSPO_PASSWORD: str
+
+    model_config: SettingsConfigDict = SettingsConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
+        env_file=Path(__file__).resolve().parents[3] / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 @final
