@@ -70,6 +70,10 @@ class Decomposer(DatabaseManagerBase):
                 failed_schools += 1
                 logger.error(f"📛 Error processing school: {e}")
 
+        # commit all changes to the database after processing the entire batch
+        session = self._ensure_session()
+        session.commit()
+
         logger.info(
             f"📊 Processing complete. Successfully processed: {processed_schools}/{total_schools} schools"
         )
@@ -137,8 +141,6 @@ class Decomposer(DatabaseManagerBase):
                 )
 
             session.add(school_object)
-            session.commit()
-            session.refresh(school_object)
 
             action = "Updated" if existing_school else "Added"
             logger.info(f"💾 {action} school (RSPO: {school_object.numer_rspo})")
