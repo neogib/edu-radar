@@ -41,7 +41,7 @@ class SchoolsAPIFetcher:
 
     async def fetch_schools_batches(
         self,
-        start_page: int = APISettings.START_PAGE,
+        start_page: int,
     ) -> AsyncIterator[list[SzkolaAPIResponse]]:
         current_page = start_page
         limits = httpx.Limits(

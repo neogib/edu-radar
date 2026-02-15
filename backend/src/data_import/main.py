@@ -1,11 +1,12 @@
 import argparse
 import asyncio
 import logging
+from os import name
 
 from src.data_import.api.db.decomposer import Decomposer
 from src.data_import.api.exceptions import SchoolsDataError
 from src.data_import.api.fetcher import SchoolsAPIFetcher
-from src.data_import.config.api import APISettings
+from src.data_import.config.api import APISettings, SchoolStatus
 from src.data_import.config.excel import ExamType
 from src.data_import.excel.db.table_splitter import TableSplitter
 from src.data_import.excel.reader import ExcelReader
@@ -17,16 +18,22 @@ logger = logging.getLogger(__name__)
 async def api_importer() -> None:
     total_processed = 0
 
-    for zlikwidowana in (False, True):
+    for status in SchoolStatus:
+        if not status.fetch_enabled:
+            logger.info(f"⏭️ Skipping fetching {status.name} schools - fetch disabled")
+            continue
+        zlikwidowana = True if status.name == "CLOSED" else False
         api_fetcher = SchoolsAPIFetcher(zlikwidowana=zlikwidowana)
+
+        start_page = status.start_page
         segment_number = 1
 
-        status_label = "zlikwidowana=true" if zlikwidowana else "zlikwidowana=false"
-        logger.info(f"🔄 Starting import for {status_label}...")
+        status_label = f"zlikwidowana={zlikwidowana}"
+        logger.info(f"🔄 Starting import for {status_label} from page {start_page}...")
 
         try:
             batch_iterator = api_fetcher.fetch_schools_batches(
-                start_page=APISettings.START_PAGE,
+                start_page=start_page,
             )
             async for schools_data in batch_iterator:
                 logger.info(

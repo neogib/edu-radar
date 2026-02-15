@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 from typing import ClassVar, final
 
@@ -5,10 +6,21 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 @final
+class SchoolStatus(Enum):
+    "Defines which school statuses to fetch from the API and their corresponding starting pages"
+
+    ACTIVE = (True, 1)
+    CLOSED = (True, 1)
+
+    def __init__(self, fetch_enabled: bool, start_page: int):
+        self.fetch_enabled = fetch_enabled
+        self.start_page = start_page
+
+
+@final
 class APISettings:
     API_SCHOOLS_URL: str = "https://api.rspo.gov.pl/api/placowki/"
     HEADERS: ClassVar[dict[str, str]] = {"accept": "application/json"}
-    START_PAGE: int = 1
     CONCURRENT_REQUESTS: int = 10
 
 
