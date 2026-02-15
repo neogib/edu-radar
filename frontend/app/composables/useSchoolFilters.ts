@@ -72,6 +72,9 @@ export const useSchoolFilters = () => {
     const q = createComputedFilter("q", parseQueryString, (v) =>
         parseQueryString(v),
     )
+    const setSearchQuery = async (query: string | undefined) => {
+        await updateQuery({ q: parseQueryString(query) })
+    }
 
     // all in one just for reading
     const filters = computed<FiltersParamsWihtoutBbox>(() => ({
@@ -130,5 +133,6 @@ export const useSchoolFilters = () => {
 
         // Actions
         resetFilters,
+        setSearchQuery,
     }
 }

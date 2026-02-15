@@ -11,7 +11,7 @@ const emit = defineEmits<{
 
 const mapInstance = useMap(MAP_CONFIG.mapKey)
 
-const { q, filters } = useSchoolFilters()
+const { q, filters, setSearchQuery } = useSchoolFilters()
 const { fetchSchools } = useSchools()
 const { setSingleSchoolData } = useSchoolGeoJSONSource()
 
@@ -51,12 +51,12 @@ const collapseSearch = () => {
     }
 }
 
-const handleSearchButtonClick = () => {
+const handleSearchButtonClick = async () => {
     if (!isSearchExpanded.value) {
         expandSearch()
     } else {
         // when search is expanded, submit query
-        submitQuery()
+        await submitQuery()
         emit("panelClose")
     }
 }
@@ -111,7 +111,7 @@ const fetchSuggestions = async (query: string) => {
     }
 }
 
-const submitQuery = () => {
+const submitQuery = async () => {
     const trimmedQuery = searchQuery.value.trim()
     // check if query changed
     if (trimmedQuery === q.value || (trimmedQuery.length === 0 && !q.value))
@@ -123,13 +123,13 @@ const submitQuery = () => {
             title: "Zapytanie za krótkie",
             description: "Wpisz co najmniej 2 znaki",
             color: "info",
-            icon: "i-mdi-alert",
+            icon: "i-mdi-info",
         })
         return
     }
 
     // trigger search with new query
-    q.value = trimmedQuery
+    await setSearchQuery(trimmedQuery)
 }
 
 const handleSelectSuggestion = (school: SzkolaPublicShort) => {
