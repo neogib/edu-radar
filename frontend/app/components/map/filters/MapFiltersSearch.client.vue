@@ -13,7 +13,7 @@ const mapInstance = useMap(MAP_CONFIG.mapKey)
 
 const { q, filters } = useSchoolFilters()
 const { fetchSchools } = useSchools()
-const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
+const { setSingleSchoolData } = useSchoolGeoJSONSource()
 
 // Search state
 const searchQuery = ref(q.value || "")
@@ -82,7 +82,7 @@ const clearSearchQuery = () => {
 watchDebounced(
     searchQuery,
     (newSearch: string) => {
-        fetchSuggestions(newSearch)
+        void fetchSuggestions(newSearch)
     },
     { debounce: 300, immediate: true },
 )
@@ -140,8 +140,7 @@ const handleSelectSuggestion = (school: SzkolaPublicShort) => {
     isSearchFocused.value = false
     highlightedIndex.value = -1
 
-    // if schools was not within bounds, we need one more request
-    debouncedLoadRemainingSchools()
+    void setSingleSchoolData(school.id)
 
     // Fly to school
     const map = mapInstance.map as maplibregl.Map

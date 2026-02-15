@@ -11,7 +11,7 @@ const { isUnderZoomThreshold } = useMapState()
 // get filters from route.query
 const { hasActiveFilters, totalActiveFilters, filterKey } = useSchoolFilters()
 
-const { debouncedLoadRemainingSchools } = useSchoolGeoJSONSource()
+const { loadRemainingSchools } = useSchoolGeoJSONSource()
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
@@ -58,7 +58,7 @@ const handlePanelSubmit = () => {
     }
     filterKeyChanged.value = false
 
-    debouncedLoadRemainingSchools()
+    void loadRemainingSchools()
 
     // logic to zoom out if no features in current view
     // if zoom already under threshold, no need to zoom out

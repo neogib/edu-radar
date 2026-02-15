@@ -4,6 +4,7 @@ import { useMap } from "@indoorequal/vue-maplibre-gl"
 import type { GeoJSONSource, Map } from "maplibre-gl"
 import type { BoundingBox } from "~/types/boundingBox"
 import { useToast } from "#ui/composables/useToast"
+import { transformSchoolsToFeatures } from "~/utils/transformSchoolsToFeatures"
 
 export const useSchoolGeoJSONSource = () => {
     // computed filters which update when url changes or user modifies them
@@ -11,7 +12,7 @@ export const useSchoolGeoJSONSource = () => {
     const route = useRoute()
 
     const mapInstance = useMap(MAP_CONFIG.mapKey)
-    const { schoolsGeoJSONFeatures } = useSchools()
+    const { schoolsGeoJSONFeatures, fetchSchoolShort } = useSchools()
     const updateSchoolsFeatures = useSchoolsFeaturesUpdater()
     const toast = useToast()
 
@@ -52,7 +53,7 @@ export const useSchoolGeoJSONSource = () => {
 
             // now we can safely reload schools with debounce
             // and schools already streamed for new filters won't be interrupted
-            deobounceReload()
+            void deobounceReload()
         })
     }
     const deobounceReload = useDebounceFn(
@@ -143,7 +144,7 @@ export const useSchoolGeoJSONSource = () => {
         await updateSchoolsFeatures(params, signal, source)
     }
 
-    const debouncedLoadRemainingSchools = useDebounceFn(async () => {
+    async function loadRemainingSchools() {
         // map needs to be loaded
         if (!mapInstance.isLoaded) {
             return
@@ -161,12 +162,41 @@ export const useSchoolGeoJSONSource = () => {
         const bounds = map.getBounds()
 
         await loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
-    }, 100)
+    }
+
+    async function setSingleSchoolData(schoolId: number) {
+        try {
+            if (!mapInstance.isLoaded) {
+                return
+            }
+
+            // stop in-flight map updates before setting explicit single-school data
+            bboxController.value?.abort()
+            streamingController.value?.abort()
+
+            const map = mapInstance.map as Map
+            const source = map.getSource(MAP_CONFIG.sourceId) as GeoJSONSource
+            if (!source) {
+                return
+            }
+
+            const school = await fetchSchoolShort(schoolId)
+            const [feature] = transformSchoolsToFeatures([school])
+
+            source.setData({
+                type: "FeatureCollection",
+                features: feature ? [feature] : [],
+            })
+        } catch (error) {
+            console.error("Error setting single school data:", error)
+        }
+    }
 
     return {
         startFiltersWatcher,
         loadSchoolsFromBbox,
         loadSchoolsStreaming,
-        debouncedLoadRemainingSchools,
+        loadRemainingSchools,
+        setSingleSchoolData,
     }
 }

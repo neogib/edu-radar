@@ -31,7 +31,9 @@ export const useSchoolFilters = () => {
     ) =>
         computed({
             get: () => parser(route.query[key]),
-            set: (v) => updateQuery({ [key]: serializer(v) }),
+            set: (v) => {
+                void updateQuery({ [key]: serializer(v) })
+            },
         })
 
     // Array filters
@@ -100,7 +102,7 @@ export const useSchoolFilters = () => {
     const filterKey = computed(() => JSON.stringify(filters.value))
 
     const resetFilters = () => {
-        updateQuery({
+        void updateQuery({
             type: undefined,
             status: undefined,
             category: undefined,
