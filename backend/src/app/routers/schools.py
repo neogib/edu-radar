@@ -100,6 +100,8 @@ async def read_school(school_id: int, session: SessionDep) -> Szkola:
     school = session.exec(stmt).first()
     if not school:
         raise HTTPException(status_code=404, detail="School not found")
+    school.wyniki_e8.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
+    school.wyniki_em.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
     return school
 
 
