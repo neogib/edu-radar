@@ -105,7 +105,6 @@ class SzkolaBase(SQLModel):
 
 class SzkolaExtendedData(SzkolaBase):  # used in SzkolaAPIResponse
     numer_rspo: int = Field(unique=True, index=True)
-    nazwa_skrocona: str | None = Field(default=None, index=True)
     nip: str | None = Field(default=None)
     regon: str | None = Field(default=None, unique=True)
     liczba_uczniow: int | None = Field(default=None, ge=0)
