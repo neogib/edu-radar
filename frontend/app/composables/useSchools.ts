@@ -28,5 +28,8 @@ export const useSchools = () => {
         return transformSchoolsToFeatures(schools)
     }
 
-    return { fetchSchools, schoolsGeoJSONFeatures }
+    const fetchSchoolShort = async (schoolId: number) =>
+        $api<SzkolaPublicShort>(`/schools/${schoolId}/short`)
+
+    return { fetchSchools, schoolsGeoJSONFeatures, fetchSchoolShort }
 }
