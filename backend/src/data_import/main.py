@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import logging
 
 from src.data_import.api.db.decomposer import Decomposer
@@ -13,59 +14,48 @@ from src.data_import.utils.logging_config import configure_logging
 logger = logging.getLogger(__name__)
 
 
-def print_error_message(segment_number: int, current_page: int):
-    logger.error(f"""
-                 ❌ Error processing segment {segment_number}
-                 ⚠️ Process stopped at page {current_page}
-                 💡 You can resume the process by starting from this page""")
-
-
-def api_importer():
-    api_fetcher = SchoolsAPIFetcher()
-    current_page = APISettings.START_PAGE
+async def api_importer() -> None:
     total_processed = 0
-    segment_number = 1
 
-    while True:
+    for zlikwidowana in (False, True):
+        api_fetcher = SchoolsAPIFetcher(zlikwidowana=zlikwidowana)
+        segment_number = 1
+
+        status_label = "zlikwidowana=true" if zlikwidowana else "zlikwidowana=false"
+        logger.info(f"🔄 Starting import for {status_label}...")
+
         try:
-            logger.info(
-                f"🔄 Processing segment {segment_number} (starting from page {current_page})..."
+            batch_iterator = api_fetcher.fetch_schools_batches(
+                start_page=APISettings.START_PAGE,
             )
-            schools_data, next_page = api_fetcher.fetch_schools_segment(
-                start_page=current_page
-            )
+            async for schools_data in batch_iterator:
+                logger.info(
+                    f"🔄 Processing segment {segment_number} ({status_label})..."
+                )
+                logger.info(
+                    f"⚡ Processing {len(schools_data)} schools from segment {segment_number}..."
+                )
+                with Decomposer() as decomposer:
+                    decomposer.prune_and_decompose_schools(schools_data)
 
-            if not schools_data:
-                logger.info("ℹ️ No more schools to process")  # noqa: RUF001
-                break
-
-            logger.info(
-                f"⚡ Processing {len(schools_data)} schools from segment {segment_number}..."
-            )
-            with Decomposer() as decomposer:
-                decomposer.prune_and_decompose_schools(schools_data)
-
-            total_processed += len(schools_data)
-            logger.info(
-                f"✅ Successfully processed segment {segment_number} ({len(schools_data)} schools)"
-            )
-            logger.info(f"📊 Total schools processed so far: {total_processed}")
-
-            if not next_page:
-                logger.info("🏁 No more pages to process")
-                break
-
-            current_page = next_page
-            segment_number += 1
+                total_processed += len(schools_data)
+                logger.info(
+                    f"✅ Successfully processed segment {segment_number} ({len(schools_data)} schools)"
+                )
+                logger.info(f"📊 Total schools processed so far: {total_processed}")
+                segment_number += 1
 
         except SchoolsDataError as e:
             logger.error(f"📛 Schools data error: {e}")
-            print_error_message(segment_number, current_page)
+            logger.error(
+                f"❌ Error processing segment {segment_number} ({status_label})"
+            )
             break
-
         except Exception as e:
             logger.critical(f"🚨 Unhandled, critical error: {e}")
-            print_error_message(segment_number, current_page)
+            logger.error(
+                f"❌ Error processing segment {segment_number} ({status_label})"
+            )
             break
 
     logger.info(
@@ -98,7 +88,7 @@ class ImportOptions:
 
 
 COMMANDS = {
-    "api": api_importer,
+    "api": lambda: asyncio.run(api_importer()),
     "excel": excel_importer,
 }
 
