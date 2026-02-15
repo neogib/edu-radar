@@ -1,10 +1,12 @@
+import typing
 from typing import Annotated, cast
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
+from geoalchemy2 import WKBElement
 from pydantic import TypeAdapter
 from sqlalchemy.orm import Session, joinedload, selectinload
-from sqlmodel import col, select
+from sqlmodel import col, func, select
 
 from src.app.core.sqlalchemy_typing import orm_rel_attr
 from src.app.models.exam_results import WynikE8, WynikEM
@@ -15,6 +17,7 @@ from src.app.models.schools import (
 from src.app.schemas.filters import FilterParams
 from src.app.schemas.schools import SzkolaPublicShort, SzkolaPublicWithRelations
 from src.app.services.school_filters import apply_filters
+from src.data_import.utils.geo import get_coordinates_from_geom
 from src.dependencies import SessionDep
 
 _ = SzkolaPublicWithRelations.model_rebuild()
@@ -70,6 +73,28 @@ async def stream_schools(
         if await request.is_disconnected():
             print("client disconnected, stopping stream")
             break
+
+
+@router.get("/{school_id}/short")
+async def read_school_short(school_id: int, session: SessionDep) -> SzkolaPublicShort:
+    school = session.get(Szkola, school_id)
+    if not school:
+        raise HTTPException(status_code=404, detail="School not found")
+
+    if not school.geom:
+        raise HTTPException(status_code=404, detail="School location not found")
+
+    point = get_coordinates_from_geom(cast(WKBElement, school.geom))
+
+    return SzkolaPublicShort(
+        id=school_id,
+        nazwa=school.nazwa,
+        longitude=point.x,
+        latitude=point.y,
+        wynik=school.wynik,
+        typ=school.typ.nazwa,
+        status=school.status_publicznoprawny.nazwa,
+    )
 
 
 @router.get("/{school_id}", response_model=SzkolaPublicWithRelations)

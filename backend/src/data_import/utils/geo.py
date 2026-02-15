@@ -1,5 +1,10 @@
+from typing import cast
+
 from geoalchemy2 import WKBElement
-from geoalchemy2.shape import from_shape  # pyright: ignore[reportUnknownVariableType]
+from geoalchemy2.shape import (
+    from_shape,  # pyright: ignore[reportUnknownVariableType]
+    to_shape,
+)
 from shapely.geometry import Point
 
 from src.data_import.config.geo import GeocodingSettings
@@ -7,6 +12,10 @@ from src.data_import.config.geo import GeocodingSettings
 
 def create_geom_point(lon: float, lat: float) -> WKBElement:
     return from_shape(Point(lon, lat), srid=GeocodingSettings.SRID_WGS84)
+
+
+def get_coordinates_from_geom(geom: WKBElement) -> Point:
+    return cast(Point, to_shape(geom))
 
 
 def normalize_city_name(city: str) -> str:

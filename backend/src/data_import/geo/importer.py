@@ -23,6 +23,7 @@ from src.data_import.utils.db.session import DatabaseManagerBase
 from src.data_import.utils.geo import (
     build_full_address,
     create_geom_point,
+    get_coordinates_from_geom,
     normalize_city_name,
 )
 
@@ -232,7 +233,7 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
             city = normalize_city_name(school.miejscowosc.nazwa)
             street = school.ulica.nazwa if school.ulica else None
             point = (
-                cast(Point, to_shape(cast(WKBElement, school.geom)))
+                get_coordinates_from_geom(cast(WKBElement, school.geom))
                 if school.geom
                 else Point(0, 0)
             )
