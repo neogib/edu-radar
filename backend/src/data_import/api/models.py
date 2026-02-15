@@ -7,6 +7,7 @@ from sqlmodel import SQLModel
 from src.app.models.schools import (
     EtapEdukacjiBase,
     KategoriaUczniowBase,
+    KsztalcenieZawodoweBase,
     StatusPublicznoprawnyBase,
     SzkolaExtendedData,
     TypSzkolyBase,
@@ -24,7 +25,7 @@ class SzkolaAPIResponse(SzkolaExtendedData):
     geolokalizacja: GeolocationAPIResponse
     typ: TypSzkolyBase
     status_publiczno_prawny: StatusPublicznoprawnyBase
-    etapy_edukacji: list[EtapEdukacjiBase] | None
+    etapy_edukacji: list[EtapEdukacjiBase]
     wojewodztwo: str
     wojewodztwo_kod_TERYT: str  # noqa: N815
     powiat: str
@@ -35,7 +36,7 @@ class SzkolaAPIResponse(SzkolaExtendedData):
     miejscowosc_kod_TERYT: str  # noqa: N815
     ulica: str | None
     ulica_kod_TERYT: str | None  # noqa: N815
-    ksztalcenie_zawodowe: dict[str, str] | None
+    ksztalcenie_zawodowe: list[KsztalcenieZawodoweBase]
     kategoria_uczniow: KategoriaUczniowBase
 
     @model_validator(mode="before")
@@ -54,11 +55,9 @@ class SzkolaAPIResponse(SzkolaExtendedData):
             if isinstance(first_location, dict):
                 raw_data["geolokalizacja"] = first_location
 
-        # Convert empty strings and empty lists to None for all fields.
+        # Convert empty strings to None for all fields.
         for field_name, field_value in list(raw_data.items()):
-            if (
-                field_value == "" or field_value == []
-            ):  # "" or [] are considered empty, 0 is a normal value
+            if field_value == "":  # 0 is a normal value
                 raw_data[field_name] = None
 
         return cast(T, data)

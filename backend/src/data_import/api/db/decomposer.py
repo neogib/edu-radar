@@ -1,7 +1,5 @@
 import logging
 
-from pydantic import ValidationError
-
 from src.app.models.locations import Gmina, Miejscowosc, Powiat, Ulica, Wojewodztwo
 from src.app.models.schools import (
     EtapEdukacji,
@@ -17,7 +15,7 @@ from src.app.models.schools import (
     TypSzkoly,
     TypSzkolyBase,
 )
-from src.data_import.api.db.exceptions import DataValidationError, SchoolProcessingError
+from src.data_import.api.db.exceptions import SchoolProcessingError
 from src.data_import.api.db.excluded_fields import SchoolFieldExclusions
 from src.data_import.api.models import SzkolaAPIResponse
 from src.data_import.utils.db.session import DatabaseManagerBase
@@ -55,7 +53,7 @@ class Decomposer(DatabaseManagerBase):
         self.vocational_trainings_cache: dict[str, KsztalcenieZawodowe] = {}
 
     def prune_and_decompose_schools(
-        self, schools_data: list[dict[str, object]]
+        self, schools_data: list[SzkolaAPIResponse]
     ) -> None:
         """
         Process a list of schools data
@@ -68,7 +66,7 @@ class Decomposer(DatabaseManagerBase):
             try:
                 self.prune_and_decompose_single_school_data(school_data)
                 processed_schools += 1
-            except (SchoolProcessingError, DataValidationError) as e:
+            except SchoolProcessingError as e:
                 failed_schools += 1
                 logger.error(f"📛 Error processing school: {e}")
 
@@ -78,18 +76,9 @@ class Decomposer(DatabaseManagerBase):
         if failed_schools > 0:
             logger.warning(f"⚠️ Failed to process {failed_schools} schools")
 
-    def prune_and_decompose_single_school_data(
-        self, school_data: dict[str, object]
-    ) -> None:
+    def prune_and_decompose_single_school_data(self, school: SzkolaAPIResponse) -> None:
         """Process a single school's data and save to database"""
         session = self._ensure_session()
-
-        # First, validate the required fields. Let errors propagate upward.
-        try:
-            school = SzkolaAPIResponse.model_validate(school_data)
-        except ValidationError as e:
-            session.rollback()
-            raise DataValidationError(school_data, e) from e
 
         try:
             # Process location data
@@ -101,10 +90,18 @@ class Decomposer(DatabaseManagerBase):
             )
 
             # Process vocational training data
-            vocational_trainings_list = self._process_vocational_training_data(school)
+            vocational_trainings_list = self._process_educational_entities(
+                model_class=KsztalcenieZawodowe,
+                entities=school.ksztalcenie_zawodowe,
+                cache_dict=self.vocational_trainings_cache,
+            )
 
             # Process education stages data
-            education_stages_list = self._process_education_stages(school)
+            education_stages_list = self._process_educational_entities(
+                model_class=EtapEdukacji,
+                entities=school.etapy_edukacji,
+                cache_dict=self.education_stages_cache,
+            )
 
             # Check if school already exists
             existing_school = self._select_where(
@@ -320,39 +317,23 @@ class Decomposer(DatabaseManagerBase):
         )
         return school_type, status, student_category
 
-    def _process_vocational_training_data(
-        self, school_data: SzkolaAPIResponse
-    ) -> list[KsztalcenieZawodowe]:
-        """Process vocational training data"""
-        if not school_data.ksztalcenie_zawodowe:
+    def _process_educational_entities[T: (KsztalcenieZawodowe, EtapEdukacji)](
+        self,
+        model_class: type[T],
+        entities: list[KsztalcenieZawodoweBase] | list[EtapEdukacjiBase],
+        cache_dict: dict[str, T],
+    ) -> list[T]:
+        if not entities:
             return []
 
-        vocational_trainings = [
+        return [
             self._get_or_create_educational_entity(
-                model_class=KsztalcenieZawodowe,
-                entity_base=KsztalcenieZawodoweBase(nazwa=value),
-                cache_dict=self.vocational_trainings_cache,
+                model_class=model_class,
+                entity_base=entity_base,
+                cache_dict=cache_dict,
             )
-            for value in school_data.ksztalcenie_zawodowe.values()
+            for entity_base in entities
         ]
-
-        return vocational_trainings
-
-    def _process_education_stages(
-        self, school_data: SzkolaAPIResponse
-    ) -> list[EtapEdukacji]:
-        """Process education stages data"""
-        if not school_data.etapy_edukacji:
-            return []
-        education_stages_list = [
-            self._get_or_create_educational_entity(
-                model_class=EtapEdukacji,
-                entity_base=education_stage_data,
-                cache_dict=self.education_stages_cache,
-            )
-            for education_stage_data in school_data.etapy_edukacji
-        ]
-        return education_stages_list
 
     def _get_or_create_educational_entity[
         T: (
