@@ -144,8 +144,8 @@ class Szkola(SzkolaAllData, TimestampMixin, table=True):
     id: int | None = Field(default=None, primary_key=True)
 
     # geom only for spatial queries, not exposed in API
-    geom: object = Field(
-        sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
+    geom: object | None = Field(
+        sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     )
 
     # this column is a control flag for editing school visiblity

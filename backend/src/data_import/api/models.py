@@ -22,7 +22,7 @@ class GeolocationAPIResponse(SQLModel):
 
 class SzkolaAPIResponse(SzkolaExtendedData):
     model_config: ConfigDict = ConfigDict(alias_generator=custom_camel)  # pyright: ignore[reportIncompatibleVariableOverride]
-    geolokalizacja: GeolocationAPIResponse
+    geolokalizacja: GeolocationAPIResponse | None
     typ: TypSzkolyBase
     status_publiczno_prawny: StatusPublicznoprawnyBase
     etapy_edukacji: list[EtapEdukacjiBase]
@@ -50,10 +50,14 @@ class SzkolaAPIResponse(SzkolaExtendedData):
 
         # New RSPO API returns geolokalizacja as a one-element list.
         geolocation = raw_data.get("geolokalizacja")
-        if isinstance(geolocation, list) and geolocation:
-            first_location = geolocation[0]  # pyright: ignore[reportUnknownVariableType]
-            if isinstance(first_location, dict):
-                raw_data["geolokalizacja"] = first_location
+        if isinstance(geolocation, list):
+            if len(geolocation) == 0:  # pyright: ignore[reportUnknownArgumentType]
+                # if list is empty, set coords to None
+                raw_data["geolokalizacja"] = None
+            else:
+                first_location = geolocation[0]  # pyright: ignore[reportUnknownVariableType]
+                if isinstance(first_location, dict):
+                    raw_data["geolokalizacja"] = first_location
 
         # Convert empty strings to None for all fields.
         for field_name, field_value in list(raw_data.items()):

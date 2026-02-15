@@ -35,7 +35,11 @@ def _is_school_closed(school_data: SzkolaAPIResponse) -> bool:
 
 def _school_geom(school_data: SzkolaAPIResponse):
     geolocation = school_data.geolokalizacja
-    return create_geom_point(geolocation.longitude, geolocation.latitude)
+    return (
+        create_geom_point(geolocation.longitude, geolocation.latitude)
+        if geolocation
+        else None
+    )
 
 
 class Decomposer(DatabaseManagerBase):
