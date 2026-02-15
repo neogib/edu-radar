@@ -59,23 +59,6 @@ const handlePanelSubmit = () => {
     filterKeyChanged.value = false
 
     void loadRemainingSchools()
-
-    // logic to zoom out if no features in current view
-    // if zoom already under threshold, no need to zoom out
-    if (isUnderZoomThreshold.value) {
-        return
-    }
-
-    const map = mapInstance.map as Map
-    // if there are already features in current map view, no need to ease
-    if (map.querySourceFeatures(MAP_CONFIG.sourceId).length > 1) {
-        return
-    }
-
-    // ease to zoom, but don't zoom out below (current zoom - 3) levels
-    const currentZoom = map.getZoom()
-    const targetZoom = Math.max(currentZoom - 3, MAP_CONFIG.zoomThreshold)
-    map.easeTo({ zoom: targetZoom })
 }
 </script>
 
