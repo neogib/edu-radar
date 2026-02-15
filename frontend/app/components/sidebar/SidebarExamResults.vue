@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+    E8_PRIORITY_SUBJECTS,
     EM_PRIORITY_SUBJECTS,
     SUBJECT_WEIGHTS,
     WEIGHTED_SUBJECTS,
@@ -25,6 +26,13 @@ const { wynikiE8, wynikiEm } = defineProps<Props>()
 
 const emPriorityOrder = new Map(
     EM_PRIORITY_SUBJECTS.map((subject, index) => [
+        normalizeSubjectName(subject),
+        index,
+    ]),
+)
+
+const e8PriorityOrder = new Map(
+    E8_PRIORITY_SUBJECTS.map((subject, index) => [
         normalizeSubjectName(subject),
         index,
     ]),
@@ -146,25 +154,23 @@ const hasExamResults = computed(() => examSections.value.length > 0)
 const getOrderedSubjects = (section: ExamSection) => {
     const entries = Object.entries(section.grouped)
 
-    // only prioritize EM subjects, for E8 we can keep the original order
-    if (section.key !== "em") {
-        return entries
-    }
+    const priorityOrder =
+        section.key === "em" ? emPriorityOrder : e8PriorityOrder
 
     const prioritized: typeof entries = []
     const rest: typeof entries = []
 
     for (const entry of entries) {
         const [subject] = entry
-        const priorityIndex = emPriorityOrder.get(normalizeSubjectName(subject))
+        const priorityIndex = priorityOrder.get(normalizeSubjectName(subject))
 
         if (priorityIndex !== undefined) prioritized.push(entry)
         else rest.push(entry)
     }
 
     prioritized.sort((a, b) => {
-        const aPriority = emPriorityOrder.get(normalizeSubjectName(a[0])) ?? 999
-        const bPriority = emPriorityOrder.get(normalizeSubjectName(b[0])) ?? 999
+        const aPriority = priorityOrder.get(normalizeSubjectName(a[0])) ?? 999
+        const bPriority = priorityOrder.get(normalizeSubjectName(b[0])) ?? 999
         return aPriority - bPriority
     })
 
@@ -314,7 +320,9 @@ const weightedMarkerConfig: MarkerConfig = {
                                 </div>
                                 <div
                                     class="inline-flex items-center gap-1 text-xs text-muted">
-                                    <UIcon name="i-lucide-users" class="size-3" />
+                                    <UIcon
+                                        name="i-lucide-users"
+                                        class="size-3" />
                                     {{
                                         `${subjectData.years[year]?.liczba_zdajacych}`
                                     }}

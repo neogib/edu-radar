@@ -11,6 +11,12 @@ export const EM_PRIORITY_SUBJECTS = [
     "język polski ustny",
 ] as const
 
+export const E8_PRIORITY_SUBJECTS = [
+    "matematyka",
+    "język angielski",
+    "język polski",
+] as const
+
 export const WEIGHTED_SUBJECTS: Record<ExamSectionKey, WeightedSubjectNames> = {
     e8: {
         math: normalizeSubjectName("matematyka"),

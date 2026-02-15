@@ -21,9 +21,8 @@ export const SCOPE_BADGE_CLASSES: Record<RankingScope, string> = {
     powiat: "bg-orange-100 text-orange-800 ring-orange-200 dark:bg-orange-500/20 dark:text-orange-200 dark:ring-orange-400/40",
 }
 
-export const MEDAL_ICON_BY_PLACE: Record<
-    1 | 2 | 3,
-    Exclude<MedalIcon, null>
+export const MEDAL_ICON_BY_PLACE: Partial<
+    Record<number, Exclude<MedalIcon, null>>
 > = {
     1: "noto:1st-place-medal",
     2: "noto:2nd-place-medal",
