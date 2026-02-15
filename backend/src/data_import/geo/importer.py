@@ -1,13 +1,17 @@
+import asyncio
 import csv
 import logging
 from collections import defaultdict
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import cast
 
+import httpx
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
+from sqlmodel import Session
 
 from src.app.models.schools import Szkola
 from src.data_import.api.exceptions import APIRequestError
@@ -30,6 +34,24 @@ class ProcessingStats(Enum):
     COORDINATES_IN_BUILDING = "coordinates_in_building"
     FAILED_GEOCODING = "failed_geocoding"
     SUCCESSFUL_GEOCODING = "successful_geocoding"
+
+
+@dataclass(slots=True, frozen=True)
+class MissingCoordinateCandidate:
+    school_id: int
+    school_name: str
+    city: str
+    street: str | None
+    building_number: str | None
+    lon: float
+    lat: float
+
+
+@dataclass(slots=True, frozen=True)
+class MissingCoordinateResult:
+    school_id: int
+    status: ProcessingStats
+    coordinates: tuple[float, float] | None = None
 
 
 def _extract_lat_lon_from_uug(data: dict[str, object]) -> tuple[float, float] | None:
@@ -94,6 +116,9 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         col_id = "id"
         col_lon = "g_dlug"
         col_lat = "g_szer"
+        pending_candidates: list[MissingCoordinateCandidate] = []
+        pending_schools: dict[int, Szkola] = {}
+
         try:
             with open(self.converted_file, encoding="utf-8") as csvfile:
                 # Use DictReader to automatically handle headers
@@ -121,7 +146,11 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                         continue
 
                     # find school
-                    school_id = int(raw_id)
+                    try:
+                        school_id = int(raw_id)
+                    except ValueError:
+                        logger.error(f"Invalid school ID: {raw_id}")
+                        continue
 
                     # Skip records until we reach starting_id
                     if self.starting_id and school_id < self.starting_id:
@@ -134,41 +163,52 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
                         continue
 
                     if not raw_lon or not raw_lat:
-                        # Check if current coordinates are valid (in a building)
-                        if self.is_point_in_building(school):
-                            self.stats[
-                                ProcessingStats.COORDINATES_IN_BUILDING.value
-                            ] += 1
-                            continue
-
-                        new_data = self.investigate_missing_data(school)
-
-                        if new_data is None:  # there was an error during geocoding
+                        candidate = self._build_missing_coordinate_candidate(
+                            school_id=school_id,
+                            school=school,
+                        )
+                        if candidate is None:
                             self.stats[ProcessingStats.FAILED_GEOCODING.value] += 1
                             continue
 
-                        lon, lat = new_data
-                        logger.info(
-                            f"Updated missing data for school ID {school_id}: Lat={lon}, Lon={lat}"
-                        )
-                    else:  # normal case - coordinates are present
-                        try:
-                            lon = float(raw_lon)
-                            lat = float(raw_lat)
-                        except ValueError:
-                            logger.error(
-                                f"Invalid coordinate format for ID {school_id}"
+                        pending_candidates.append(candidate)
+                        pending_schools[school_id] = school
+
+                        if (
+                            len(pending_candidates)
+                            >= GeocodingSettings.REQUEST_BATCH_SIZE
+                        ):
+                            self._process_pending_geocoding(
+                                session=session,
+                                candidates=pending_candidates,
+                                schools_by_id=pending_schools,
                             )
-                            continue
+                            pending_candidates.clear()
+                            pending_schools.clear()
+                        continue
 
-                    school.geom = create_geom_point(lon, lat)
-                    session.add(school)
-                    self.stats[ProcessingStats.PROCESSED.value] += 1
+                    # normal case - coordinates are present
+                    try:
+                        lon = float(raw_lon)
+                        lat = float(raw_lat)
+                    except ValueError:
+                        logger.error(f"Invalid coordinate format for ID {school_id}")
+                        continue
 
-                    # Commit every 100 records to avoid large transactions
-                    if self.stats[ProcessingStats.PROCESSED.value] % 100 == 0:
-                        session.commit()
-                        self._save_checkpoint(school_id)
+                    self._persist_coordinates_update(
+                        session=session,
+                        school=school,
+                        lon=lon,
+                        lat=lat,
+                        school_id=school_id,
+                    )
+
+                if pending_candidates:
+                    self._process_pending_geocoding(
+                        session=session,
+                        candidates=pending_candidates,
+                        schools_by_id=pending_schools,
+                    )
 
                 # Final commit for remaining records
                 session.commit()
@@ -183,34 +223,170 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
             logger.critical(f"Unexpected error during import: {e}")
             raise
 
-    def investigate_missing_data(self, school: Szkola) -> None | tuple[float, float]:
+    def _build_missing_coordinate_candidate(
+        self,
+        school_id: int,
+        school: Szkola,
+    ) -> MissingCoordinateCandidate | None:
         try:
-            logger.info(
-                f"🔍 Invalid coordinates for school {school.nazwa} (ID: {school.id}). Geocoding..."
-            )
-
-            # Prepare address components
             city = normalize_city_name(school.miejscowosc.nazwa)
             street = school.ulica.nazwa if school.ulica else None
-            building_number = school.numer_budynku
-
-            # Geocode address
-            return self.geocode_address(city, street, building_number)
-
-        except GeocodingError as e:
-            logger.error(
-                f"⚠️ Failed to geocode school {school.nazwa} (ID: {school.id}): {e}"
+            point = (
+                cast(Point, to_shape(cast(WKBElement, school.geom)))
+                if school.geom
+                else Point(0, 0)
             )
-        except Exception as e:
+        except Exception as err:
             logger.error(
-                f"💥 Unexpected error processing school {school.nazwa} (ID: {school.id}): {e}"
+                f"💥 Failed preparing geocoding payload for school {school.nazwa} (ID: {school_id}): {err}"
+            )
+            return None
+
+        return MissingCoordinateCandidate(
+            school_id=school_id,
+            school_name=school.nazwa,
+            city=city,
+            street=street,
+            building_number=school.numer_budynku,
+            lon=point.x,
+            lat=point.y,
+        )
+
+    def _persist_coordinates_update(
+        self,
+        session: Session,
+        school: Szkola,
+        lon: float,
+        lat: float,
+        school_id: int,
+    ) -> None:
+        school.geom = create_geom_point(lon, lat)
+        session.add(school)
+        self.stats[ProcessingStats.PROCESSED.value] += 1
+
+        # Commit every 1000 records to avoid large transactions
+        if self.stats[ProcessingStats.PROCESSED.value] % 1000 == 0:
+            session.commit()
+            self._save_checkpoint(school_id)
+
+    def _process_pending_geocoding(
+        self,
+        session: Session,
+        candidates: list[MissingCoordinateCandidate],
+        schools_by_id: dict[int, Szkola],
+    ) -> None:
+        results = asyncio.run(self._resolve_missing_data_batch(candidates))
+
+        for result in results:
+            if result.status is ProcessingStats.COORDINATES_IN_BUILDING:
+                self.stats[ProcessingStats.COORDINATES_IN_BUILDING.value] += 1
+                continue
+
+            if result.status is ProcessingStats.FAILED_GEOCODING:
+                self.stats[ProcessingStats.FAILED_GEOCODING.value] += 1
+                continue
+
+            school = schools_by_id.get(result.school_id)
+            if school is None or result.coordinates is None:
+                logger.error(
+                    f"School with ID {result.school_id} missing in geocoding batch."
+                )
+                self.stats[ProcessingStats.FAILED_GEOCODING.value] += 1
+                continue
+
+            lon, lat = result.coordinates
+            logger.info(
+                f"Updated missing data for school ID {result.school_id}: Lat={lat}, Lon={lon}"
+            )
+            self.stats[ProcessingStats.SUCCESSFUL_GEOCODING.value] += 1
+            self._persist_coordinates_update(
+                session=session,
+                school=school,
+                lon=lon,
+                lat=lat,
+                school_id=result.school_id,
             )
 
-    def geocode_address(
+    async def _resolve_missing_data_batch(
+        self,
+        candidates: list[MissingCoordinateCandidate],
+    ) -> list[MissingCoordinateResult]:
+        concurrent_requests = max(1, GeocodingSettings.CONCURRENT_REQUESTS)
+        semaphore = asyncio.Semaphore(concurrent_requests)
+        limits = httpx.Limits(
+            max_connections=concurrent_requests,
+            max_keepalive_connections=concurrent_requests,
+        )
+
+        async with httpx.AsyncClient(limits=limits) as client:
+
+            async def _resolve(
+                candidate: MissingCoordinateCandidate,
+            ) -> MissingCoordinateResult:
+                async with semaphore:
+                    return await self._resolve_missing_data(candidate, client)
+
+            return await asyncio.gather(
+                *(_resolve(candidate) for candidate in candidates)
+            )
+
+    async def _resolve_missing_data(
+        self,
+        candidate: MissingCoordinateCandidate,
+        client: httpx.AsyncClient,
+    ) -> MissingCoordinateResult:
+        try:
+            logger.info(
+                f"🔍 Invalid coordinates for school {candidate.school_name} (ID: {candidate.school_id}). Geocoding..."
+            )
+
+            if await self.is_point_in_building(
+                lon=candidate.lon,
+                lat=candidate.lat,
+                client=client,
+            ):
+                return MissingCoordinateResult(
+                    school_id=candidate.school_id,
+                    status=ProcessingStats.COORDINATES_IN_BUILDING,
+                )
+
+            geocoded_coordinates = await self.geocode_address(
+                city=candidate.city,
+                street=candidate.street,
+                building_number=candidate.building_number,
+                client=client,
+            )
+            if geocoded_coordinates is None:
+                return MissingCoordinateResult(
+                    school_id=candidate.school_id,
+                    status=ProcessingStats.FAILED_GEOCODING,
+                )
+
+            return MissingCoordinateResult(
+                school_id=candidate.school_id,
+                status=ProcessingStats.SUCCESSFUL_GEOCODING,
+                coordinates=geocoded_coordinates,
+            )
+        except GeocodingError as err:
+            logger.error(
+                f"⚠️ Failed to geocode school {candidate.school_name} (ID: {candidate.school_id}): {err}"
+            )
+        except Exception as err:
+            logger.error(
+                f"💥 Unexpected error processing school {candidate.school_name} (ID: {candidate.school_id}): {err}"
+            )
+
+        return MissingCoordinateResult(
+            school_id=candidate.school_id,
+            status=ProcessingStats.FAILED_GEOCODING,
+        )
+
+    async def geocode_address(
         self,
         city: str,
         street: str | None = None,
         building_number: str | None = None,
+        client: httpx.AsyncClient | None = None,
     ) -> tuple[float, float] | None:
         """
         Geocode an address using the UUG service.
@@ -234,26 +410,28 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         try:
             data = cast(
                 dict[str, object],
-                api_request(url=GeocodingSettings.UUG_URL, params=params),
+                await api_request(
+                    url=GeocodingSettings.UUG_URL,
+                    params=params,
+                    client=client,
+                ),
             )
-            result = _extract_lat_lon_from_uug(data)
+            return _extract_lat_lon_from_uug(data)
         except APIRequestError as err:
             logger.error(f"❌ Geocoding failed for: {full_address}: {err}")
             raise GeocodingError(
                 "Failed to geocode address",
                 address=full_address,
             ) from err
-        if result:
-            self.stats[ProcessingStats.SUCCESSFUL_GEOCODING.value] += 1
-        return result
 
-    def is_point_in_building(self, school: Szkola) -> bool:
+    async def is_point_in_building(
+        self,
+        lon: float,
+        lat: float,
+        client: httpx.AsyncClient | None = None,
+    ) -> bool:
         """
         Get building information from coordinates using ULDK service.
-
-        Args:
-            latitude: Latitude coordinate
-            longitude: Longitude coordinate
 
         Raises:
             GeocodingError: If building lookup fails
@@ -261,10 +439,6 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         Returns:
             bool: True if point is within a building, False otherwise
         """
-        # Extract current coordinates from geom
-        point = cast(Point, to_shape(cast(WKBElement, school.geom)))
-        lon, lat = point.x, point.y
-
         params: dict[str, object] = {
             "request": "GetBuildingByXY",
             "xy": f"{lon},{lat},{GeocodingSettings.SRID_WGS84}",
@@ -272,7 +446,11 @@ class SchoolCoordinatesImporter(DatabaseManagerBase):
         }
 
         try:
-            data = api_request(url=GeocodingSettings.ULDK_URL, params=params)
+            data = await api_request(
+                url=GeocodingSettings.ULDK_URL,
+                params=params,
+                client=client,
+            )
             return _validate_uldk_response(data)
         except APIRequestError as err:
             coords = f"({lat}, {lon})"

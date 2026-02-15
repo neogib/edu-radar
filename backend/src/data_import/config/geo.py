@@ -13,7 +13,9 @@ class GeocodingSettings:
     UUG_URL: str = "https://services.gugik.gov.pl/uug/"
     ULDK_URL: str = "https://uldk.gugik.gov.pl"
     SRID_WGS84: int = 4326  # EPSG code for WGS84 coordinate system
-    CHECKPOINT_FILE: Path = Path(__file__).parent.parent / "data" / "geo_checkpoint.txt"
+    CHECKPOINT_FILE: Path = Path(__file__).parents[1] / "data" / "geo_checkpoint.txt"
+    CONCURRENT_REQUESTS: int = 10
+    REQUEST_BATCH_SIZE: int = 50
     # Geocoding - change Warsaw districts into "Warszawa"
     WARSAW_DISTRICTS: ClassVar = {
         "Wola",
