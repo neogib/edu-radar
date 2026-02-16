@@ -15,11 +15,10 @@ from app.models.schools import Szkola
 from app.schemas.filters import FilterParams
 from app.schemas.schools import SzkolaPublicShort
 from app.services.exceptions import SchoolLocationNotFoundError, SchoolNotFoundError
-from app.services.school_filters import apply_filters
+from app.services.school_filters import build_schools_short_query
 
 # Setup
 school_list_adapter = TypeAdapter(list[SzkolaPublicShort])
-CHUNK_SIZE = 1000
 
 logger = logging.getLogger(__name__)
 
@@ -87,10 +86,10 @@ class SchoolService:
         return school
 
     def list_schools(self) -> list[Szkola]:
-        return list(self.session.exec(select(Szkola)).all())
+        return cast(list[Szkola], self.session.exec(select(Szkola)).all())
 
     def get_schools_short(self, filters: FilterParams):
-        stmt = apply_filters(filters)
+        stmt = build_schools_short_query(filters)
 
         rows = (
             self.session.connection().execute(stmt).mappings().all()
@@ -104,7 +103,7 @@ class SchoolService:
         while True:
             # Keyset pagination is stable for streaming large/updated datasets.
             stmt = (
-                apply_filters(filters)
+                build_schools_short_query(filters)
                 .where(col(Szkola.id) > last_id)
                 .order_by(col(Szkola.id))
             )

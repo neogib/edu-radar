@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.router import api_router
 from app.core.logging import configure_logging
-from app.routers import filters, school_types, schools
 
 configure_logging()
 
 app = FastAPI()
-
+app.include_router(api_router)
 
 origins = ["*"]
 
@@ -18,10 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.include_router(schools.router)
-app.include_router(school_types.router)
-app.include_router(filters.router)
 
 
 @app.get("/test")

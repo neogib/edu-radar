@@ -1,7 +1,8 @@
 # pyright: reportUnknownVariableType = false
 # pyright: reportUnknownArgumentType = false
-from sqlalchemy import Select, select
-from sqlmodel import col, exists, func
+# pyright: reportUnknownMemberType = false
+from sqlalchemy import Select
+from sqlmodel import col, exists, func, select
 
 from app.models.schools import (
     StatusPublicznoprawny,
@@ -12,14 +13,14 @@ from app.models.schools import (
 from app.schemas.filters import FilterParams
 
 
-def apply_filters(
+def build_schools_short_query(
     filters: FilterParams,
 ) -> Select[tuple[int, str, float | None, str, str, float, float]]:
     """
     Apply filters to the Szkola query based on the provided FilterParams.
     """
     statement = (
-        select(
+        select(  # pyright: ignore[reportCallIssue]
             col(Szkola.id),
             col(Szkola.nazwa),
             col(Szkola.wynik),
@@ -97,4 +98,4 @@ def apply_filters(
             filters.limit
         )  # for autocompletion not all results should be returned
 
-    return statement  # pyright: ignore[reportReturnType]
+    return statement
