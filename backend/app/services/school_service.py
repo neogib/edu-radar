@@ -80,7 +80,7 @@ class SchoolService(BaseService[Szkola]):
         school.wyniki_em.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
         return school
 
-    def list_schools(self) -> list[Szkola]:
+    def get_schools(self) -> list[Szkola]:
         return self._get_entities()
 
     def get_schools_short(self, filters: FilterParams):
