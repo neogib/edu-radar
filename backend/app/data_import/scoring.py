@@ -5,6 +5,7 @@ from sqlalchemy import update
 from sqlmodel import Session
 
 from app.core.database import engine
+from app.core.logging import configure_logging
 from app.data_import.config.score import ScoreType
 from app.data_import.score.ranking_calculator import RankingCalculator
 from app.data_import.score.scorer import Scorer
@@ -51,7 +52,7 @@ COMMANDS = {
 
 
 def main() -> None:
-    configure_logging()
+    configure_logging("scoring.log")
 
     parser = argparse.ArgumentParser(
         description="Scoring script for score and ranking calculations"
