@@ -49,23 +49,12 @@ async def read_schools_stream(
 async def read_school_short(
     school_id: int, service: SchoolServiceDep
 ) -> SzkolaPublicShort:
-    try:
-        school = service.get_school_short(school_id)
-    except SchoolNotFoundError as e:
-        raise HTTPException(status_code=404, detail="School not found") from e
-    except SchoolLocationNotFoundError as e:
-        raise HTTPException(status_code=404, detail="School location not found") from e
-
-    return school
+    return service.get_school_short(school_id)
 
 
 @router.get("/{school_id}", response_model=SzkolaPublicWithRelations)
 async def read_school(school_id: int, service: SchoolServiceDep) -> Szkola:
-    try:
-        school = service.get_school_with_relations(school_id)
-    except SchoolNotFoundError as e:
-        raise HTTPException(status_code=404, detail="School not found") from e
-    return school
+    return service.get_school_with_relations(school_id)
 
 
 @router.get("/")

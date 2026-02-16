@@ -30,18 +30,15 @@ class SchoolService:
     def get_school(self, school_id: int) -> Szkola:
         school = self.session.get(Szkola, school_id)
         if not school:
-            raise SchoolNotFoundError
+            raise SchoolNotFoundError(school_id)
         return school
 
     def get_school_short(self, school_id: int) -> SzkolaPublicShort:
         "Get basic infor about school just to display on map. Does not include relations to other tables, so it's faster to query. For just one school we can take all columns without performance issues."
-        try:
-            school = self.get_school(school_id)
-        except SchoolNotFoundError as err:
-            raise err
+        school = self.get_school(school_id)
 
         if not school.geom:
-            raise SchoolLocationNotFoundError
+            raise SchoolLocationNotFoundError(school_id)
 
         point = get_coordinates_from_geom(cast(WKBElement, school.geom))
         return SzkolaPublicShort(
@@ -80,7 +77,7 @@ class SchoolService:
         )
         school = self.session.exec(stmt).first()
         if not school:
-            raise SchoolNotFoundError
+            raise SchoolNotFoundError(school_id)
         school.wyniki_e8.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
         school.wyniki_em.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
         return school
