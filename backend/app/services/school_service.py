@@ -14,7 +14,8 @@ from app.models.locations import Gmina, Miejscowosc, Powiat
 from app.models.schools import Szkola
 from app.schemas.filters import FilterParams
 from app.schemas.schools import SzkolaPublicShort
-from app.services.exceptions import SchoolLocationNotFoundError, SchoolNotFoundError
+from app.services.base_service import BaseService
+from app.services.exceptions import EntityNotFoundError, SchoolLocationNotFoundError
 from app.services.school_filters import build_schools_short_query
 
 # Setup
@@ -23,15 +24,12 @@ school_list_adapter = TypeAdapter(list[SzkolaPublicShort])
 logger = logging.getLogger(__name__)
 
 
-class SchoolService:
+class SchoolService(BaseService[Szkola]):
     def __init__(self, session: Session) -> None:
-        self.session: Session = session
+        super().__init__(session, Szkola)
 
     def get_school(self, school_id: int) -> Szkola:
-        school = self.session.get(Szkola, school_id)
-        if not school:
-            raise SchoolNotFoundError(school_id)
-        return school
+        return self._get_entity(school_id)
 
     def get_school_short(self, school_id: int) -> SzkolaPublicShort:
         "Get basic infor about school just to display on map. Does not include relations to other tables, so it's faster to query. For just one school we can take all columns without performance issues."
@@ -77,13 +75,13 @@ class SchoolService:
         )
         school = self.session.exec(stmt).first()
         if not school:
-            raise SchoolNotFoundError(school_id)
+            raise EntityNotFoundError(entity_id=school_id, model_name=Szkola.__name__)
         school.wyniki_e8.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
         school.wyniki_em.sort(key=lambda w: (w.rok, w.przedmiot.nazwa))
         return school
 
     def list_schools(self) -> list[Szkola]:
-        return cast(list[Szkola], self.session.exec(select(Szkola)).all())
+        return self._get_entities()
 
     def get_schools_short(self, filters: FilterParams):
         stmt = build_schools_short_query(filters)

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
 
 from app.dependencies import SessionDep
@@ -9,7 +9,6 @@ from app.models.schools import (
 )
 from app.schemas.filters import FilterParams
 from app.schemas.schools import SzkolaPublicShort, SzkolaPublicWithRelations
-from app.services.exceptions import SchoolLocationNotFoundError, SchoolNotFoundError
 from app.services.school_service import SchoolService
 
 _ = SzkolaPublicWithRelations.model_rebuild()

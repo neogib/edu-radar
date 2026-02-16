@@ -1,13 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from app.services.exceptions import SchoolLocationNotFoundError, SchoolNotFoundError
+from app.services.exceptions import EntityNotFoundError, SchoolLocationNotFoundError
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    @app.exception_handler(SchoolNotFoundError)
-    async def school_not_found_handler(
-        _: Request, exc: SchoolNotFoundError
+    @app.exception_handler(EntityNotFoundError)
+    async def entity_not_found_handler(
+        _: Request, exc: EntityNotFoundError
     ) -> JSONResponse:
         return JSONResponse(status_code=404, content={"detail": str(exc)})
 
