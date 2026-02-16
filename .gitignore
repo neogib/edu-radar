@@ -1,121 +1,34 @@
-# Node.js
-node_modules/
-jspm_packages/
-web_modules/
-bower_components/
-.npm/
-.yarn/
-.yarn-integrity
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-.node_repl_history
+# OS files
+.DS_Store
+Thumbs.db
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-env/
-venv/
-.env
-.venv
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-nosetests.xml
-coverage.xml
-*.cover
-.pytest_cache/
-htmlcov/
-backend.egg-info/
-
-# Build and Output directories
-dist/
-build/
-out/
-.output/
-.next
-.nuxt
-.cache/
-.parcel-cache/
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Framework specific
-# Nuxt.js
-.nitro/
-sw.*
-
-# TypeScript
-*.tsbuildinfo
-
-# Environment variables
-.env
-.env.development
-.env.production
-
-# Docker
-.docker/
-docker-compose.override.yml
-
-# IDE specific
+# IDE/editor files
 .idea/
 .vscode/
 .vscode-test/
+.fleet
 *.swp
 *.swo
 *~
 .tern-port
 
-# OS specific
-.DS_Store
-Thumbs.db
+# Environment files
+.env
+.env.*
+!.env.example
 
 # Logs
 logs/
 *.log
 *.log.*
 
-# created datasets
-*.csv
-
-# created checkpoints
-*.txt
-
-# Testing and Coverage
-coverage/
-.nyc_output/
-*.lcov
-
 # Temporary files
 tmp/
 temp/
 
-# Database
-*.sqlite
-*.sqlite3
-*.db
+# Docker local overrides
+.docker/
+docker-compose.override.yml
 
-# Misc
-.serverless/
-.fusebox/
-.dynamodb/
-.docusaurus
-.grunt
-.lock-wscript
-lib-cov/
-
-# AI
+# Local assistant instructions
 AGENTS.md

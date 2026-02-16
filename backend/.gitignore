@@ -1,0 +1,41 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python tooling caches
+.pytest_cache/
+.tox/
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+
+# Coverage and test artifacts
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+*.cover
+
+# Packaging/build artifacts
+build/
+dist/
+*.egg-info/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Local database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Generated data import checkpoint
+app/data_import/data/geo_checkpoint.txt
