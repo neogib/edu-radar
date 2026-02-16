@@ -6,11 +6,7 @@ from src.app.routers import filters, school_types, schools
 app = FastAPI()
 
 
-origins = [
-    # default port for Nuxt.js
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,3 +24,9 @@ app.include_router(filters.router)
 @app.get("/test")
 async def root():
     return {"message": "Backend FastAPI"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0")
