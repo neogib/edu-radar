@@ -47,7 +47,7 @@ class Settings(BaseSettings):
         raise ValueError("Database URI not configured")
 
     model_config: SettingsConfigDict = SettingsConfigDict(  # pyright: ignore[reportIncompatibleVariableOverride]
-        env_file=Path(__file__).resolve().parents[2] / ".env",
+        env_file=Path(__file__).resolve().parents[3] / ".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
