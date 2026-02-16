@@ -10,7 +10,7 @@ FastAPI backend for the EduMap Rankings project.
 - SQLModel
 - PostgreSQL
 - Pydantic v2
-- uv (recommended) or pip
+- uv
 
 ---
 
@@ -21,9 +21,7 @@ FastAPI backend for the EduMap Rankings project.
 Create a `.env` file in:
 
 ```
-
-backend/src/.env
-
+backend/.env
 ```
 
 ```ini
@@ -50,32 +48,15 @@ docker compose up backend --watch
 
 ## ⚙️ Running Natively (Without Docker)
 
-### Using uv (recommended)
+### Using uv + uvicorn
 
 ```bash
 # from project root
 uv sync --project backend
-uv run --project backend fastapi dev backend/src/main.py
+uv run --project backend uvicorn app.main:app --reload
 
 # or change directory
 cd backend/
 uv sync
-uv run fastapi dev src/main.py
-```
-
-### Using pip
-
-```bash
-# from project root
-python3 -m venv backend/.venv
-source backend/.venv/bin/activate
-pip install backend/
-fastapi dev backend/src/main.py
-
-# or change directory
-cd backend/
-python3 -m venv .venv
-source .venv/bin/activate
-pip install .
-fastapi dev src/main.py
+uv run uvicorn app.main:app --reload
 ```

@@ -5,7 +5,7 @@
 - **Frontend:** Nuxt 4, Vue 3, TypeScript, Tailwind CSS
 - **Backend:** FastAPI, PostgreSQL, SQLModel
 - **Map:** MapLibre GL (via Vue MapLibre) + OpenFreeMap
-- **Package Managers:** pnpm (Frontend), uv or pip (Backend)
+- **Package Managers:** pnpm (Frontend), uv (Backend)
 - **Testing:** Vitest, Playwright, and Pytest
 - **Containers:** Docker with Docker Compose Watch
 
@@ -18,14 +18,16 @@
 
 ### PostgreSQL Environment Variables
 
-Set PostgreSQL credentials in `backend/src/.env`, format:
+Create `backend/.env` (you can copy from `backend/.env.example`) and set credentials:
 
 ```ini
 POSTGRES_USER=
 POSTGRES_PASSWORD=
 POSTGRES_SERVER=
-POSTGRES_PORT=
+POSTGRES_PORT=5432
 POSTGRES_DB=
+RSPO_USERNAME=
+RSPO_PASSWORD=
 ```
 
 ---
@@ -92,17 +94,7 @@ cd edu-map-rankings
 
 ### 2. Install dependencies:
 
-### Install backend dependencies and activate the virtual environment:
-
-For pip users:
-
-```bash
-python3 -m venv backend/.venv
-source backend/.venv/bin/activate   # On Windows: backend\.venv\Scripts\activate
-pip install backend/
-```
-
-For uv users:
+#### Install backend dependencies (uv):
 
 ```bash
 uv sync --project backend
@@ -118,18 +110,15 @@ pnpm --dir frontend install
 
 #### Run backend:
 
-**You can run the backend using FastAPI:**
-
-- for pip users
-
 ```bash
-fastapi dev backend/src/main.py
+uv run --project backend uvicorn app.main:app --reload
 ```
 
-- for uv users
+Or from `backend/`:
 
 ```bash
-uv run --project backend fastapi dev backend/src/main.py
+cd backend
+uv run uvicorn app.main:app --reload
 ```
 
 #### Run frontend:
