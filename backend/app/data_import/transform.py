@@ -1,10 +1,10 @@
 import argparse
 import logging
 
+from app.core.logging import configure_logging
 from app.data_import.geo.exporter import SchoolAddressExporter
 from app.data_import.geo.importer import SchoolCoordinatesImporter
 from app.data_import.geo.location_shifter import SchoolLocationShifter
-from app.data_import.utils.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ COMMANDS = {
 
 def main():
     """Main function to handle command-line arguments and execute appropriate function."""
-    configure_logging()
+    configure_logging("transform.log")
 
     parser = argparse.ArgumentParser(
         description="Transform script for school data processing"

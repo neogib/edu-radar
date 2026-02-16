@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 
+from app.core.logging import configure_logging
 from app.data_import.api.db.decomposer import Decomposer
 from app.data_import.api.exceptions import SchoolsDataError
 from app.data_import.api.fetcher import SchoolsAPIFetcher
@@ -9,7 +10,6 @@ from app.data_import.config.api import SchoolStatus
 from app.data_import.config.excel import ExamType
 from app.data_import.excel.db.table_splitter import TableSplitter
 from app.data_import.excel.reader import ExcelReader
-from app.data_import.utils.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +100,7 @@ COMMANDS = {
 
 
 def main():
-    configure_logging()
+    configure_logging("data_import.log")
 
     parser = argparse.ArgumentParser(
         description="Main import script for school data processing"

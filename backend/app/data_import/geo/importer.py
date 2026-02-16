@@ -13,7 +13,7 @@ from shapely.geometry import Point
 from sqlmodel import Session
 
 from app.data_import.api.exceptions import APIRequestError
-from app.data_import.config.core import CSV_DIR
+from app.data_import.config.core import ADDRESSES_DIR
 from app.data_import.config.geo import GeocodingSettings
 from app.data_import.geo.exceptions import GeocodingError
 from app.data_import.utils.api_request import api_request
@@ -91,7 +91,7 @@ def _validate_uldk_response(data: object) -> bool:
 class SchoolCoordinatesImporter(DatabaseManagerBase):
     def __init__(
         self,
-        converted_file: str | Path = CSV_DIR / "converted_addresses.csv",
+        converted_file: str | Path = ADDRESSES_DIR / "converted_addresses.csv",
         starting_id: int | None = None,
     ):
         super().__init__()

@@ -7,6 +7,7 @@ from typing import ClassVar
 
 import pandas as pd
 
+from app.data_import.config.core import EXCEL_DIR
 from app.data_import.config.excel import EM_FORMULA_PRIORITY, ExamType, ExcelFile
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ class _FileMetadata:
 
 
 class ExcelReader:
-    base_data_path: Path = Path(__file__).parent
+    base_data_path: Path = EXCEL_DIR
     _year_only_pattern: ClassVar[re.Pattern[str]] = re.compile(
         r"^(?P<year>\d{4})\.xlsx$", re.IGNORECASE
     )

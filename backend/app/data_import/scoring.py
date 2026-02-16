@@ -8,7 +8,6 @@ from app.core.database import engine
 from app.data_import.config.score import ScoreType
 from app.data_import.score.ranking_calculator import RankingCalculator
 from app.data_import.score.scorer import Scorer
-from app.data_import.utils.logging_config import configure_logging
 from app.models.schools import Szkola
 
 logger = logging.getLogger(__name__)

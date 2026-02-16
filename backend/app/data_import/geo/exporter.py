@@ -6,7 +6,7 @@ from typing import cast
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, select
 
-from app.data_import.config.core import CSV_DIR
+from app.data_import.config.core import ADDRESSES_DIR
 from app.data_import.utils.db.session import DatabaseManagerBase
 from app.data_import.utils.geo import normalize_city_name
 from app.models.schools import Szkola
@@ -32,7 +32,9 @@ class SchoolAddressExporter(DatabaseManagerBase):
     Iterates over schools in the database and exports their addresses to a CSV file.
     """
 
-    def __init__(self, export_file: str | Path = CSV_DIR / "school_addresses.csv"):
+    def __init__(
+        self, export_file: str | Path = ADDRESSES_DIR / "school_addresses.csv"
+    ):
         super().__init__()
         self.export_file: str | Path = export_file
 

@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.logging import configure_logging
 from app.routers import filters, school_types, schools
+
+configure_logging()
 
 app = FastAPI()
 
