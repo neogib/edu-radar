@@ -21,13 +21,17 @@ dependencies = [
 ]
 
 [project.scripts]
-data-import = "backend.data_import.main:main"
-data-transform = "backend.data_import.transform:main"
-data-scoring = "backend.data_import.scoring:main"
+data-import = "app.data_import.main:main"
+data-transform = "app.data_import.transform:main"
+data-scoring = "app.data_import.scoring:main"
 
 [build-system]
 requires = ["uv_build>=0.10.3,<0.11.0"]
-build-backend = "uv_build"
+build-backend = "uv_build"  
+
+[tool.uv.build-backend]
+module-root = ""
+module-name = ["app"]
 
 [dependency-groups]
 dev = [
@@ -42,7 +46,7 @@ exclude = [
     "**/*.pyc",
     "venv/**",
     ".venv/**",
-    "alembic/versions/**",
+    "alembic/**",
 ]
 
 [tool.ruff.lint]
@@ -61,9 +65,14 @@ select = [
 ]
 
 [tool.basedpyright]
+exclude = [
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "venv/**",
+    ".venv/**",
+    "alembic/**",
+]
 # using ruff for unused code (ARG rule)
-include = ["src"]
-exclude = ["**/__pychache__", "**/*.pyc", "venv", ".venv"]
 reportUnusedVariable = "none"
 reportUnusedImport = "none"
 reportUnusedFunction = "none"
