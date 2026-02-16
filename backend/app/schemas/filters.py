@@ -2,12 +2,6 @@ from typing import ClassVar, Literal, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.models.schools import (
-    KategoriaUczniow,
-    KsztalcenieZawodowe,
-    StatusPublicznoprawny,
-    TypSzkoly,
-)
 from app.schemas.schools import (
     KategoriaUczniowPublic,
     KsztalcenieZawodowePublic,
@@ -21,14 +15,6 @@ class FiltersResponse(BaseModel):
     public_statuses: list[StatusPublicznoprawnyPublic]
     student_categories: list[KategoriaUczniowPublic]
     vocational_training: list[KsztalcenieZawodowePublic]
-
-
-FILTER_MODELS = {
-    "school_types": TypSzkoly,
-    "public_statuses": StatusPublicznoprawny,
-    "student_categories": KategoriaUczniow,
-    "vocational_training": KsztalcenieZawodowe,
-}
 
 
 class FilterParams(BaseModel):
