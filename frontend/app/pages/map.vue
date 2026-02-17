@@ -3,6 +3,7 @@ import { LazySidebarMain } from "#components"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 definePageMeta({
     middleware: "redirect-map",
+    layout: false,
 })
 
 useSeoMeta({
