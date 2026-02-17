@@ -62,7 +62,6 @@ class RankingWithSchool(RankingPublic):
 class RankingsResponse(BaseModel):
     page: int = Field(ge=1, description="Current page number")
     page_size: int = Field(
-        ge=1,
         le=200,
         description="Number of items per page (can differ from requested page_size if fewer items are available)",
     )
