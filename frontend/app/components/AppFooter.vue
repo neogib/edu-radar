@@ -12,7 +12,7 @@ const items: NavigationMenuItem[] = [
     <UFooter class="mt-16 border-t border-default">
         <template #left>
             <p class="text-sm text-muted">
-                © {{ new Date().getFullYear() }} Ranking Szkół
+                © {{ new Date().getFullYear() }} EduRadar
             </p>
         </template>
 

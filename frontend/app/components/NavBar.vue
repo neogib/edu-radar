@@ -30,6 +30,12 @@ const items = computed<NavigationMenuItem[]>(() => [
         active: route.path.startsWith("/map"),
     },
     {
+        label: "Rankingi",
+        to: "/ranking",
+        icon: "i-mdi-chart-bar",
+        active: route.path.startsWith("/ranking"),
+    },
+    {
         label: "O nas",
         to: "/",
         icon: "i-mdi-information",
@@ -38,7 +44,7 @@ const items = computed<NavigationMenuItem[]>(() => [
     {
         label: "Kontakt",
         to: "/",
-        icon: "i-mdi-phone", // Or 'i-mdi-email' depending on preference
+        icon: "i-mdi-email",
         active: route.path.startsWith("/contact"),
     },
 ])
