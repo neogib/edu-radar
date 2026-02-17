@@ -5,13 +5,13 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/schools/stream": {
+    "/api/v1/schools/stream": {
       "get": {
         "tags": [
           "schools"
         ],
         "summary": "Read Schools Stream",
-        "operationId": "read_schools_stream_schools_stream_get",
+        "operationId": "read_schools_stream_api_v1_schools_stream_get",
         "parameters": [
           {
             "name": "minLng",
@@ -291,13 +291,55 @@
         }
       }
     },
-    "/schools/{school_id}": {
+    "/api/v1/schools/{school_id}/short": {
+      "get": {
+        "tags": [
+          "schools"
+        ],
+        "summary": "Read School Short",
+        "operationId": "read_school_short_api_v1_schools__school_id__short_get",
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "School Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SzkolaPublicShort"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}": {
       "get": {
         "tags": [
           "schools"
         ],
         "summary": "Read School",
-        "operationId": "read_school_schools__school_id__get",
+        "operationId": "read_school_api_v1_schools__school_id__get",
         "parameters": [
           {
             "name": "school_id",
@@ -333,14 +375,14 @@
         }
       }
     },
-    "/schools/": {
+    "/api/v1/schools/": {
       "get": {
         "tags": [
           "schools"
         ],
         "summary": "Read Schools",
         "description": "Get schools with optional filters.\n\n_**Note:**\nThis endpoint should only be used for smaller amounts of data. To get all schools consider using `/school/stream` endpoint with StreamingResponse._\n\n## Filter Logic\n- Filters are combined with AND logic between different filter types\n- Multiple values within the same filter use OR logic\n- Example: `type=1&typeid=2&status=1` means\n  (type 1 OR type 2) AND (status 1)",
-        "operationId": "read_schools_schools__get",
+        "operationId": "read_schools_api_v1_schools__get",
         "parameters": [
           {
             "name": "minLng",
@@ -608,7 +650,7 @@
                   "items": {
                     "$ref": "#/components/schemas/SzkolaPublicShort"
                   },
-                  "title": "Response Read Schools Schools  Get"
+                  "title": "Response Read Schools Api V1 Schools  Get"
                 }
               }
             }
@@ -626,14 +668,35 @@
         }
       }
     },
-    "/school_types/": {
+    "/api/v1/filters/": {
+      "get": {
+        "tags": [
+          "filters"
+        ],
+        "summary": "Read Filters",
+        "operationId": "read_filters_api_v1_filters__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiltersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/school_types/": {
       "get": {
         "tags": [
           "school_types"
         ],
         "summary": "Read School Types",
         "description": "Fetch all available school types or school types filtered by a list of names.",
-        "operationId": "read_school_types_school_types__get",
+        "operationId": "read_school_types_api_v1_school_types__get",
         "parameters": [
           {
             "name": "names",
@@ -667,7 +730,7 @@
                   "items": {
                     "$ref": "#/components/schemas/TypSzkolyPublic"
                   },
-                  "title": "Response Read School Types School Types  Get"
+                  "title": "Response Read School Types Api V1 School Types  Get"
                 }
               }
             }
@@ -685,13 +748,14 @@
         }
       }
     },
-    "/school_types/{school_type_id}": {
+    "/api/v1/school_types/{school_type_id}": {
       "get": {
         "tags": [
           "school_types"
         ],
-        "summary": "Read School Type By Id",
-        "operationId": "read_school_type_by_id_school_types__school_type_id__get",
+        "summary": "Read School Type",
+        "description": "Fetch a single school type by its ID.",
+        "operationId": "read_school_type_api_v1_school_types__school_type_id__get",
         "parameters": [
           {
             "name": "school_type_id",
@@ -727,20 +791,159 @@
         }
       }
     },
-    "/filters/": {
+    "/api/v1/rankings/filters": {
       "get": {
         "tags": [
-          "filters"
+          "rankings"
         ],
-        "summary": "Read Filters",
-        "operationId": "read_filters_filters__get",
+        "summary": "Read Rankings Filters",
+        "operationId": "read_rankings_filters_api_v1_rankings_filters_get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FiltersResponse"
+                  "$ref": "#/components/schemas/RankingsFiltersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rankings/": {
+      "get": {
+        "tags": [
+          "rankings"
+        ],
+        "summary": "Read Rankings",
+        "operationId": "read_rankings_api_v1_rankings__get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Requested page number",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "Requested page number"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Number of items per page (max 200)",
+              "default": 100,
+              "title": "Page Size"
+            },
+            "description": "Number of items per page (max 200)"
+          },
+          {
+            "name": "rok",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "title": "Rok"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/RodzajRankingu",
+              "description": "Ranking type: E8 (primary schools), EM_LO (matura results - high schools), EM_TECH (matura results - technical schools)",
+              "default": "E8"
+            },
+            "description": "Ranking type: E8 (primary schools), EM_LO (matura results - high schools), EM_TECH (matura results - technical schools)"
+          },
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/RankingScope",
+              "description": "Ranking scope: KRAJ (national), WOJEWODZTWO (voivodeship), POWIAT (county)",
+              "default": "KRAJ"
+            },
+            "description": "Ranking scope: KRAJ (national), WOJEWODZTWO (voivodeship), POWIAT (county)"
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/RankingDirection",
+              "description": "Ranking order: BEST (top schools first) or WORST (lowest schools first)",
+              "default": "BEST"
+            },
+            "description": "Ranking order: BEST (top schools first) or WORST (lowest schools first)"
+          },
+          {
+            "name": "voivodeship_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Required if scope is WOJEWODZTWO",
+              "title": "Voivodeship Id"
+            },
+            "description": "Required if scope is WOJEWODZTWO"
+          },
+          {
+            "name": "county_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Required if scope is POWIAT",
+              "title": "County Id"
+            },
+            "description": "Required if scope is POWIAT"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RankingsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -906,6 +1109,34 @@
         ],
         "title": "KsztalcenieZawodowePublic"
       },
+      "MiejscowoscPublic": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "teryt": {
+            "type": "string",
+            "title": "Teryt"
+          },
+          "gmina_id": {
+            "type": "integer",
+            "title": "Gmina Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "teryt",
+          "gmina_id",
+          "id"
+        ],
+        "title": "MiejscowoscPublic"
+      },
       "MiejscowoscPublicWithGmina": {
         "properties": {
           "nazwa": {
@@ -937,6 +1168,34 @@
           "gmina"
         ],
         "title": "MiejscowoscPublicWithGmina"
+      },
+      "PowiatPublic": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "teryt": {
+            "type": "string",
+            "title": "Teryt"
+          },
+          "wojewodztwo_id": {
+            "type": "integer",
+            "title": "Wojewodztwo Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "teryt",
+          "wojewodztwo_id",
+          "id"
+        ],
+        "title": "PowiatPublic"
       },
       "PowiatPublicWithWojewodztwo": {
         "properties": {
@@ -987,6 +1246,14 @@
           "id"
         ],
         "title": "PrzedmiotPublic"
+      },
+      "RankingDirection": {
+        "type": "string",
+        "enum": [
+          "BEST",
+          "WORST"
+        ],
+        "title": "RankingDirection"
       },
       "RankingPublic": {
         "properties": {
@@ -1080,6 +1347,211 @@
         ],
         "title": "RankingPublic"
       },
+      "RankingScope": {
+        "type": "string",
+        "enum": [
+          "KRAJ",
+          "WOJEWODZTWO",
+          "POWIAT"
+        ],
+        "title": "RankingScope"
+      },
+      "RankingWithSchool": {
+        "properties": {
+          "rok": {
+            "type": "integer",
+            "minimum": 2000,
+            "title": "Rok"
+          },
+          "rodzaj_rankingu": {
+            "$ref": "#/components/schemas/RodzajRankingu"
+          },
+          "wynik": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Wynik"
+          },
+          "percentyl_kraj": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Percentyl Kraj"
+          },
+          "miejsce_kraj": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Miejsce Kraj"
+          },
+          "liczba_szkol_kraj": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Liczba Szkol Kraj"
+          },
+          "percentyl_wojewodztwo": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Percentyl Wojewodztwo"
+          },
+          "miejsce_wojewodztwo": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Miejsce Wojewodztwo"
+          },
+          "liczba_szkol_wojewodztwo": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Liczba Szkol Wojewodztwo"
+          },
+          "percentyl_powiat": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Percentyl Powiat"
+          },
+          "miejsce_powiat": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Miejsce Powiat"
+          },
+          "liczba_szkol_powiat": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Liczba Szkol Powiat"
+          },
+          "szkola_id": {
+            "type": "integer",
+            "title": "Szkola Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "szkola": {
+            "$ref": "#/components/schemas/SzkolaRankingRow"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rok",
+          "rodzaj_rankingu",
+          "wynik",
+          "percentyl_kraj",
+          "miejsce_kraj",
+          "liczba_szkol_kraj",
+          "percentyl_wojewodztwo",
+          "miejsce_wojewodztwo",
+          "liczba_szkol_wojewodztwo",
+          "percentyl_powiat",
+          "miejsce_powiat",
+          "liczba_szkol_powiat",
+          "szkola_id",
+          "id",
+          "szkola"
+        ],
+        "title": "RankingWithSchool"
+      },
+      "RankingsFiltersResponse": {
+        "properties": {
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Years"
+          },
+          "scopes": {
+            "items": {
+              "$ref": "#/components/schemas/RankingScope"
+            },
+            "type": "array",
+            "title": "Scopes"
+          },
+          "types": {
+            "items": {
+              "$ref": "#/components/schemas/RodzajRankingu"
+            },
+            "type": "array",
+            "title": "Types"
+          },
+          "directions": {
+            "items": {
+              "$ref": "#/components/schemas/RankingDirection"
+            },
+            "type": "array",
+            "title": "Directions"
+          },
+          "voivodeships": {
+            "items": {
+              "$ref": "#/components/schemas/WojewodztwoPublic"
+            },
+            "type": "array",
+            "title": "Voivodeships"
+          },
+          "counties": {
+            "items": {
+              "$ref": "#/components/schemas/PowiatPublic"
+            },
+            "type": "array",
+            "title": "Counties"
+          }
+        },
+        "type": "object",
+        "required": [
+          "years",
+          "scopes",
+          "types",
+          "directions",
+          "voivodeships",
+          "counties"
+        ],
+        "title": "RankingsFiltersResponse"
+      },
+      "RankingsResponse": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Page",
+            "description": "Current page number"
+          },
+          "page_size": {
+            "type": "integer",
+            "maximum": 200,
+            "title": "Page Size",
+            "description": "Number of items per page (can differ from requested page_size if fewer items are available)"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Total",
+            "description": "Total number of schools matching the ranking params criteria"
+          },
+          "total_pages": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Total Pages",
+            "description": "Total number of pages available based on the page_size"
+          },
+          "rankings": {
+            "items": {
+              "$ref": "#/components/schemas/RankingWithSchool"
+            },
+            "type": "array",
+            "title": "Rankings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page",
+          "page_size",
+          "total",
+          "total_pages",
+          "rankings"
+        ],
+        "title": "RankingsResponse"
+      },
       "RodzajRankingu": {
         "type": "string",
         "enum": [
@@ -1166,17 +1638,6 @@
           "numer_rspo": {
             "type": "integer",
             "title": "Numer Rspo"
-          },
-          "nazwa_skrocona": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Nazwa Skrocona"
           },
           "nip": {
             "anyOf": [
@@ -1447,7 +1908,6 @@
         "required": [
           "nazwa",
           "numer_rspo",
-          "nazwa_skrocona",
           "nip",
           "regon",
           "liczba_uczniow",
@@ -1482,6 +1942,37 @@
           "rankingi"
         ],
         "title": "SzkolaPublicWithRelations"
+      },
+      "SzkolaRankingRow": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "numer_rspo": {
+            "type": "integer",
+            "title": "Numer Rspo"
+          },
+          "status_publicznoprawny": {
+            "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
+          },
+          "miejscowosc": {
+            "$ref": "#/components/schemas/MiejscowoscPublic"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "id",
+          "numer_rspo",
+          "status_publicznoprawny",
+          "miejscowosc"
+        ],
+        "title": "SzkolaRankingRow"
       },
       "TypSzkolyPublic": {
         "properties": {

@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/schools/stream": {
+    "/api/v1/schools/stream": {
         parameters: {
             query?: never;
             header?: never;
@@ -12,7 +12,7 @@ export interface paths {
             cookie?: never;
         };
         /** Read Schools Stream */
-        get: operations["read_schools_stream_schools_stream_get"];
+        get: operations["read_schools_stream_api_v1_schools_stream_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -21,7 +21,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/schools/{school_id}": {
+    "/api/v1/schools/{school_id}/short": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read School Short */
+        get: operations["read_school_short_api_v1_schools__school_id__short_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schools/{school_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -29,7 +46,7 @@ export interface paths {
             cookie?: never;
         };
         /** Read School */
-        get: operations["read_school_schools__school_id__get"];
+        get: operations["read_school_api_v1_schools__school_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -38,7 +55,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/schools/": {
+    "/api/v1/schools/": {
         parameters: {
             query?: never;
             header?: never;
@@ -58,7 +75,7 @@ export interface paths {
          *     - Example: `type=1&typeid=2&status=1` means
          *       (type 1 OR type 2) AND (status 1)
          */
-        get: operations["read_schools_schools__get"];
+        get: operations["read_schools_api_v1_schools__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -67,7 +84,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/school_types/": {
+    "/api/v1/filters/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Filters */
+        get: operations["read_filters_api_v1_filters__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/school_types/": {
         parameters: {
             query?: never;
             header?: never;
@@ -78,7 +112,7 @@ export interface paths {
          * Read School Types
          * @description Fetch all available school types or school types filtered by a list of names.
          */
-        get: operations["read_school_types_school_types__get"];
+        get: operations["read_school_types_api_v1_school_types__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -87,15 +121,18 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/school_types/{school_type_id}": {
+    "/api/v1/school_types/{school_type_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Read School Type By Id */
-        get: operations["read_school_type_by_id_school_types__school_type_id__get"];
+        /**
+         * Read School Type
+         * @description Fetch a single school type by its ID.
+         */
+        get: operations["read_school_type_api_v1_school_types__school_type_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -104,15 +141,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/filters/": {
+    "/api/v1/rankings/filters": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Read Filters */
-        get: operations["read_filters_filters__get"];
+        /** Read Rankings Filters */
+        get: operations["read_rankings_filters_api_v1_rankings_filters_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/rankings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Rankings */
+        get: operations["read_rankings_api_v1_rankings__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -191,6 +245,17 @@ export interface components {
             /** Id */
             id: number;
         };
+        /** MiejscowoscPublic */
+        MiejscowoscPublic: {
+            /** Nazwa */
+            nazwa: string;
+            /** Teryt */
+            teryt: string;
+            /** Gmina Id */
+            gmina_id: number;
+            /** Id */
+            id: number;
+        };
         /** MiejscowoscPublicWithGmina */
         MiejscowoscPublicWithGmina: {
             /** Nazwa */
@@ -202,6 +267,17 @@ export interface components {
             /** Id */
             id: number;
             gmina: components["schemas"]["GminaPublicWithPowiat"];
+        };
+        /** PowiatPublic */
+        PowiatPublic: {
+            /** Nazwa */
+            nazwa: string;
+            /** Teryt */
+            teryt: string;
+            /** Wojewodztwo Id */
+            wojewodztwo_id: number;
+            /** Id */
+            id: number;
         };
         /** PowiatPublicWithWojewodztwo */
         PowiatPublicWithWojewodztwo: {
@@ -222,6 +298,11 @@ export interface components {
             /** Id */
             id: number;
         };
+        /**
+         * RankingDirection
+         * @enum {string}
+         */
+        RankingDirection: "BEST" | "WORST";
         /** RankingPublic */
         RankingPublic: {
             /** Rok */
@@ -251,6 +332,82 @@ export interface components {
             szkola_id: number;
             /** Id */
             id: number;
+        };
+        /**
+         * RankingScope
+         * @enum {string}
+         */
+        RankingScope: "KRAJ" | "WOJEWODZTWO" | "POWIAT";
+        /** RankingWithSchool */
+        RankingWithSchool: {
+            /** Rok */
+            rok: number;
+            rodzaj_rankingu: components["schemas"]["RodzajRankingu"];
+            /** Wynik */
+            wynik: number;
+            /** Percentyl Kraj */
+            percentyl_kraj: number;
+            /** Miejsce Kraj */
+            miejsce_kraj: number;
+            /** Liczba Szkol Kraj */
+            liczba_szkol_kraj: number;
+            /** Percentyl Wojewodztwo */
+            percentyl_wojewodztwo: number;
+            /** Miejsce Wojewodztwo */
+            miejsce_wojewodztwo: number;
+            /** Liczba Szkol Wojewodztwo */
+            liczba_szkol_wojewodztwo: number;
+            /** Percentyl Powiat */
+            percentyl_powiat: number;
+            /** Miejsce Powiat */
+            miejsce_powiat: number;
+            /** Liczba Szkol Powiat */
+            liczba_szkol_powiat: number;
+            /** Szkola Id */
+            szkola_id: number;
+            /** Id */
+            id: number;
+            szkola: components["schemas"]["SzkolaRankingRow"];
+        };
+        /** RankingsFiltersResponse */
+        RankingsFiltersResponse: {
+            /** Years */
+            years: number[];
+            /** Scopes */
+            scopes: components["schemas"]["RankingScope"][];
+            /** Types */
+            types: components["schemas"]["RodzajRankingu"][];
+            /** Directions */
+            directions: components["schemas"]["RankingDirection"][];
+            /** Voivodeships */
+            voivodeships: components["schemas"]["WojewodztwoPublic"][];
+            /** Counties */
+            counties: components["schemas"]["PowiatPublic"][];
+        };
+        /** RankingsResponse */
+        RankingsResponse: {
+            /**
+             * Page
+             * @description Current page number
+             */
+            page: number;
+            /**
+             * Page Size
+             * @description Number of items per page (can differ from requested page_size if fewer items are available)
+             */
+            page_size: number;
+            /**
+             * Total
+             * @description Total number of schools matching the ranking params criteria
+             */
+            total: number;
+            /**
+             * Total Pages
+             * @description Total number of pages available based on the page_size
+             */
+            total_pages: number;
+            /** Rankings */
+            rankings: components["schemas"]["RankingWithSchool"][];
         };
         /**
          * RodzajRankingu
@@ -287,8 +444,6 @@ export interface components {
             nazwa: string;
             /** Numer Rspo */
             numer_rspo: number;
-            /** Nazwa Skrocona */
-            nazwa_skrocona: string | null;
             /** Nip */
             nip: string | null;
             /** Regon */
@@ -351,6 +506,17 @@ export interface components {
             wyniki_em: components["schemas"]["WynikEMPublicWithPrzedmiot"][];
             /** Rankingi */
             rankingi: components["schemas"]["RankingPublic"][];
+        };
+        /** SzkolaRankingRow */
+        SzkolaRankingRow: {
+            /** Nazwa */
+            nazwa: string;
+            /** Id */
+            id: number;
+            /** Numer Rspo */
+            numer_rspo: number;
+            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
+            miejscowosc: components["schemas"]["MiejscowoscPublic"];
         };
         /** TypSzkolyPublic */
         TypSzkolyPublic: {
@@ -435,7 +601,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    read_schools_stream_schools_stream_get: {
+    read_schools_stream_api_v1_schools_stream_get: {
         parameters: {
             query?: {
                 minLng?: number | null;
@@ -485,7 +651,38 @@ export interface operations {
             };
         };
     };
-    read_school_schools__school_id__get: {
+    read_school_short_api_v1_schools__school_id__short_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SzkolaPublicShort"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_school_api_v1_schools__school_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -516,7 +713,7 @@ export interface operations {
             };
         };
     };
-    read_schools_schools__get: {
+    read_schools_api_v1_schools__get: {
         parameters: {
             query?: {
                 minLng?: number | null;
@@ -566,7 +763,27 @@ export interface operations {
             };
         };
     };
-    read_school_types_school_types__get: {
+    read_filters_api_v1_filters__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FiltersResponse"];
+                };
+            };
+        };
+    };
+    read_school_types_api_v1_school_types__get: {
         parameters: {
             query?: {
                 /** @description Filter by school type names */
@@ -598,7 +815,7 @@ export interface operations {
             };
         };
     };
-    read_school_type_by_id_school_types__school_type_id__get: {
+    read_school_type_api_v1_school_types__school_type_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -629,7 +846,7 @@ export interface operations {
             };
         };
     };
-    read_filters_filters__get: {
+    read_rankings_filters_api_v1_rankings_filters_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -644,7 +861,52 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FiltersResponse"];
+                    "application/json": components["schemas"]["RankingsFiltersResponse"];
+                };
+            };
+        };
+    };
+    read_rankings_api_v1_rankings__get: {
+        parameters: {
+            query: {
+                /** @description Requested page number */
+                page?: number;
+                /** @description Number of items per page (max 200) */
+                page_size?: number;
+                rok: number;
+                /** @description Ranking type: E8 (primary schools), EM_LO (matura results - high schools), EM_TECH (matura results - technical schools) */
+                type?: components["schemas"]["RodzajRankingu"];
+                /** @description Ranking scope: KRAJ (national), WOJEWODZTWO (voivodeship), POWIAT (county) */
+                scope?: components["schemas"]["RankingScope"];
+                /** @description Ranking order: BEST (top schools first) or WORST (lowest schools first) */
+                direction?: components["schemas"]["RankingDirection"];
+                /** @description Required if scope is WOJEWODZTWO */
+                voivodeship_id?: number | null;
+                /** @description Required if scope is POWIAT */
+                county_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RankingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

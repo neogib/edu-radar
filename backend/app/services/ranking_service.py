@@ -3,6 +3,7 @@ from math import ceil
 from pydantic import TypeAdapter
 from sqlalchemy.orm import joinedload
 from sqlmodel import Session, col, func, select
+
 from app.core.sqlalchemy_typing import orm_rel_attr
 from app.models.locations import Gmina, Miejscowosc, Powiat, Wojewodztwo
 from app.models.ranking import Ranking, RodzajRankingu
