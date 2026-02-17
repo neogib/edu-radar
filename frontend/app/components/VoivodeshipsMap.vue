@@ -42,20 +42,23 @@ function handlePathClick(event: Event) {
 @reference "tailwindcss";
 
 .voivodeship {
-    @apply cursor-pointer transition duration-300 ease-in-out stroke-2 origin-center hover:drop-shadow-xl hover:scale-[1.03] active:scale-[1.03];
+    @apply cursor-pointer transition duration-300 ease-in-out stroke-2 origin-center hover:scale-[1.03] active:scale-[1.03];
     transform-box: fill-box;
     fill: var(--voivodeship-fill);
-    stroke: transparent;
+    stroke: var(--voivodeship-stroke-muted);
+    filter: drop-shadow(0 0 0 var(--voivodeship-shadow-hover));
 }
 
 .voivodeship:hover {
     fill: var(--voivodeship-fill-hover);
     stroke: var(--voivodeship-stroke);
+    filter: drop-shadow(0 0 14px var(--voivodeship-shadow-hover));
 }
 
 .voivodeship:active,
 .voivodeship:focus-visible {
     fill: var(--voivodeship-fill-active);
     stroke: var(--voivodeship-stroke);
+    filter: drop-shadow(0 0 20px var(--voivodeship-shadow-hover));
 }
 </style>
