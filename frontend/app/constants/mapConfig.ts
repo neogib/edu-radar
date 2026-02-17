@@ -7,7 +7,8 @@ import bookIconUrl from "~/assets/images/figures/sdf/book.png"
 
 // constants/mapConfig.ts
 export const MAP_CONFIG = {
-    style: "/map-styles/style-pl.json",
+    lightStyle: "/map-styles/style-light-pl.json",
+    darkStyle: "/map-styles/dark-style-pl.json",
     polandBounds: [14, 48.95, 24.2, 55] as [number, number, number, number],
     polandCenter: [19.355417, 52.191111] as [number, number],
     defaultBbox: {

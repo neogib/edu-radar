@@ -6,7 +6,7 @@ const langCode = "pl"
 
 const BASE = resolve(process.cwd(), "public/map-styles/style-base.json")
 
-const OUT = resolve(process.cwd(), "public/map-styles/style-pl.json")
+const OUT = resolve(process.cwd(), "public/map-styles/style-light-pl.json")
 
 // load original style
 const style = JSON.parse(fs.readFileSync(BASE, "utf-8"))

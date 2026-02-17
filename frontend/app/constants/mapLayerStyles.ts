@@ -17,7 +17,10 @@ const ICON_IMAGES = [
     SCHOOL_ICONS.default,
 ] as DataDrivenPropertyValueSpecification<string>
 
-export const POINT_LAYER_STYLE = {
+const LIGHT_STROKE_HALO_COLOR = "#0f172a"
+const DARK_STROKE_HALO_COLOR = "#f8fafc"
+
+const getPointLayerPaint = (isDarkMode: boolean) => ({
     paint: {
         "icon-opacity": [
             "case",
@@ -25,7 +28,9 @@ export const POINT_LAYER_STYLE = {
             1,
             0.7,
         ] as DataDrivenPropertyValueSpecification<number>,
-        "icon-halo-color": "#000000",
+        "icon-halo-color": (isDarkMode
+            ? DARK_STROKE_HALO_COLOR
+            : LIGHT_STROKE_HALO_COLOR) as PropertyValueSpecification<string>,
         "icon-halo-width": [
             "case",
             ["boolean", ["feature-state", "clicked"], false],
@@ -39,15 +44,16 @@ export const POINT_LAYER_STYLE = {
             createScoreColorInterpolation(["get", "wynik"]),
         ] as DataDrivenPropertyValueSpecification<string>,
     },
-    layout: {
-        "icon-size": 0.5,
-        "icon-image": ICON_IMAGES,
-        "icon-allow-overlap": true,
-        "icon-ignore-placement": true,
-    },
+})
+
+const POINT_LAYER_LAYOUT = {
+    "icon-size": 0.5,
+    "icon-image": ICON_IMAGES,
+    "icon-allow-overlap": true,
+    "icon-ignore-placement": true,
 }
 
-export const CLUSTER_LAYER_STYLE = {
+const getClusterLayerPaint = (isDarkMode: boolean) => ({
     paint: {
         "circle-opacity": [
             "case",
@@ -57,6 +63,9 @@ export const CLUSTER_LAYER_STYLE = {
         ] as DataDrivenPropertyValueSpecification<number>,
         "circle-stroke-width": 1,
         "circle-stroke-opacity": 0.75,
+        "circle-stroke-color": (isDarkMode
+            ? DARK_STROKE_HALO_COLOR
+            : LIGHT_STROKE_HALO_COLOR) as PropertyValueSpecification<string>,
         "circle-color": [
             "case",
             ["==", ["get", "nonNullCount"], 0],
@@ -74,13 +83,22 @@ export const CLUSTER_LAYER_STYLE = {
             ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
         ] as DataDrivenPropertyValueSpecification<number>,
     },
-    layout: {
-        "text-field":
-            "{point_count_abbreviated}" as PropertyValueSpecification<string>,
-        "text-font": ["Noto Sans Regular"] as PropertyValueSpecification<
-            string[]
-        >,
-        "text-size": 12 as PropertyValueSpecification<number>,
-        "text-ignore-placement": true,
-    },
+})
+
+const CLUSTER_LAYER_LAYOUT = {
+    "text-field":
+        "{point_count_abbreviated}" as PropertyValueSpecification<string>,
+    "text-font": ["Noto Sans Regular"] as PropertyValueSpecification<string[]>,
+    "text-size": 12 as PropertyValueSpecification<number>,
+    "text-ignore-placement": true,
 }
+
+export const getPointLayerStyle = (isDarkMode: boolean) => ({
+    paint: getPointLayerPaint(isDarkMode).paint,
+    layout: POINT_LAYER_LAYOUT,
+})
+
+export const getClusterLayerStyle = (isDarkMode: boolean) => ({
+    paint: getClusterLayerPaint(isDarkMode).paint,
+    layout: CLUSTER_LAYER_LAYOUT,
+})

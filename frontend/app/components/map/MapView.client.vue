@@ -6,6 +6,7 @@ import type { SzkolaPublicWithRelations } from "~/types/schools"
 
 useHistoryState()
 const route = useRoute()
+const colorMode = useColorMode()
 const [x, y, z] = [
     Number(route.query.x),
     Number(route.query.y),
@@ -19,6 +20,9 @@ const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
 const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     emit,
     popupCoordinates,
+)
+const mapStyle = computed(() =>
+    colorMode.value === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle,
 )
 
 const statusIcon = computed(() => {
@@ -85,7 +89,7 @@ const initializeWithSource = async (map: maplibregl.Map) => {
 <template>
     <MglMap
         :map-key="MAP_CONFIG.mapKey"
-        :map-style="MAP_CONFIG.style"
+        :map-style="mapStyle"
         :center="[x, y]"
         :zoom="z"
         :fade-duration="0"

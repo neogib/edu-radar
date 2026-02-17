@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import {
-    CLUSTER_LAYER_STYLE,
-    POINT_LAYER_STYLE,
+    getClusterLayerStyle,
+    getPointLayerStyle,
 } from "~/constants/mapLayerStyles"
 import { GeoJSON_SOURCE_CONFIG, MAP_CONFIG } from "~/constants/mapConfig"
 
 const route = useRoute()
+const colorMode = useColorMode()
 const initialBbox = useInitialBbox()
 const { schoolsGeoJSONFeatures } = useSchools()
 const { filters } = useSchoolFilters()
 const { bboxController } = useControllers()
+const isDarkMode = computed(() => colorMode.value === "dark")
+const pointLayerStyle = computed(() => getPointLayerStyle(isDarkMode.value))
+const clusterLayerStyle = computed(() => getClusterLayerStyle(isDarkMode.value))
 
 const schoolsSource = shallowRef<GeoJSON.FeatureCollection>({
     type: "FeatureCollection",
@@ -71,19 +75,19 @@ await loadSchools()
             layer-id="unclustered-points"
             :source="MAP_CONFIG.sourceId"
             :filter="['!', ['has', 'point_count']]"
-            :paint="POINT_LAYER_STYLE.paint"
-            :layout="POINT_LAYER_STYLE.layout" />
+            :paint="pointLayerStyle.paint"
+            :layout="pointLayerStyle.layout" />
 
         <MglCircleLayer
             layer-id="clusters"
             :source="MAP_CONFIG.sourceId"
             :filter="['has', 'cluster']"
-            :paint="CLUSTER_LAYER_STYLE.paint" />
+            :paint="clusterLayerStyle.paint" />
 
         <MglSymbolLayer
             layer-id="cluster-count"
             :source="MAP_CONFIG.sourceId"
             :filter="['has', 'cluster']"
-            :layout="CLUSTER_LAYER_STYLE.layout" />
+            :layout="clusterLayerStyle.layout" />
     </MglGeoJsonSource>
 </template>
