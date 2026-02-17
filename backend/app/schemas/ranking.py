@@ -3,9 +3,10 @@ from typing import Self
 
 from pydantic import BaseModel, Field, model_validator
 
-from app.models.ranking import RankingBase, RodzajRankingu
+from app.models.ranking import RodzajRankingu
+from app.schemas.locations import PowiatPublic, WojewodztwoPublic
 from app.schemas.ranking_shared import RankingPublic
-from app.schemas.schools import SzkolaPublicRankingRow
+from app.schemas.schools import SzkolaRankingRow
 
 
 class RankingScope(Enum):
@@ -54,8 +55,8 @@ class RankingsParams(PaginationParams):
         return self
 
 
-class RankingSchoolRow(RankingPublic, SzkolaPublicRankingRow):
-    pass
+class RankingWithSchool(RankingPublic):
+    szkola: SzkolaRankingRow
 
 
 class RankingsResponse(BaseModel):
@@ -71,4 +72,13 @@ class RankingsResponse(BaseModel):
     total_pages: int = Field(
         ge=0, description="Total number of pages available based on the page_size"
     )
-    schools: list[RankingSchoolRow]
+    rankings: list[RankingWithSchool]
+
+
+class RankingsFiltersResponse(BaseModel):
+    years: list[int]
+    scopes: list[RankingScope]
+    types: list[RodzajRankingu]
+    directions: list[RankingDirection]
+    voivodeships: list[WojewodztwoPublic]
+    counties: list[PowiatPublic]

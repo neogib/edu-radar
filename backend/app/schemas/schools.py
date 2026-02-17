@@ -48,7 +48,7 @@ class SzkolaPublicWithRelations(SzkolaPublic):
     rankingi: list[RankingPublic]
 
 
-class SzkolaPublicRankingRow(SzkolaBase):
+class SzkolaRankingRow(SzkolaBase):
     id: int
     numer_rspo: int
     status_publicznoprawny: "StatusPublicznoprawnyPublic"
