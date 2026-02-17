@@ -11,9 +11,13 @@ from app.schemas.exam_results import (
     WynikE8PublicWithPrzedmiot,
     WynikEMPublicWithPrzedmiot,
 )
-from app.schemas.locations import MiejscowoscPublicWithGmina, UlicaPublic
+from app.schemas.locations import (
+    MiejscowoscPublic,
+    MiejscowoscPublicWithGmina,
+    UlicaPublic,
+)
 from app.schemas.mixins import APIResponseConfig
-from app.schemas.ranking import RankingPublic
+from app.schemas.ranking_shared import RankingPublic
 
 
 class SzkolaPublic(APIResponseConfig, SzkolaAllData):
@@ -42,6 +46,13 @@ class SzkolaPublicWithRelations(SzkolaPublic):
     wyniki_e8: list[WynikE8PublicWithPrzedmiot]
     wyniki_em: list[WynikEMPublicWithPrzedmiot]
     rankingi: list[RankingPublic]
+
+
+class SzkolaPublicRankingRow(SzkolaBase):
+    id: int
+    numer_rspo: int
+    status_publicznoprawny: "StatusPublicznoprawnyPublic"
+    miejscowosc: MiejscowoscPublic
 
 
 class KsztalcenieZawodowePublic(KsztalcenieZawodoweBase):

@@ -4,6 +4,7 @@ from typing import Self
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.ranking import RankingBase, RodzajRankingu
+from app.schemas.ranking_shared import RankingPublic
 from app.schemas.schools import SzkolaPublicRankingRow
 
 
@@ -16,10 +17,6 @@ class RankingScope(Enum):
 class RankingDirection(Enum):
     BEST = "BEST"
     WORST = "WORST"
-
-
-class RankingPublic(RankingBase):
-    id: int
 
 
 class PaginationParams(BaseModel):
@@ -44,20 +41,16 @@ class RankingsParams(PaginationParams):
         description="Ranking order: BEST (top schools first) or WORST (lowest schools first)",
     )
     voivodeship_id: int | None = Field(
-        None, description="Required if zakres_rankingu is WOJEWODZTWO"
+        None, description="Required if scope is WOJEWODZTWO"
     )
-    county_id: int | None = Field(
-        None, description="Required if zakres_rankingu is POWIAT"
-    )
+    county_id: int | None = Field(None, description="Required if scope is POWIAT")
 
     @model_validator(mode="after")
     def validate_ranking_scope_ids(self) -> Self:
         if self.scope == RankingScope.WOJEWODZTWO and self.voivodeship_id is None:
-            raise ValueError(
-                "wojewodztwo_id is required when zakres_rankingu is WOJEWODZTWO"
-            )
+            raise ValueError("voivodeship_id is required when scope is WOJEWODZTWO")
         if self.scope == RankingScope.POWIAT and self.county_id is None:
-            raise ValueError("powiat_id is required when zakres_rankingu is POWIAT")
+            raise ValueError("county_id is required when scope is POWIAT")
         return self
 
 
