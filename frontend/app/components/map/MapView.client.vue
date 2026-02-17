@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { MapSourceDataEvent } from "maplibre-gl"
+import { useMap } from "@indoorequal/vue-maplibre-gl"
+import type {
+    LayerSpecification,
+    MapSourceDataEvent,
+    StyleSpecification,
+} from "maplibre-gl"
 import { useSchoolGeoJSONSource } from "~/composables/useSchoolGeoJSONSource"
 import { MAP_CONFIG, ICONS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
@@ -21,9 +26,9 @@ const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     emit,
     popupCoordinates,
 )
-const mapStyle = computed(() =>
-    colorMode.value === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle,
-)
+const initialMapStyle =
+    colorMode.value === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle
+const mapInstance = useMap(MAP_CONFIG.mapKey)
 
 const statusIcon = computed(() => {
     if (!hoveredSchool.value) return "i-mdi-shield-check"
@@ -39,29 +44,77 @@ const { isUnderZoomThreshold } = useMapState()
 const { startFiltersWatcher, loadSchoolsFromBbox, loadSchoolsStreaming } =
     useSchoolGeoJSONSource()
 
+const isSchoolLayer = (layer: LayerSpecification): boolean =>
+    "source" in layer &&
+    typeof layer.source === "string" &&
+    layer.source === MAP_CONFIG.sourceId
+
+const getMergedStyle = (
+    previousStyle: StyleSpecification | undefined,
+    nextStyle: StyleSpecification,
+): StyleSpecification => {
+    if (!previousStyle) {
+        return nextStyle
+    }
+
+    const schoolsSource = previousStyle.sources?.[MAP_CONFIG.sourceId]
+    if (!schoolsSource) {
+        return nextStyle
+    }
+
+    const existingLayerIds = new Set(nextStyle.layers.map((layer) => layer.id))
+    const schoolLayers = previousStyle.layers.filter(
+        (layer): layer is LayerSpecification =>
+            isSchoolLayer(layer) && !existingLayerIds.has(layer.id),
+    )
+
+    // Render school layers on top of basemap labels so names do not overlap clusters.
+    const insertIndex = nextStyle.layers.length
+
+    return {
+        ...nextStyle,
+        sources: {
+            ...nextStyle.sources,
+            [MAP_CONFIG.sourceId]: schoolsSource,
+        },
+        layers: [
+            ...nextStyle.layers.slice(0, insertIndex),
+            ...schoolLayers,
+            ...nextStyle.layers.slice(insertIndex),
+        ],
+    }
+}
+
+const isSchoolsSourceReady = (map: maplibregl.Map): boolean =>
+    Boolean(
+        map.getSource(MAP_CONFIG.sourceId) &&
+        map.isSourceLoaded(MAP_CONFIG.sourceId),
+    )
+
+const waitForSchoolsSource = (map: maplibregl.Map): Promise<void> =>
+    new Promise((resolve) => {
+        if (isSchoolsSourceReady(map)) {
+            resolve()
+            return
+        }
+
+        const onSourceData = (e: MapSourceDataEvent) => {
+            if (e.sourceId !== MAP_CONFIG.sourceId) return
+            if (!e.isSourceLoaded) return
+
+            map.off("sourcedata", onSourceData)
+            resolve()
+        }
+
+        map.on("sourcedata", onSourceData)
+    })
+
 const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     const map = event.map
     setupMapEventHandlers(map)
     startFiltersWatcher()
-
-    // wait for source to be ready and fully loaded
-    const onSourceData = async (e: MapSourceDataEvent) => {
-        if (e.sourceId !== MAP_CONFIG.sourceId) return
-        if (!e.isSourceLoaded) return
-
-        map.off("sourcedata", onSourceData)
-        console.log("Schools source is ready")
-        await initializeWithSource(map)
-    }
-
-    if (
-        map.getSource(MAP_CONFIG.sourceId) &&
-        map.isSourceLoaded(MAP_CONFIG.sourceId)
-    ) {
-        await initializeWithSource(map)
-    } else {
-        map.on("sourcedata", onSourceData)
-    }
+    await waitForSchoolsSource(map)
+    await initializeWithSource(map)
 }
 
 const initializeWithSource = async (map: maplibregl.Map) => {
@@ -84,12 +137,30 @@ const initializeWithSource = async (map: maplibregl.Map) => {
     const bbox = getBoundingBoxFromBounds(map.getBounds())
     await loadSchoolsStreaming(bbox)
 }
+
+watch(
+    () => colorMode.value,
+    (mode, previousMode) => {
+        if (mode === previousMode) return
+        if (!mapInstance.isLoaded) return
+
+        const nextStyle =
+            mode === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle
+        const map = mapInstance.map as maplibregl.Map
+
+        map.setStyle(nextStyle, {
+            diff: true,
+            transformStyle: (previousStyle, nextStyleSpec) =>
+                getMergedStyle(previousStyle, nextStyleSpec),
+        })
+    },
+)
 </script>
 
 <template>
     <MglMap
         :map-key="MAP_CONFIG.mapKey"
-        :map-style="mapStyle"
+        :map-style="initialMapStyle"
         :center="[x, y]"
         :zoom="z"
         :fade-duration="0"

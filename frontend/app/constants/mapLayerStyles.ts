@@ -90,6 +90,7 @@ const CLUSTER_LAYER_LAYOUT = {
         "{point_count_abbreviated}" as PropertyValueSpecification<string>,
     "text-font": ["Noto Sans Regular"] as PropertyValueSpecification<string[]>,
     "text-size": 12 as PropertyValueSpecification<number>,
+    "text-allow-overlap": true,
     "text-ignore-placement": true,
 }
 
