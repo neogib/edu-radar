@@ -13,12 +13,12 @@
 .dark,
 .dark-mode,
 [data-theme="dark"] {
-    --voivodeship-fill: #3f4eb6;
-    --voivodeship-fill-hover: #5567db;
-    --voivodeship-fill-active: #7485ef;
-    --voivodeship-stroke: #ba84f5;
-    --voivodeship-stroke-muted: #ba84f540;
-    --voivodeship-shadow-hover: #8e5cf080;
+    --voivodeship-fill: #7c86ff;
+    --voivodeship-fill-hover: #949eff;
+    --voivodeship-fill-active: #afb8ff;
+    --voivodeship-stroke: #d1bcff;
+    --voivodeship-stroke-muted: #d1bcff3d;
+    --voivodeship-shadow-hover: #9da7ff7d;
 }
 
 /* MapLibre popup custom styling - remove default padding and background */

@@ -52,13 +52,13 @@ function handlePathClick(event: Event) {
 .voivodeship:hover {
     fill: var(--voivodeship-fill-hover);
     stroke: var(--voivodeship-stroke);
-    filter: drop-shadow(0 0 14px var(--voivodeship-shadow-hover));
+    filter: drop-shadow(0 0 12px var(--voivodeship-shadow-hover));
 }
 
 .voivodeship:active,
 .voivodeship:focus-visible {
     fill: var(--voivodeship-fill-active);
     stroke: var(--voivodeship-stroke);
-    filter: drop-shadow(0 0 20px var(--voivodeship-shadow-hover));
+    filter: drop-shadow(0 0 17px var(--voivodeship-shadow-hover));
 }
 </style>
