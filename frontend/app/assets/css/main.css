@@ -17,7 +17,7 @@
     --voivodeship-fill-hover: #949eff;
     --voivodeship-fill-active: #afb8ff;
     --voivodeship-stroke: #d1bcff;
-    --voivodeship-stroke-muted: #d1bcff3d;
+    --voivodeship-stroke-muted: transparent;
     --voivodeship-shadow-hover: #9da7ff7d;
 }
 

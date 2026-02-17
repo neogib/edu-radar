@@ -57,18 +57,16 @@ const items = [
 
         <!-- Score Gradient Legend -->
         <div
-            class="inline-flex overflow-hidden rounded-md border border-default bg-default shadow-sm">
+            class="inline-flex overflow-hidden rounded-md bg-default shadow-sm h-5">
             <span
-                class="min-w-9 px-2 py-1 text-center text-xs font-semibold leading-5 text-default">
+                class="min-w-6 text-center text-xs font-semibold leading-5 text-default">
                 0
             </span>
 
-            <div
-                class="relative h-7 w-36 border-x border-default"
-                :style="{ background: gradient }"></div>
+            <div class="relative w-36" :style="{ background: gradient }"></div>
 
             <span
-                class="min-w-9 px-2 py-1 text-center text-xs font-semibold leading-5 text-default">
+                class="min-w-6 text-center text-xs font-semibold leading-5 text-default">
                 100
             </span>
         </div>
