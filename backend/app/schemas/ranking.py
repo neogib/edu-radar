@@ -28,7 +28,7 @@ class PaginationParams(BaseModel):
 
 
 class RankingsParams(PaginationParams):
-    rok: int = Field(ge=2000)
+    year: int = Field(ge=2000)
     type: RodzajRankingu = Field(
         RodzajRankingu.E8,
         description="Ranking type: E8 (primary schools), EM_LO (matura results - high schools), EM_TECH (matura results - technical schools)",

@@ -54,7 +54,7 @@ class RankingService(BaseService[Ranking]):
 
     def get_rankings_page(self, params: RankingsParams) -> RankingsResponse:
         where_conditions = [
-            col(Ranking.rok) == params.rok,
+            col(Ranking.rok) == params.year,
             col(Ranking.rodzaj_rankingu) == params.type,
         ]
 
