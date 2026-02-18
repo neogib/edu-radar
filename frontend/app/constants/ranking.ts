@@ -28,3 +28,20 @@ export const MEDAL_ICON_BY_PLACE: Partial<
     2: "noto:2nd-place-medal",
     3: "noto:3rd-place-medal",
 }
+
+export const RANKING_SCOPE_LABELS: Record<string, string> = {
+    KRAJ: "Kraj",
+    WOJEWODZTWO: "Województwo",
+    POWIAT: "Powiat",
+}
+
+export const RANKING_TYPE_LABELS: Record<RodzajRankingu, string> = {
+    E8: "Egzamin ósmoklasisty",
+    EM_LO: "Matura - ranking liceów",
+    EM_TECH: "Matura - ranking techników",
+}
+
+export const RANKING_DIRECTION_LABELS: Record<RankingDirection, string> = {
+    BEST: "Od najlepszych",
+    WORST: "Od najsłabszych",
+}
