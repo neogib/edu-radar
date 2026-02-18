@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { TableColumn } from "@nuxt/ui"
+import { UBadge, UTooltip } from "#components"
+import type { TableColumn, TableRow } from "@nuxt/ui"
 import type {
     RankingWithSchool,
     RankingScope,
@@ -64,21 +65,68 @@ const tableRows = computed<RankingTableRow[]>(() => {
     }))
 })
 
+const hoveredSchoolId = ref<number | null>(null)
+
+const isTooltipOpenForRow = (schoolId: number): boolean =>
+    hoveredSchoolId.value === schoolId
+
 const columns: TableColumn<RankingTableRow>[] = [
-    { accessorKey: "place", header: "Miejsce" },
-    { accessorKey: "schoolName", header: "Szkoła" },
+    {
+        accessorKey: "place",
+        header: "Miejsce",
+        cell: ({ row }) =>
+            h(
+                UBadge,
+                {
+                    variant: "soft",
+                    color: getPlaceBadgeColor(row.original.place),
+                },
+                () => String(row.original.place),
+            ),
+    },
+    {
+        accessorKey: "schoolName",
+        header: "Szkoła",
+        meta: {
+            class: {
+                th: "w-[220px] sm:w-[320px]",
+                td: "w-[220px] sm:w-[320px]",
+            },
+        },
+        cell: ({ row }) =>
+            h(
+                UTooltip,
+                {
+                    text: row.original.schoolName,
+                    open: isTooltipOpenForRow(row.original.id),
+                    content: { side: "top", sideOffset: 6 },
+                    delayDuration: 0,
+                },
+                {
+                    default: () =>
+                        h(
+                            "span",
+                            {
+                                class: "block max-w-[220px] truncate text-left sm:max-w-[320px]",
+                            },
+                            row.original.schoolName,
+                        ),
+                },
+            ),
+    },
     { accessorKey: "city", header: "Miejscowość" },
     { accessorKey: "status", header: "Status" },
-    { accessorKey: "score", header: "Wynik" },
+    {
+        accessorKey: "score",
+        header: "Wynik",
+        cell: ({ row }) =>
+            h(
+                "span",
+                { class: "font-medium text-primary" },
+                row.original.score,
+            ),
+    },
 ]
-
-const schoolNameModalOpen = ref(false)
-const selectedSchoolName = ref("")
-
-const openSchoolNameModal = (schoolName: string) => {
-    selectedSchoolName.value = schoolName
-    schoolNameModalOpen.value = true
-}
 
 const getPlaceBadgeColor = (place: number) => {
     if (place <= 3) return "success"
@@ -86,6 +134,20 @@ const getPlaceBadgeColor = (place: number) => {
     if (place <= 50) return "warning"
     return "neutral"
 }
+
+const handleRowHover = (
+    _event: Event,
+    row: TableRow<RankingTableRow> | null,
+) => {
+    hoveredSchoolId.value = row?.original.id ?? null
+}
+
+const tableMeta = computed(() => ({
+    class: {
+        tr: (row: TableRow<RankingTableRow>) =>
+            isTooltipOpenForRow(row.original.id) ? "bg-primary/5" : "",
+    },
+}))
 
 const totalItems = computed(() => rankingsData.value?.total ?? 0)
 const pageSize = computed(() => rankingsData.value?.pageSize ?? 50)
@@ -98,9 +160,7 @@ const handleScopeChange = (scope: RankingScope) => {
         selectedCountyId.value = undefined
     } else if (scope === "WOJEWODZTWO") {
         selectedCountyId.value = undefined
-        console.log(voivodeshipOptions.value[0], selectedVoivodeshipId.value)
         selectedVoivodeshipId.value = voivodeshipOptions.value[0]?.value
-        console.log(voivodeshipOptions.value[0], selectedVoivodeshipId.value)
     } else if (scope === "POWIAT") {
         selectedVoivodeshipId.value = undefined
         selectedCountyId.value = countyOptions.value[0]?.value
@@ -233,49 +293,17 @@ const sortTrailingIcon = computed(() =>
             variant="soft"
             title="Nie udało się pobrać rankingów." />
 
-        <div class="flex justify-center">
-            <UPagination
-                v-model:page="selectedPage"
-                :total="totalItems"
-                :items-per-page="pageSize"
-                :sibling-count="0"
-                show-edges
-                color="primary"
-                active-color="info" />
-        </div>
-
         <UTable
+            sticky
             :data="tableRows"
             :columns="columns"
+            :meta="tableMeta"
+            :on-hover="handleRowHover"
             :loading="rankingsStatus === 'pending'"
             loading-animation="carousel"
             loading-color="primary"
             empty="Brak wyników dla wybranych filtrów."
             class="rounded-lg border border-primary/20 bg-default/70">
-            <template #place-cell="{ row }">
-                <UBadge
-                    variant="soft"
-                    :color="getPlaceBadgeColor(row.original.place)">
-                    {{ row.original.place }}
-                </UBadge>
-            </template>
-
-            <template #schoolName-cell="{ row }">
-                <UTooltip :text="row.original.schoolName">
-                    <UButton
-                        color="neutral"
-                        variant="link"
-                        class="w-60 lg:w-[320px] max-w-105 truncate p-0 text-left"
-                        :label="row.original.schoolName"
-                        @click="openSchoolNameModal(row.original.schoolName)" />
-                </UTooltip>
-            </template>
-
-            <template #score-cell="{ row }">
-                <span class="font-medium text-primary">
-                    {{ row.original.score }}
-                </span>
-            </template>
         </UTable>
 
         <div class="flex justify-center">
@@ -288,14 +316,5 @@ const sortTrailingIcon = computed(() =>
                 color="primary"
                 active-color="info" />
         </div>
-
-        <UModal
-            v-model:open="schoolNameModalOpen"
-            title="Pełna nazwa szkoły"
-            :ui="{ body: 'break-words' }">
-            <template #body>
-                <p>{{ selectedSchoolName }}</p>
-            </template>
-        </UModal>
     </div>
 </template>
