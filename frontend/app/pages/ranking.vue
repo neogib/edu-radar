@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { UBadge, UTooltip } from "#components"
 import type { TableColumn, TableRow } from "@nuxt/ui"
+import type { Table as TanstackTable } from "@tanstack/table-core"
+import { upperFirst } from "scule"
 import type {
     RankingWithSchool,
     RankingScope,
@@ -78,6 +80,10 @@ const tableRows = computed<RankingTableRow[]>(() => {
 })
 
 const hoveredSchoolId = ref<number | null>(null)
+const table = useTemplateRef<{ tableApi: TanstackTable<RankingTableRow> }>(
+    "table",
+)
+const columnVisibility = ref<Record<string, boolean>>({})
 
 const isTooltipOpenForRow = (schoolId: number): boolean =>
     hoveredSchoolId.value === schoolId
@@ -200,6 +206,40 @@ const sortTrailingIcon = computed(() =>
     selectedDirection.value === "WORST"
         ? "i-lucide-arrow-down"
         : "i-lucide-arrow-up",
+)
+
+const columnLabels: Record<string, string> = {
+    place: "Miejsce",
+    schoolName: "Szkoła",
+    city: "Miejscowość",
+    status: "Status",
+    score: "Wynik",
+}
+
+const columnVisibilityItems = computed(
+    () =>
+        (table.value?.tableApi
+            .getAllColumns()
+            .filter((column) => column.getCanHide())
+            .map((column) => ({
+                label: columnLabels[column.id] ?? upperFirst(column.id),
+                type: "checkbox" as const,
+                checked: column.getIsVisible(),
+                onUpdateChecked: (checked: boolean) => {
+                    table.value?.tableApi
+                        .getColumn(column.id)
+                        ?.toggleVisibility(checked)
+                },
+                onSelect: (event: Event) => {
+                    event.preventDefault()
+                },
+            })) ?? []) satisfies Array<{
+            label: string
+            type: "checkbox"
+            checked: boolean
+            onUpdateChecked: (checked: boolean) => void
+            onSelect: (event: Event) => void
+        }>,
 )
 </script>
 
@@ -341,7 +381,21 @@ const sortTrailingIcon = computed(() =>
             variant="soft"
             title="Nie udało się pobrać rankingów." />
 
+        <div class="flex justify-end">
+            <UDropdownMenu
+                :items="columnVisibilityItems"
+                :content="{ align: 'end' }">
+                <UButton
+                    label="Kolumny"
+                    color="neutral"
+                    variant="outline"
+                    trailing-icon="i-lucide-chevron-down" />
+            </UDropdownMenu>
+        </div>
+
         <UTable
+            ref="table"
+            v-model:column-visibility="columnVisibility"
             sticky
             :data="tableRows"
             :columns="columns"
