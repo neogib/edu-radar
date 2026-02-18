@@ -12,21 +12,20 @@ const formatAddress = (school: SzkolaPublicWithRelations) => {
     const address = []
     const partsLine1 = []
     if (school.ulica?.nazwa) partsLine1.push(school.ulica.nazwa)
-    if (school.numer_budynku) partsLine1.push(school.numer_budynku)
-    if (school.numer_lokalu) partsLine1.push(`lok. ${school.numer_lokalu}`)
+    if (school.numerBudynku) partsLine1.push(school.numerBudynku)
+    if (school.numerLokalu) partsLine1.push(`lok. ${school.numerLokalu}`)
 
     if (partsLine1.length) address.push(partsLine1.join(" "))
-    address.push(`${school.kod_pocztowy} ${school.miejscowosc.nazwa}`)
-
+    address.push(`${school.kodPocztowy} ${school.miejscowosc.nazwa}`)
     return address
 }
 
 const directorFullName = computed(() =>
-    `${props.selectedPoint.dyrektor_imie || ""} ${props.selectedPoint.dyrektor_nazwisko || ""}`.trim(),
+    `${props.selectedPoint.dyrektorImie || ""} ${props.selectedPoint.dyrektorNazwisko || ""}`.trim(),
 )
 
 const websiteHref = computed<string | null>(() => {
-    const website = props.selectedPoint.strona_internetowa?.trim()
+    const website = props.selectedPoint.stronaInternetowa?.trim()
     if (!website) return null
 
     return website.startsWith("http://") || website.startsWith("https://")
@@ -36,12 +35,12 @@ const websiteHref = computed<string | null>(() => {
 
 const schoolInfoItems = computed(() => {
     const rows: Array<SchoolInfoItem | null> = [
-        props.selectedPoint.liczba_uczniow !== null
+        props.selectedPoint.liczbaUczniow !== null
             ? {
                   key: "students",
                   label: "Liczba uczniów",
                   icon: "i-mdi-account-group",
-                  lines: [String(props.selectedPoint.liczba_uczniow)],
+                  lines: [String(props.selectedPoint.liczbaUczniow)],
               }
             : null,
         directorFullName.value
@@ -75,12 +74,12 @@ const schoolInfoItems = computed(() => {
                   href: `mailto:${props.selectedPoint.email}`,
               }
             : null,
-        props.selectedPoint.strona_internetowa && websiteHref.value
+        props.selectedPoint.stronaInternetowa && websiteHref.value
             ? {
                   key: "website",
                   label: "Strona internetowa",
                   icon: "i-mdi-web",
-                  lines: [props.selectedPoint.strona_internetowa],
+                  lines: [props.selectedPoint.stronaInternetowa],
                   href: websiteHref.value,
                   external: true,
               }
@@ -92,22 +91,22 @@ const schoolInfoItems = computed(() => {
 
 const schoolBadgeSections = computed(() =>
     [
-        props.selectedPoint.etapy_edukacji.length
+        props.selectedPoint.etapyEdukacji.length
             ? {
                   key: "stages",
                   label: "Etapy edukacji",
                   icon: "i-mdi-book-open-variant",
                   color: "primary" as const,
-                  items: props.selectedPoint.etapy_edukacji,
+                  items: props.selectedPoint.etapyEdukacji,
               }
             : null,
-        props.selectedPoint.ksztalcenie_zawodowe.length
+        props.selectedPoint.ksztalcenieZawodowe.length
             ? {
                   key: "professional",
                   label: "Kształcenie zawodowe",
                   icon: "i-mdi-briefcase-variant",
                   color: "secondary" as const,
-                  items: props.selectedPoint.ksztalcenie_zawodowe,
+                  items: props.selectedPoint.ksztalcenieZawodowe,
               }
             : null,
     ].filter((section): section is SchoolBadgeSection => section !== null),
@@ -115,7 +114,7 @@ const schoolBadgeSections = computed(() =>
 
 const identifierItems = computed(() =>
     [
-        { label: "RSPO", value: String(props.selectedPoint.numer_rspo) },
+        { label: "RSPO", value: String(props.selectedPoint.numerRspo) },
         { label: "REGON", value: props.selectedPoint.regon },
         { label: "NIP", value: props.selectedPoint.nip },
     ].filter((item) => item.value !== null && item.value !== undefined),

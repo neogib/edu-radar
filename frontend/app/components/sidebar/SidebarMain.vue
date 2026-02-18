@@ -105,7 +105,7 @@ const scoreColor = computed(() => {
                         <UBadge
                             :color="
                                 isPublicSchool(
-                                    selectedPoint.status_publicznoprawny.nazwa,
+                                    selectedPoint.statusPublicznoprawny.nazwa,
                                 )
                                     ? 'success'
                                     : 'secondary'
@@ -115,14 +115,14 @@ const scoreColor = computed(() => {
                             <UIcon
                                 v-if="
                                     isPublicSchool(
-                                        selectedPoint.status_publicznoprawny
+                                        selectedPoint.statusPublicznoprawny
                                             .nazwa,
                                     )
                                 "
                                 name="i-mdi-check-decagram"
                                 class="size-3.5" />
                             <UIcon v-else name="i-mdi-lock" class="size-3.5" />
-                            {{ selectedPoint.status_publicznoprawny.nazwa }}
+                            {{ selectedPoint.statusPublicznoprawny.nazwa }}
                         </UBadge>
                     </div>
 
@@ -170,8 +170,8 @@ const scoreColor = computed(() => {
 
                 <SidebarRanking :selected-point="selectedPoint" />
                 <SidebarExamResults
-                    :wyniki-e8="selectedPoint.wyniki_e8"
-                    :wyniki-em="selectedPoint.wyniki_em" />
+                    :wyniki-e8="selectedPoint.wynikiE8"
+                    :wyniki-em="selectedPoint.wynikiEm" />
                 <SidebarSchoolInfo :selected-point="selectedPoint" />
             </div>
         </template>
