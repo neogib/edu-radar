@@ -30,7 +30,7 @@ const items = computed<NavigationMenuItem[]>(() => [
         active: route.path.startsWith("/map"),
     },
     {
-        label: "Rankingi",
+        label: "Ranking",
         to: "/ranking",
         icon: "i-mdi-chart-bar",
         active: route.path.startsWith("/ranking"),

@@ -442,36 +442,36 @@ export interface components {
         SzkolaPublicWithRelations: {
             /** Nazwa */
             nazwa: string;
-            /** Numer Rspo */
-            numer_rspo: number;
+            /** Numerrspo */
+            numerRspo: number;
             /** Nip */
             nip: string | null;
             /** Regon */
             regon: string | null;
-            /** Liczba Uczniow */
-            liczba_uczniow: number | null;
-            /** Dyrektor Imie */
-            dyrektor_imie: string | null;
-            /** Dyrektor Nazwisko */
-            dyrektor_nazwisko: string | null;
-            /** Kod Pocztowy */
-            kod_pocztowy: string | null;
-            /** Numer Budynku */
-            numer_budynku: string | null;
-            /** Numer Lokalu */
-            numer_lokalu: string | null;
+            /** Liczbauczniow */
+            liczbaUczniow: number | null;
+            /** Dyrektorimie */
+            dyrektorImie: string | null;
+            /** Dyrektornazwisko */
+            dyrektorNazwisko: string | null;
+            /** Kodpocztowy */
+            kodPocztowy: string | null;
+            /** Numerbudynku */
+            numerBudynku: string | null;
+            /** Numerlokalu */
+            numerLokalu: string | null;
             /** Telefon */
             telefon: string | null;
             /** Email */
             email: string | null;
-            /** Strona Internetowa */
-            strona_internetowa: string | null;
-            /** Data Zalozenia */
-            data_zalozenia: string | null;
-            /** Data Rozpoczecia */
-            data_rozpoczecia: string | null;
-            /** Data Likwidacji */
-            data_likwidacji: string | null;
+            /** Stronainternetowa */
+            stronaInternetowa: string | null;
+            /** Datazalozenia */
+            dataZalozenia: string | null;
+            /** Datarozpoczecia */
+            dataRozpoczecia: string | null;
+            /** Datalikwidacji */
+            dataLikwidacji: string | null;
             /** Wynik */
             wynik: number | null;
             /**
@@ -479,31 +479,31 @@ export interface components {
              * @default false
              */
             zlikwidowana: boolean;
-            /** Typ Id */
-            typ_id: number;
-            /** Status Publicznoprawny Id */
-            status_publicznoprawny_id: number;
-            /** Kategoria Uczniow Id */
-            kategoria_uczniow_id: number;
-            /** Miejscowosc Id */
-            miejscowosc_id: number;
-            /** Ulica Id */
-            ulica_id: number | null;
+            /** Typid */
+            typId: number;
+            /** Statuspublicznoprawnyid */
+            statusPublicznoprawnyId: number;
+            /** Kategoriauczniowid */
+            kategoriaUczniowId: number;
+            /** Miejscowoscid */
+            miejscowoscId: number;
+            /** Ulicaid */
+            ulicaId: number | null;
             /** Id */
             id: number;
-            /** Etapy Edukacji */
-            etapy_edukacji: components["schemas"]["EtapEdukacjiPublic"][];
+            /** Etapyedukacji */
+            etapyEdukacji: components["schemas"]["EtapEdukacjiPublic"][];
             typ: components["schemas"]["TypSzkolyPublic"];
-            status_publicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
-            kategoria_uczniow: components["schemas"]["KategoriaUczniowPublic"];
+            statusPublicznoprawny: components["schemas"]["StatusPublicznoprawnyPublic"];
+            kategoriaUczniow: components["schemas"]["KategoriaUczniowPublic"];
             miejscowosc: components["schemas"]["MiejscowoscPublicWithGmina"];
             ulica: components["schemas"]["UlicaPublic"] | null;
-            /** Ksztalcenie Zawodowe */
-            ksztalcenie_zawodowe: components["schemas"]["KsztalcenieZawodowePublic"][];
-            /** Wyniki E8 */
-            wyniki_e8: components["schemas"]["WynikE8PublicWithPrzedmiot"][];
-            /** Wyniki Em */
-            wyniki_em: components["schemas"]["WynikEMPublicWithPrzedmiot"][];
+            /** Ksztalceniezawodowe */
+            ksztalcenieZawodowe: components["schemas"]["KsztalcenieZawodowePublic"][];
+            /** Wynikie8 */
+            wynikiE8: components["schemas"]["WynikE8PublicWithPrzedmiot"][];
+            /** Wynikiem */
+            wynikiEm: components["schemas"]["WynikEMPublicWithPrzedmiot"][];
             /** Rankingi */
             rankingi: components["schemas"]["RankingPublic"][];
         };

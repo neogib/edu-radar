@@ -1635,9 +1635,9 @@
             "type": "string",
             "title": "Nazwa"
           },
-          "numer_rspo": {
+          "numerRspo": {
             "type": "integer",
-            "title": "Numer Rspo"
+            "title": "Numerrspo"
           },
           "nip": {
             "anyOf": [
@@ -1661,7 +1661,7 @@
             ],
             "title": "Regon"
           },
-          "liczba_uczniow": {
+          "liczbaUczniow": {
             "anyOf": [
               {
                 "type": "integer",
@@ -1671,9 +1671,9 @@
                 "type": "null"
               }
             ],
-            "title": "Liczba Uczniow"
+            "title": "Liczbauczniow"
           },
-          "dyrektor_imie": {
+          "dyrektorImie": {
             "anyOf": [
               {
                 "type": "string"
@@ -1682,9 +1682,9 @@
                 "type": "null"
               }
             ],
-            "title": "Dyrektor Imie"
+            "title": "Dyrektorimie"
           },
-          "dyrektor_nazwisko": {
+          "dyrektorNazwisko": {
             "anyOf": [
               {
                 "type": "string"
@@ -1693,9 +1693,9 @@
                 "type": "null"
               }
             ],
-            "title": "Dyrektor Nazwisko"
+            "title": "Dyrektornazwisko"
           },
-          "kod_pocztowy": {
+          "kodPocztowy": {
             "anyOf": [
               {
                 "type": "string"
@@ -1704,9 +1704,9 @@
                 "type": "null"
               }
             ],
-            "title": "Kod Pocztowy"
+            "title": "Kodpocztowy"
           },
-          "numer_budynku": {
+          "numerBudynku": {
             "anyOf": [
               {
                 "type": "string"
@@ -1715,9 +1715,9 @@
                 "type": "null"
               }
             ],
-            "title": "Numer Budynku"
+            "title": "Numerbudynku"
           },
-          "numer_lokalu": {
+          "numerLokalu": {
             "anyOf": [
               {
                 "type": "string"
@@ -1726,7 +1726,7 @@
                 "type": "null"
               }
             ],
-            "title": "Numer Lokalu"
+            "title": "Numerlokalu"
           },
           "telefon": {
             "anyOf": [
@@ -1750,7 +1750,7 @@
             ],
             "title": "Email"
           },
-          "strona_internetowa": {
+          "stronaInternetowa": {
             "anyOf": [
               {
                 "type": "string"
@@ -1759,9 +1759,9 @@
                 "type": "null"
               }
             ],
-            "title": "Strona Internetowa"
+            "title": "Stronainternetowa"
           },
-          "data_zalozenia": {
+          "dataZalozenia": {
             "anyOf": [
               {
                 "type": "string",
@@ -1771,9 +1771,9 @@
                 "type": "null"
               }
             ],
-            "title": "Data Zalozenia"
+            "title": "Datazalozenia"
           },
-          "data_rozpoczecia": {
+          "dataRozpoczecia": {
             "anyOf": [
               {
                 "type": "string",
@@ -1783,9 +1783,9 @@
                 "type": "null"
               }
             ],
-            "title": "Data Rozpoczecia"
+            "title": "Datarozpoczecia"
           },
-          "data_likwidacji": {
+          "dataLikwidacji": {
             "anyOf": [
               {
                 "type": "string",
@@ -1795,7 +1795,7 @@
                 "type": "null"
               }
             ],
-            "title": "Data Likwidacji"
+            "title": "Datalikwidacji"
           },
           "wynik": {
             "anyOf": [
@@ -1815,23 +1815,23 @@
             "title": "Zlikwidowana",
             "default": false
           },
-          "typ_id": {
+          "typId": {
             "type": "integer",
-            "title": "Typ Id"
+            "title": "Typid"
           },
-          "status_publicznoprawny_id": {
+          "statusPublicznoprawnyId": {
             "type": "integer",
-            "title": "Status Publicznoprawny Id"
+            "title": "Statuspublicznoprawnyid"
           },
-          "kategoria_uczniow_id": {
+          "kategoriaUczniowId": {
             "type": "integer",
-            "title": "Kategoria Uczniow Id"
+            "title": "Kategoriauczniowid"
           },
-          "miejscowosc_id": {
+          "miejscowoscId": {
             "type": "integer",
-            "title": "Miejscowosc Id"
+            "title": "Miejscowoscid"
           },
-          "ulica_id": {
+          "ulicaId": {
             "anyOf": [
               {
                 "type": "integer"
@@ -1840,26 +1840,26 @@
                 "type": "null"
               }
             ],
-            "title": "Ulica Id"
+            "title": "Ulicaid"
           },
           "id": {
             "type": "integer",
             "title": "Id"
           },
-          "etapy_edukacji": {
+          "etapyEdukacji": {
             "items": {
               "$ref": "#/components/schemas/EtapEdukacjiPublic"
             },
             "type": "array",
-            "title": "Etapy Edukacji"
+            "title": "Etapyedukacji"
           },
           "typ": {
             "$ref": "#/components/schemas/TypSzkolyPublic"
           },
-          "status_publicznoprawny": {
+          "statusPublicznoprawny": {
             "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
           },
-          "kategoria_uczniow": {
+          "kategoriaUczniow": {
             "$ref": "#/components/schemas/KategoriaUczniowPublic"
           },
           "miejscowosc": {
@@ -1875,26 +1875,26 @@
               }
             ]
           },
-          "ksztalcenie_zawodowe": {
+          "ksztalcenieZawodowe": {
             "items": {
               "$ref": "#/components/schemas/KsztalcenieZawodowePublic"
             },
             "type": "array",
-            "title": "Ksztalcenie Zawodowe"
+            "title": "Ksztalceniezawodowe"
           },
-          "wyniki_e8": {
+          "wynikiE8": {
             "items": {
               "$ref": "#/components/schemas/WynikE8PublicWithPrzedmiot"
             },
             "type": "array",
-            "title": "Wyniki E8"
+            "title": "Wynikie8"
           },
-          "wyniki_em": {
+          "wynikiEm": {
             "items": {
               "$ref": "#/components/schemas/WynikEMPublicWithPrzedmiot"
             },
             "type": "array",
-            "title": "Wyniki Em"
+            "title": "Wynikiem"
           },
           "rankingi": {
             "items": {
@@ -1907,38 +1907,38 @@
         "type": "object",
         "required": [
           "nazwa",
-          "numer_rspo",
+          "numerRspo",
           "nip",
           "regon",
-          "liczba_uczniow",
-          "dyrektor_imie",
-          "dyrektor_nazwisko",
-          "kod_pocztowy",
-          "numer_budynku",
-          "numer_lokalu",
+          "liczbaUczniow",
+          "dyrektorImie",
+          "dyrektorNazwisko",
+          "kodPocztowy",
+          "numerBudynku",
+          "numerLokalu",
           "telefon",
           "email",
-          "strona_internetowa",
-          "data_zalozenia",
-          "data_rozpoczecia",
-          "data_likwidacji",
+          "stronaInternetowa",
+          "dataZalozenia",
+          "dataRozpoczecia",
+          "dataLikwidacji",
           "wynik",
           "zlikwidowana",
-          "typ_id",
-          "status_publicznoprawny_id",
-          "kategoria_uczniow_id",
-          "miejscowosc_id",
-          "ulica_id",
+          "typId",
+          "statusPublicznoprawnyId",
+          "kategoriaUczniowId",
+          "miejscowoscId",
+          "ulicaId",
           "id",
-          "etapy_edukacji",
+          "etapyEdukacji",
           "typ",
-          "status_publicznoprawny",
-          "kategoria_uczniow",
+          "statusPublicznoprawny",
+          "kategoriaUczniow",
           "miejscowosc",
           "ulica",
-          "ksztalcenie_zawodowe",
-          "wyniki_e8",
-          "wyniki_em",
+          "ksztalcenieZawodowe",
+          "wynikiE8",
+          "wynikiEm",
           "rankingi"
         ],
         "title": "SzkolaPublicWithRelations"
