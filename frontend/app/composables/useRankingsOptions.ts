@@ -5,12 +5,15 @@ import {
     RANKING_SCOPE_LABELS,
     RANKING_TYPE_LABELS,
 } from "~/constants/ranking"
-import type { RankingsFiltersResponse } from "~/types/ranking"
+import type {
+    RankingsFiltersResponse,
+    SelectRankingFiltersItem,
+} from "~/types/ranking"
 
 export const useRankingsOptions = (
     filtersData: Ref<RankingsFiltersResponse | undefined>,
 ) => {
-    const yearOptions = computed<SelectMenuItem[]>(() =>
+    const yearOptions = computed<SelectRankingFiltersItem[]>(() =>
         (filtersData.value?.years ?? []).map((year) => ({
             label: String(year),
             value: year,
@@ -38,7 +41,7 @@ export const useRankingsOptions = (
         })),
     )
 
-    const voivodeshipOptions = computed<SelectMenuItem[]>(() =>
+    const voivodeshipOptions = computed<SelectRankingFiltersItem[]>(() =>
         (filtersData.value?.voivodeships ?? []).map((voivodeship) => ({
             label: voivodeship.nazwa,
             value: voivodeship.id,
@@ -56,7 +59,7 @@ export const useRankingsOptions = (
         )
     })
 
-    const countyOptions = computed<SelectMenuItem[]>(() =>
+    const countyOptions = computed<SelectRankingFiltersItem[]>(() =>
         (filtersData.value?.counties ?? []).map((county) => ({
             label: `${county.nazwa} (${voivodeshipNameById.value.get(county.wojewodztwo_id) ?? "?"})`,
             value: county.id,

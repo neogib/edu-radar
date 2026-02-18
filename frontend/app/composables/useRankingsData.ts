@@ -10,7 +10,7 @@ export const useRankingsData = (defaultYear: number) => {
     const selectedPage = usePushRouteQuery<number>("page", 1, {
         transform: Number,
     })
-    const selectedYear = usePushRouteQuery<number>("rok", defaultYear, {
+    const selectedYear = usePushRouteQuery<number>("year", defaultYear, {
         transform: Number,
     })
     const selectedType = usePushRouteQuery<RodzajRankingu>("type", "E8")
@@ -20,19 +20,29 @@ export const useRankingsData = (defaultYear: number) => {
         "BEST",
     )
     const selectedVoivodeshipId = usePushRouteQuery<number | undefined>(
-        "voivodeship_id",
+        "voivodeshipId",
         undefined,
         {
             transform: (v) => (v !== undefined ? Number(v) : undefined),
         },
     )
     const selectedCountyId = usePushRouteQuery<number | undefined>(
-        "county_id",
+        "countyId",
         undefined,
         {
             transform: (v) => (v !== undefined ? Number(v) : undefined),
         },
     )
+
+    const canFetchRankings = computed(() => {
+        if (selectedScope.value === "WOJEWODZTWO") {
+            return selectedVoivodeshipId.value !== undefined
+        }
+        if (selectedScope.value === "POWIAT") {
+            return selectedCountyId.value !== undefined
+        }
+        return true
+    })
 
     const rankingFilters = computed<RankingsParams>(() => ({
         page: selectedPage.value,
@@ -48,9 +58,16 @@ export const useRankingsData = (defaultYear: number) => {
         data: rankingsData,
         status: rankingsStatus,
         error: rankingsError,
+        refresh: fetchRankings,
     } = useApi<RankingsResponse>("/rankings/", {
         lazy: true,
+        watch: false,
         query: rankingFilters,
+    })
+
+    watch([rankingFilters, canFetchRankings], ([_, canFetch]) => {
+        if (!canFetch) return
+        void fetchRankings()
     })
 
     return {

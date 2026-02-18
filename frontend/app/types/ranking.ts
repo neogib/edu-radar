@@ -49,3 +49,8 @@ export interface RankingTableRow {
     status: string
     score: string
 }
+
+export interface SelectRankingFiltersItem {
+    label: string
+    value: number
+}

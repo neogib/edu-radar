@@ -1,4 +1,9 @@
-import type { MedalIcon, RankingScope, RodzajRankingu } from "~/types/ranking"
+import type {
+    MedalIcon,
+    RankingDirection,
+    RankingScope,
+    RodzajRankingu,
+} from "~/types/ranking"
 
 export const EXAM_TYPE_ORDER: RodzajRankingu[] = ["E8", "EM_LO", "EM_TECH"]
 
@@ -42,6 +47,6 @@ export const RANKING_TYPE_LABELS: Record<RodzajRankingu, string> = {
 }
 
 export const RANKING_DIRECTION_LABELS: Record<RankingDirection, string> = {
-    BEST: "Od najlepszych",
-    WORST: "Od najsłabszych",
+    BEST: "Sortuj od najlepszych",
+    WORST: "Sortuj od najsłabszych",
 }
