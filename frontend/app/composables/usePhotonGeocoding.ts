@@ -1,10 +1,7 @@
 import { useMap } from "@indoorequal/vue-maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import { PHOTON_CONFIG } from "~/constants/photon"
-import type {
-    PhotonFeatureCollection,
-    PhotonFeatureProperties,
-} from "~/types/photon"
+import type { PhotonFeatureCollection } from "~/types/photon"
 import type { PhotonSearchSuggestion } from "~/types/mapSearch"
 
 export const usePhotonGeocoding = () => {

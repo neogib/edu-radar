@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import { useMap } from "@indoorequal/vue-maplibre-gl"
-import type { Map } from "maplibre-gl"
-import { MAP_CONFIG } from "~/constants/mapConfig"
-
-const mapInstance = useMap(MAP_CONFIG.mapKey)
-
 const { multiSelectFilters } = await useFilterData()
-const { isUnderZoomThreshold } = useMapState()
 
 // get filters from route.query
 const { hasActiveFilters, totalActiveFilters, filterKey } = useSchoolFilters()
