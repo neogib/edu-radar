@@ -9,6 +9,7 @@ export type RankingsParams =
 export type RankingsResponse = components["schemas"]["RankingsResponse"]
 export type RankingScope = components["schemas"]["RankingScope"]
 export type RankingDirection = components["schemas"]["RankingDirection"]
+export type RankingWithSchool = components["schemas"]["RankingWithSchool"]
 
 export type MedalIcon =
     | "noto:1st-place-medal"
@@ -38,4 +39,13 @@ export interface RankingGroup {
     label: string
     year: number
     rows: RankingRow[]
+}
+
+export interface RankingTableRow {
+    id: number
+    place: number
+    schoolName: string
+    city: string
+    status: string
+    score: string
 }
