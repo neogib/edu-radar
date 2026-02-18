@@ -97,10 +97,13 @@ const columns: TableColumn<RankingTableRow>[] = [
             h(
                 UTooltip,
                 {
-                    text: row.original.schoolName,
                     open: isTooltipOpenForRow(row.original.id),
                     content: { side: "top", sideOffset: 6 },
                     delayDuration: 0,
+                    ui: {
+                        content:
+                            "h-auto max-w-[300px] items-start py-2 whitespace-normal",
+                    },
                 },
                 {
                     default: () =>
@@ -108,6 +111,14 @@ const columns: TableColumn<RankingTableRow>[] = [
                             "span",
                             {
                                 class: "block max-w-[220px] truncate text-left sm:max-w-[320px]",
+                            },
+                            row.original.schoolName,
+                        ),
+                    content: () =>
+                        h(
+                            "p",
+                            {
+                                class: "w-full whitespace-normal break-words text-sm leading-tight",
                             },
                             row.original.schoolName,
                         ),
