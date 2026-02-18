@@ -7,6 +7,7 @@ from app.models.schools import (
     SzkolaBase,
     TypSzkolyBase,
 )
+from app.schemas.base import CustomBaseModel
 from app.schemas.exam_results import (
     WynikE8PublicWithPrzedmiot,
     WynikEMPublicWithPrzedmiot,
@@ -16,11 +17,10 @@ from app.schemas.locations import (
     MiejscowoscPublicWithGmina,
     UlicaPublic,
 )
-from app.schemas.mixins import APIResponseConfig
 from app.schemas.ranking_shared import RankingPublic
 
 
-class SzkolaPublic(APIResponseConfig, SzkolaAllData):
+class SzkolaPublic(CustomBaseModel, SzkolaAllData):
     id: int
 
 
