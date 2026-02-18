@@ -1,9 +1,10 @@
 from enum import Enum
 from typing import Self
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import Field, model_validator
 
 from app.models.ranking import RodzajRankingu
+from app.schemas.base import CustomBaseModel
 from app.schemas.locations import PowiatPublic, WojewodztwoPublic
 from app.schemas.ranking_shared import RankingPublic
 from app.schemas.schools import SzkolaRankingRow
@@ -20,7 +21,7 @@ class RankingDirection(Enum):
     WORST = "WORST"
 
 
-class PaginationParams(BaseModel):
+class PaginationParams(CustomBaseModel):
     page: int = Field(1, ge=1, description="Requested page number")
     page_size: int = Field(
         50, ge=1, le=100, description="Number of items per page (max 100)"
@@ -59,7 +60,7 @@ class RankingWithSchool(RankingPublic):
     szkola: SzkolaRankingRow
 
 
-class RankingsResponse(BaseModel):
+class RankingsResponse(CustomBaseModel):
     page: int = Field(ge=1, description="Current page number")
     page_size: int = Field(
         le=100,
@@ -74,7 +75,7 @@ class RankingsResponse(BaseModel):
     rankings: list[RankingWithSchool]
 
 
-class RankingsFiltersResponse(BaseModel):
+class RankingsFiltersResponse(CustomBaseModel):
     years: list[int]
     scopes: list[RankingScope]
     types: list[RodzajRankingu]
