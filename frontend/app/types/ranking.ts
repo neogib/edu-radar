@@ -1,9 +1,11 @@
-import type { components } from "~/types/api"
+import type { components, paths } from "~/types/api"
 
 export type RankingPublic = components["schemas"]["RankingPublic"]
 export type RodzajRankingu = components["schemas"]["RodzajRankingu"]
 export type RankingsFiltersResponse =
     components["schemas"]["RankingsFiltersResponse"]
+export type RankingsParams =
+    paths["/api/v1/rankings/"]["get"]["parameters"]["query"]
 export type RankingsResponse = components["schemas"]["RankingsResponse"]
 export type RankingScope = components["schemas"]["RankingScope"]
 export type RankingDirection = components["schemas"]["RankingDirection"]

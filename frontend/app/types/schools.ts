@@ -25,7 +25,7 @@ export type FiltersOptions =
     | KsztalcenieZawodowePublic[]
 
 export type SchoolFilterParams =
-    paths["/schools/"]["get"]["parameters"]["query"]
+    paths["/api/v1/schools/"]["get"]["parameters"]["query"]
 
 export type SchoolFeatureProperties = {
     id: number
