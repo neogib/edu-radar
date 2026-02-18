@@ -392,20 +392,20 @@ export interface components {
              */
             page: number;
             /**
-             * Page Size
+             * Pagesize
              * @description Number of items per page (can differ from requested page_size if fewer items are available)
              */
-            page_size: number;
+            pageSize: number;
             /**
              * Total
              * @description Total number of schools matching the ranking params criteria
              */
             total: number;
             /**
-             * Total Pages
+             * Totalpages
              * @description Total number of pages available based on the page_size
              */
-            total_pages: number;
+            totalPages: number;
             /** Rankings */
             rankings: components["schemas"]["RankingWithSchool"][];
         };
@@ -871,9 +871,9 @@ export interface operations {
             query: {
                 /** @description Requested page number */
                 page?: number;
-                /** @description Number of items per page (max 200) */
-                page_size?: number;
-                rok: number;
+                /** @description Number of items per page (max 100) */
+                pageSize?: number;
+                year: number;
                 /** @description Ranking type: E8 (primary schools), EM_LO (matura results - high schools), EM_TECH (matura results - technical schools) */
                 type?: components["schemas"]["RodzajRankingu"];
                 /** @description Ranking scope: KRAJ (national), WOJEWODZTWO (voivodeship), POWIAT (county) */
@@ -881,9 +881,9 @@ export interface operations {
                 /** @description Ranking order: BEST (top schools first) or WORST (lowest schools first) */
                 direction?: components["schemas"]["RankingDirection"];
                 /** @description Required if scope is WOJEWODZTWO */
-                voivodeship_id?: number | null;
+                voivodeshipId?: number | null;
                 /** @description Required if scope is POWIAT */
-                county_id?: number | null;
+                countyId?: number | null;
             };
             header?: never;
             path?: never;

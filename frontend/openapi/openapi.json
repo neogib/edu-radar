@@ -834,27 +834,27 @@
             "description": "Requested page number"
           },
           {
-            "name": "page_size",
+            "name": "pageSize",
             "in": "query",
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 200,
+              "maximum": 100,
               "minimum": 1,
-              "description": "Number of items per page (max 200)",
-              "default": 100,
-              "title": "Page Size"
+              "description": "Number of items per page (max 100)",
+              "default": 50,
+              "title": "Pagesize"
             },
-            "description": "Number of items per page (max 200)"
+            "description": "Number of items per page (max 100)"
           },
           {
-            "name": "rok",
+            "name": "year",
             "in": "query",
             "required": true,
             "schema": {
               "type": "integer",
               "minimum": 2000,
-              "title": "Rok"
+              "title": "Year"
             }
           },
           {
@@ -891,7 +891,7 @@
             "description": "Ranking order: BEST (top schools first) or WORST (lowest schools first)"
           },
           {
-            "name": "voivodeship_id",
+            "name": "voivodeshipId",
             "in": "query",
             "required": false,
             "schema": {
@@ -904,12 +904,12 @@
                 }
               ],
               "description": "Required if scope is WOJEWODZTWO",
-              "title": "Voivodeship Id"
+              "title": "Voivodeshipid"
             },
             "description": "Required if scope is WOJEWODZTWO"
           },
           {
-            "name": "county_id",
+            "name": "countyId",
             "in": "query",
             "required": false,
             "schema": {
@@ -922,7 +922,7 @@
                 }
               ],
               "description": "Required if scope is POWIAT",
-              "title": "County Id"
+              "title": "Countyid"
             },
             "description": "Required if scope is POWIAT"
           }
@@ -1516,10 +1516,10 @@
             "title": "Page",
             "description": "Current page number"
           },
-          "page_size": {
+          "pageSize": {
             "type": "integer",
-            "maximum": 200,
-            "title": "Page Size",
+            "maximum": 100,
+            "title": "Pagesize",
             "description": "Number of items per page (can differ from requested page_size if fewer items are available)"
           },
           "total": {
@@ -1528,10 +1528,10 @@
             "title": "Total",
             "description": "Total number of schools matching the ranking params criteria"
           },
-          "total_pages": {
+          "totalPages": {
             "type": "integer",
             "minimum": 0,
-            "title": "Total Pages",
+            "title": "Totalpages",
             "description": "Total number of pages available based on the page_size"
           },
           "rankings": {
@@ -1545,9 +1545,9 @@
         "type": "object",
         "required": [
           "page",
-          "page_size",
+          "pageSize",
           "total",
-          "total_pages",
+          "totalPages",
           "rankings"
         ],
         "title": "RankingsResponse"
