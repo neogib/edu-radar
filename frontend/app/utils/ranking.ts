@@ -5,8 +5,9 @@ export const getScopeLabel = (
     countyName: string,
     voivodeshipName: string,
 ): string => {
-    if (scope === "kraj") return "Cała Polska"
-    if (scope === "wojewodztwo") return `Województwo ${voivodeshipName}`
+    if (scope === "KRAJ") return "Cała Polska"
+    if (scope === "WOJEWODZTWO")
+        return `Województwo ${voivodeshipName.toLowerCase()}`
     return `Powiat ${countyName}`
 }
 

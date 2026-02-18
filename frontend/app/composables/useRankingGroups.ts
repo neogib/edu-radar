@@ -42,19 +42,19 @@ export const useRankingGroups = (options: UseRankingGroupsOptions) => {
 
             const allRows = [
                 {
-                    scope: "kraj" as const,
+                    scope: "KRAJ" as const,
                     percentyl: ranking.percentyl_kraj,
                     miejsce: ranking.miejsce_kraj,
                     liczbaSzkol: ranking.liczba_szkol_kraj,
                 },
                 {
-                    scope: "wojewodztwo" as const,
+                    scope: "WOJEWODZTWO" as const,
                     percentyl: ranking.percentyl_wojewodztwo,
                     miejsce: ranking.miejsce_wojewodztwo,
                     liczbaSzkol: ranking.liczba_szkol_wojewodztwo,
                 },
                 {
-                    scope: "powiat" as const,
+                    scope: "POWIAT" as const,
                     percentyl: ranking.percentyl_powiat,
                     miejsce: ranking.miejsce_powiat,
                     liczbaSzkol: ranking.liczba_szkol_powiat,

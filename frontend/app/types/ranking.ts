@@ -2,8 +2,11 @@ import type { components } from "~/types/api"
 
 export type RankingPublic = components["schemas"]["RankingPublic"]
 export type RodzajRankingu = components["schemas"]["RodzajRankingu"]
-
-export type RankingScope = "kraj" | "wojewodztwo" | "powiat"
+export type RankingsFiltersResponse =
+    components["schemas"]["RankingsFiltersResponse"]
+export type RankingsResponse = components["schemas"]["RankingsResponse"]
+export type RankingScope = components["schemas"]["RankingScope"]
+export type RankingDirection = components["schemas"]["RankingDirection"]
 
 export type MedalIcon =
     | "noto:1st-place-medal"
