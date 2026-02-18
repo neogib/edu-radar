@@ -64,7 +64,7 @@ class RankingsResponse(CustomBaseModel):
     page: int = Field(ge=1, description="Current page number")
     page_size: int = Field(
         le=100,
-        description="Number of items per page (can differ from requested page_size if fewer items are available)",
+        description="Number of items per page",
     )
     total: int = Field(
         ge=0, description="Total number of schools matching the ranking params criteria"

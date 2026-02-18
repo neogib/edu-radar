@@ -88,8 +88,7 @@ const getPlaceBadgeColor = (place: number) => {
 }
 
 const totalItems = computed(() => rankingsData.value?.total ?? 0)
-const itemsPerPage = computed(() => rankingsData.value?.pageSize ?? 50)
-const totalPages = computed(() => rankingsData.value?.totalPages ?? 0)
+const pageSize = computed(() => rankingsData.value?.pageSize ?? 50)
 
 const handleScopeChange = (scope: RankingScope) => {
     selectedScope.value = scope
@@ -238,8 +237,7 @@ const sortTrailingIcon = computed(() =>
             <UPagination
                 v-model:page="selectedPage"
                 :total="totalItems"
-                :items-per-page="itemsPerPage"
-                :disabled="totalPages === 0"
+                :items-per-page="pageSize"
                 :sibling-count="0"
                 show-edges
                 color="primary"
@@ -284,8 +282,7 @@ const sortTrailingIcon = computed(() =>
             <UPagination
                 v-model:page="selectedPage"
                 :total="totalItems"
-                :items-per-page="itemsPerPage"
-                :disabled="totalPages === 0"
+                :items-per-page="pageSize"
                 :sibling-count="0"
                 show-edges
                 color="primary"

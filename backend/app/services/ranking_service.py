@@ -110,7 +110,7 @@ class RankingService(BaseService[Ranking]):
 
         return RankingsResponse(
             page=params.page,
-            page_size=len(ranking_rows),
+            page_size=params.page_size,
             total=total,
             total_pages=ceil(total / params.page_size) if total else 0,
             rankings=ranking_rows,

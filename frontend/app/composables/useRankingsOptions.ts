@@ -43,7 +43,7 @@ export const useRankingsOptions = (
 
     const voivodeshipOptions = computed<SelectRankingFiltersItem[]>(() =>
         (filtersData.value?.voivodeships ?? []).map((voivodeship) => ({
-            label: voivodeship.nazwa,
+            label: voivodeship.nazwa.toLowerCase(),
             value: voivodeship.id,
         })),
     )
