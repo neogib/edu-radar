@@ -925,6 +925,24 @@
               "title": "Countyid"
             },
             "description": "Required if scope is POWIAT"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional search term to filter schools by name (case-insensitive, partial match)",
+              "title": "Search"
+            },
+            "description": "Optional search term to filter schools by name (case-insensitive, partial match)"
           }
         ],
         "responses": {
@@ -1520,7 +1538,7 @@
             "type": "integer",
             "maximum": 100,
             "title": "Pagesize",
-            "description": "Number of items per page (can differ from requested page_size if fewer items are available)"
+            "description": "Number of items per page"
           },
           "total": {
             "type": "integer",

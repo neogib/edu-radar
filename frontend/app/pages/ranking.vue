@@ -2,6 +2,7 @@
 import { UBadge, UTooltip } from "#components"
 import type { TableColumn, TableRow } from "@nuxt/ui"
 import type { Table as TanstackTable } from "@tanstack/table-core"
+import { watchDebounced } from "@vueuse/core"
 import { upperFirst } from "scule"
 import type {
     RankingWithSchool,
@@ -36,6 +37,9 @@ const {
     countyOptions,
 } = useRankingsOptions(filtersData)
 
+const search = ref("")
+const debouncedSearch = ref("")
+
 const {
     rankingsData,
     rankingsStatus,
@@ -47,7 +51,19 @@ const {
     selectedDirection,
     selectedVoivodeshipId,
     selectedCountyId,
-} = useRankingsData(filtersData.value?.years[0] ?? new Date().getFullYear() - 1)
+} = useRankingsData(
+    filtersData.value?.years[0] ?? new Date().getFullYear() - 1,
+    debouncedSearch,
+)
+
+watchDebounced(
+    search,
+    (value) => {
+        debouncedSearch.value = value.trim()
+        selectedPage.value = 1
+    },
+    { debounce: 300, maxWait: 800 },
+)
 
 const formatNumber = (value: number) =>
     new Intl.NumberFormat("pl-PL", {
@@ -368,45 +384,47 @@ const columnVisibilityItems = computed(
             </div>
         </div>
 
-        <div
-            v-if="rankingsStatus === 'pending'"
-            class="flex items-center gap-2 text-sm text-primary animate-pulse">
-            <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
-            <span>Ładowanie danych rankingu...</span>
-        </div>
-
         <UAlert
             v-if="hasError"
             color="error"
             variant="soft"
             title="Nie udało się pobrać rankingów." />
 
-        <div class="flex justify-end">
-            <UDropdownMenu
-                :items="columnVisibilityItems"
-                :content="{ align: 'end' }">
-                <UButton
-                    label="Kolumny"
-                    color="neutral"
-                    variant="outline"
-                    trailing-icon="i-lucide-chevron-down" />
-            </UDropdownMenu>
-        </div>
+        <div
+            class="overflow-hidden rounded-lg border border-primary/20 bg-default/70">
+            <div
+                class="flex flex-col gap-2 border-b border-primary/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <UInput
+                    v-model="search"
+                    icon="i-lucide-search"
+                    placeholder="Szukaj szkoły..."
+                    class="w-full sm:max-w-sm" />
 
-        <UTable
-            ref="table"
-            v-model:column-visibility="columnVisibility"
-            sticky
-            :data="tableRows"
-            :columns="columns"
-            :meta="tableMeta"
-            :on-hover="handleRowHover"
-            :loading="rankingsStatus === 'pending'"
-            loading-animation="carousel"
-            loading-color="primary"
-            empty="Brak wyników dla wybranych filtrów."
-            class="rounded-lg border border-primary/20 bg-default/70">
-        </UTable>
+                <UDropdownMenu
+                    :items="columnVisibilityItems"
+                    :content="{ align: 'end' }">
+                    <UButton
+                        label="Kolumny"
+                        color="neutral"
+                        variant="outline"
+                        trailing-icon="i-lucide-chevron-down" />
+                </UDropdownMenu>
+            </div>
+
+            <UTable
+                ref="table"
+                v-model:column-visibility="columnVisibility"
+                sticky
+                :data="tableRows"
+                :columns="columns"
+                :meta="tableMeta"
+                :on-hover="handleRowHover"
+                :loading="rankingsStatus === 'pending'"
+                loading-animation="carousel"
+                loading-color="primary"
+                empty="Brak wyników dla wybranych filtrów."
+                class="bg-transparent" />
+        </div>
 
         <div class="flex justify-center">
             <UPagination

@@ -5,8 +5,12 @@ import type {
     RankingsResponse,
     RodzajRankingu,
 } from "~/types/ranking"
+import type { Ref } from "vue"
 
-export const useRankingsData = (defaultYear: number) => {
+export const useRankingsData = (
+    defaultYear: number,
+    search: Ref<string> = ref(""),
+) => {
     const selectedPage = usePushRouteQuery<number>("page", 1, {
         transform: Number,
     })
@@ -52,6 +56,7 @@ export const useRankingsData = (defaultYear: number) => {
         direction: selectedDirection.value,
         voivodeshipId: selectedVoivodeshipId.value,
         countyId: selectedCountyId.value,
+        search: search.value || undefined,
     }))
 
     const {

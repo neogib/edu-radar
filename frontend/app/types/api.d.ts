@@ -393,7 +393,7 @@ export interface components {
             page: number;
             /**
              * Pagesize
-             * @description Number of items per page (can differ from requested page_size if fewer items are available)
+             * @description Number of items per page
              */
             pageSize: number;
             /**
@@ -884,6 +884,8 @@ export interface operations {
                 voivodeshipId?: number | null;
                 /** @description Required if scope is POWIAT */
                 countyId?: number | null;
+                /** @description Optional search term to filter schools by name (case-insensitive, partial match) */
+                search?: string | null;
             };
             header?: never;
             path?: never;
