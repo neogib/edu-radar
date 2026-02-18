@@ -10,6 +10,18 @@ import type {
     RankingDirection,
 } from "~/types/ranking"
 
+useSeoMeta({
+    title: "Ranking szkół w Polsce - EduRadar",
+    description:
+        "Analizuj pozycję szkół w rankingach – porównuj miejsca w kraju, województwie lub powiecie.",
+    ogTitle: "Ranking szkół w Polsce – EduRadar",
+    ogDescription:
+        "Analizuj pozycję szkół w rankingach – porównuj miejsca w kraju, województwie lub powiecie.",
+    ogImage: "/og-image.png",
+    twitterImage: "/og-image.png",
+    twitterCard: "summary_large_image",
+})
+
 const { data: filtersData, error: filtersError } =
     await useApi<RankingsFiltersResponse>("/rankings/filters")
 
@@ -201,94 +213,119 @@ const sortTrailingIcon = computed(() =>
                 container: 'py-1 sm:py-2',
             }" />
 
-        <div class="flex flex-wrap items-end gap-3">
-            <USelectMenu
-                :model-value="selectedYear"
-                :items="yearOptions"
-                value-key="value"
-                :search-input="{ placeholder: 'Wybierz rok' }"
-                color="primary"
-                placeholder="Rok"
-                class="min-w-28"
-                @update:model-value="
-                    (value: number) => {
-                        selectedYear = value
-                        selectedPage = 1
-                    }
-                " />
+        <div class="flex flex-wrap items-start gap-3">
+            <div class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Rok</p>
+                <USelectMenu
+                    :ui="{
+                        content: 'min-w-[8rem]',
+                    }"
+                    :model-value="selectedYear"
+                    :items="yearOptions"
+                    value-key="value"
+                    :search-input="{ placeholder: 'Wybierz rok' }"
+                    color="primary"
+                    @update:model-value="
+                        (value: number) => {
+                            selectedYear = value
+                            selectedPage = 1
+                        }
+                    " />
+            </div>
 
-            <USelectMenu
-                :model-value="selectedType"
-                :items="typeOptions"
-                value-key="value"
-                :search-input="{ placeholder: 'Wybierz typ rankingu' }"
-                color="info"
-                placeholder="Typ rankingu"
-                class="min-w-56"
-                @update:model-value="
-                    (value: RodzajRankingu) => {
-                        selectedType = value
-                        selectedPage = 1
-                    }
-                " />
+            <div class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Rodzaj rankingu</p>
+                <USelectMenu
+                    :ui="{
+                        content: 'min-w-[14rem]',
+                    }"
+                    :model-value="selectedType"
+                    :items="typeOptions"
+                    value-key="value"
+                    :search-input="{ placeholder: 'Wybierz rodzaj rankingu' }"
+                    color="info"
+                    @update:model-value="
+                        (value: RodzajRankingu) => {
+                            selectedType = value
+                            selectedPage = 1
+                        }
+                    " />
+            </div>
 
-            <USelect
-                :model-value="selectedDirection"
-                :items="directionOptions"
-                value-key="value"
-                :trailing-icon="sortTrailingIcon"
-                class="min-w-52"
-                @update:model-value="
-                    (value: RankingDirection) => {
-                        selectedDirection = value
-                        selectedPage = 1
-                    }
-                " />
+            <div class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Sortowanie</p>
+                <USelect
+                    :ui="{
+                        content: 'min-w-[10rem]',
+                    }"
+                    :model-value="selectedDirection"
+                    :items="directionOptions"
+                    value-key="value"
+                    :trailing-icon="sortTrailingIcon"
+                    @update:model-value="
+                        (value: RankingDirection) => {
+                            selectedDirection = value
+                            selectedPage = 1
+                        }
+                    " />
+            </div>
 
-            <USelectMenu
-                :model-value="selectedScope"
-                :items="scopeOptions"
-                value-key="value"
-                :search-input="{ placeholder: 'Wybierz zakres' }"
-                color="warning"
-                placeholder="Zakres"
-                class="min-w-40"
-                @update:model-value="
-                    (value: RankingScope) => handleScopeChange(value)
-                " />
+            <div class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Zakres</p>
+                <USelectMenu
+                    :ui="{
+                        content: 'min-w-[10rem]',
+                    }"
+                    :model-value="selectedScope"
+                    :items="scopeOptions"
+                    value-key="value"
+                    :search-input="{ placeholder: 'Wybierz zakres' }"
+                    color="warning"
+                    @update:model-value="
+                        (value: RankingScope) => handleScopeChange(value)
+                    " />
+            </div>
 
-            <USelectMenu
+            <div
                 v-if="selectedScope === 'WOJEWODZTWO'"
-                :model-value="selectedVoivodeshipId"
-                :items="voivodeshipOptions"
-                value-key="value"
-                :search-input="{ placeholder: 'Wybierz Województwo' }"
-                color="primary"
-                placeholder="Województwo"
-                class="min-w-56"
-                @update:model-value="
-                    (value: number) => {
-                        selectedVoivodeshipId = value
-                        selectedPage = 1
-                    }
-                " />
+                class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Województwo</p>
+                <USelectMenu
+                    :ui="{
+                        content: 'min-w-[14rem]',
+                    }"
+                    :model-value="selectedVoivodeshipId"
+                    :items="voivodeshipOptions"
+                    value-key="value"
+                    :search-input="{ placeholder: 'Wybierz Województwo' }"
+                    color="primary"
+                    @update:model-value="
+                        (value: number) => {
+                            selectedVoivodeshipId = value
+                            selectedPage = 1
+                        }
+                    " />
+            </div>
 
-            <USelectMenu
-                v-if="selectedScope === 'POWIAT'"
-                :model-value="selectedCountyId"
-                :items="countyOptions"
-                virtualize
-                value-key="value"
-                :search-input="{ placeholder: 'Wybierz powiat' }"
-                color="primary"
-                placeholder="Powiat"
-                class="min-w-72"
-                @update:model-value="
-                    (value: number) => {
-                        selectedCountyId = value
-                        selectedPage = 1
-                    }
-                " />
+            <div v-if="selectedScope === 'POWIAT'" class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Powiat</p>
+                <USelectMenu
+                    :ui="{
+                        content: 'min-w-[18rem]',
+                    }"
+                    :model-value="selectedCountyId"
+                    :items="countyOptions"
+                    virtualize
+                    value-key="value"
+                    :search-input="{ placeholder: 'Wybierz powiat' }"
+                    color="primary"
+                    @update:model-value="
+                        (value: number) => {
+                            selectedCountyId = value
+                            selectedPage = 1
+                        }
+                    " />
+            </div>
         </div>
 
         <div
