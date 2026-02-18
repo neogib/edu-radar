@@ -114,9 +114,6 @@ const hasError = computed(
     () => Boolean(filtersError.value) || Boolean(rankingsError.value),
 )
 
-const sortColor = computed(() =>
-    selectedDirection.value === "WORST" ? "error" : "success",
-)
 const sortTrailingIcon = computed(() =>
     selectedDirection.value === "WORST"
         ? "i-lucide-arrow-down"
@@ -165,24 +162,10 @@ const sortTrailingIcon = computed(() =>
                     }
                 " />
 
-            <USelectMenu
-                :model-value="selectedScope"
-                :items="scopeOptions"
-                value-key="value"
-                :search-input="{ placeholder: 'Szukaj zakresu...' }"
-                color="warning"
-                placeholder="Zakres"
-                class="min-w-40"
-                @update:model-value="
-                    (value: RankingScope) => handleScopeChange(value)
-                " />
-
             <USelect
                 :model-value="selectedDirection"
                 :items="directionOptions"
                 value-key="value"
-                :color="sortColor"
-                highlight
                 :trailing-icon="sortTrailingIcon"
                 class="min-w-52"
                 @update:model-value="
@@ -193,11 +176,23 @@ const sortTrailingIcon = computed(() =>
                 " />
 
             <USelectMenu
+                :model-value="selectedScope"
+                :items="scopeOptions"
+                value-key="value"
+                :search-input="{ placeholder: 'Wybierz zakres' }"
+                color="warning"
+                placeholder="Zakres"
+                class="min-w-40"
+                @update:model-value="
+                    (value: RankingScope) => handleScopeChange(value)
+                " />
+
+            <USelectMenu
                 v-if="selectedScope === 'WOJEWODZTWO'"
                 :model-value="selectedVoivodeshipId"
                 :items="voivodeshipOptions"
                 value-key="value"
-                :search-input="{ placeholder: 'Szukaj województwa...' }"
+                :search-input="{ placeholder: 'Wybierz Województwo' }"
                 color="primary"
                 placeholder="Województwo"
                 class="min-w-56"
@@ -214,7 +209,7 @@ const sortTrailingIcon = computed(() =>
                 :items="countyOptions"
                 virtualize
                 value-key="value"
-                :search-input="{ placeholder: 'Szukaj powiatu...' }"
+                :search-input="{ placeholder: 'Wybierz powiat' }"
                 color="primary"
                 placeholder="Powiat"
                 class="min-w-72"

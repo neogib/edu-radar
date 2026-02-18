@@ -47,6 +47,6 @@ export const RANKING_TYPE_LABELS: Record<RodzajRankingu, string> = {
 }
 
 export const RANKING_DIRECTION_LABELS: Record<RankingDirection, string> = {
-    BEST: "Sortuj od najlepszych",
-    WORST: "Sortuj od najsłabszych",
+    BEST: "Sortuj od: najlepszych",
+    WORST: "Sortuj od: najsłabszych",
 }
