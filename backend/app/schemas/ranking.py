@@ -46,6 +46,10 @@ class RankingsParams(PaginationParams):
         None, description="Required if scope is WOJEWODZTWO"
     )
     county_id: int | None = Field(None, description="Required if scope is POWIAT")
+    search: str | None = Field(
+        None,
+        description="Optional search term to filter schools by name (case-insensitive, partial match)",
+    )
 
     @model_validator(mode="after")
     def validate_ranking_scope_ids(self) -> Self:

@@ -58,16 +58,19 @@ class RankingService(BaseService[Ranking]):
             col(Ranking.rodzaj_rankingu) == params.type,
         ]
 
+        if params.search:
+            where_conditions.append(
+                col(Szkola.nazwa).ilike(f"%{params.search.strip()}%")
+            )
+
         if params.scope == RankingScope.WOJEWODZTWO:
             where_conditions.append(col(Powiat.wojewodztwo_id) == params.voivodeship_id)
         elif params.scope == RankingScope.POWIAT:
             where_conditions.append(col(Powiat.id) == params.county_id)
 
-        count_stmt = select(func.count(col(Ranking.id))).select_from(Ranking)
+        count_stmt = select(func.count(col(Ranking.id))).select_from(Ranking).join(Szkola)
         if params.scope != RankingScope.KRAJ:
-            count_stmt = (
-                count_stmt.join(Szkola).join(Miejscowosc).join(Gmina).join(Powiat)
-            )
+            count_stmt = count_stmt.join(Miejscowosc).join(Gmina).join(Powiat)
         count_stmt = count_stmt.where(*where_conditions)
         total = self.session.exec(count_stmt).one()
 
@@ -78,11 +81,9 @@ class RankingService(BaseService[Ranking]):
             order_column = col(Ranking.miejsce_powiat)
 
         offset = (params.page - 1) * params.page_size
-        rows_stmt = select(Ranking)
+        rows_stmt = select(Ranking).join(Szkola)
         if params.scope != RankingScope.KRAJ:
-            rows_stmt = (
-                rows_stmt.join(Szkola).join(Miejscowosc).join(Gmina).join(Powiat)
-            )
+            rows_stmt = rows_stmt.join(Miejscowosc).join(Gmina).join(Powiat)
         rows_stmt = (
             rows_stmt.where(*where_conditions)
             .options(
