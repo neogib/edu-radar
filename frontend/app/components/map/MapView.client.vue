@@ -109,9 +109,32 @@ const waitForSchoolsSource = (map: maplibregl.Map): Promise<void> =>
         map.on("sourcedata", onSourceData)
     })
 
+const registerStyleImageMissingHandler = (map: maplibregl.Map): void => {
+    const pending = new Set<string>()
+
+    map.on("styleimagemissing", async (e) => {
+        if (!(e.id in ICONS)) return
+        if (map.hasImage(e.id)) return
+        if (pending.has(e.id)) return
+
+        pending.add(e.id)
+        try {
+            const image = await map.loadImage(
+                ICONS[e.id as keyof typeof ICONS],
+            )
+            if (!map.hasImage(e.id)) {
+                map.addImage(e.id, image.data, { sdf: true })
+            }
+        } finally {
+            pending.delete(e.id)
+        }
+    })
+}
+
 const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     const map = event.map
     setupMapEventHandlers(map)
+    registerStyleImageMissingHandler(map)
     startFiltersWatcher()
     await waitForSchoolsSource(map)
     await initializeWithSource(map)

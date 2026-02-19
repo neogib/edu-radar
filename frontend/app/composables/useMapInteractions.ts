@@ -30,6 +30,17 @@ export const useMapInteractions = (
     const inPoland = (lng: number, lat: number) =>
         lng >= minLon && lng <= maxLon && lat >= minLat && lat <= maxLat
 
+    const setFeatureStateSafe = (
+        map: maplibregl.Map,
+        id: number,
+        state: { hover?: boolean; clicked?: boolean },
+    ) => {
+        if (!map.isStyleLoaded()) return
+        if (!map.getSource(MAP_CONFIG.sourceId)) return
+
+        map.setFeatureState({ source: MAP_CONFIG.sourceId, id }, state)
+    }
+
     const setupMapEventHandlers = (map: maplibregl.Map) => {
         // Map move end to update URL
         map.on("moveend", () => handleMoveEnd(map))
@@ -48,26 +59,19 @@ export const useMapInteractions = (
         map.on("mousemove", "clusters", (e) => {
             if (e.features && e.features.length > 0) {
                 if (hoveredClusterId !== null) {
-                    map.setFeatureState(
-                        { source: MAP_CONFIG.sourceId, id: hoveredClusterId },
-                        { hover: false },
-                    )
+                    setFeatureStateSafe(map, hoveredClusterId, {
+                        hover: false,
+                    })
                 }
                 hoveredClusterId = (e.features[0] as GeoJSONFeature)
                     .id as number
-                map.setFeatureState(
-                    { source: MAP_CONFIG.sourceId, id: hoveredClusterId },
-                    { hover: true },
-                )
+                setFeatureStateSafe(map, hoveredClusterId, { hover: true })
             }
         })
         map.on("mouseleave", "clusters", () => {
             map.getCanvas().style.cursor = ""
             if (hoveredClusterId !== null) {
-                map.setFeatureState(
-                    { source: MAP_CONFIG.sourceId, id: hoveredClusterId },
-                    { hover: false },
-                )
+                setFeatureStateSafe(map, hoveredClusterId, { hover: false })
                 hoveredClusterId = null
             }
         })
@@ -129,10 +133,7 @@ export const useMapInteractions = (
         const clickedSchoolId = Number(feature.properties?.id)
 
         if (selectedSchoolId !== null) {
-            map.setFeatureState(
-                { source: MAP_CONFIG.sourceId, id: selectedSchoolId },
-                { clicked: false },
-            )
+            setFeatureStateSafe(map, selectedSchoolId, { clicked: false })
 
             // Clicking the same school toggles the sidebar closed.
             if (selectedSchoolId === clickedSchoolId) {
@@ -142,10 +143,7 @@ export const useMapInteractions = (
             }
         }
         selectedSchoolId = clickedSchoolId
-        map.setFeatureState(
-            { source: MAP_CONFIG.sourceId, id: selectedSchoolId },
-            { clicked: true },
-        )
+        setFeatureStateSafe(map, selectedSchoolId, { clicked: true })
 
         // Fetch full school details and emit event
         const schoolFullDetails = await $api<SzkolaPublicWithRelations>(
