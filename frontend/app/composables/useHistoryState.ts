@@ -4,7 +4,8 @@ import { MAP_CONFIG } from "~/constants/mapConfig"
 import { getBoundingBoxFromBounds } from "~/utils/bbox"
 
 export const useHistoryState = () => {
-    const { loadSchoolsFromBbox, loadSchoolsStreaming } = useSchoolGeoJSONSource()
+    const { loadSchoolsFromBbox, loadSchoolsStreaming } =
+        useSchoolGeoJSONSource()
     const mapInstance = useMap(MAP_CONFIG.mapKey)
 
     const waitForMoveEnd = (map: Map): Promise<void> =>

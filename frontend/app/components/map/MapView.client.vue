@@ -119,9 +119,7 @@ const registerStyleImageMissingHandler = (map: maplibregl.Map): void => {
 
         pending.add(e.id)
         try {
-            const image = await map.loadImage(
-                ICONS[e.id as keyof typeof ICONS],
-            )
+            const image = await map.loadImage(ICONS[e.id as keyof typeof ICONS])
             if (!map.hasImage(e.id)) {
                 map.addImage(e.id, image.data, { sdf: true })
             }

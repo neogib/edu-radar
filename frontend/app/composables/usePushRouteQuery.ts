@@ -4,10 +4,7 @@ import type { RouteParamValueRaw } from "vue-router"
 
 type QueryValue = RouteParamValueRaw | string[]
 
-export const usePushRouteQuery = <
-    T extends QueryValue = QueryValue,
-    K = T,
->(
+export const usePushRouteQuery = <T extends QueryValue = QueryValue, K = T>(
     name: string,
     defaultValue?: MaybeRefOrGetter<T>,
     options?: Parameters<typeof useRouteQuery<T, K>>[2],
