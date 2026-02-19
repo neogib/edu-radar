@@ -280,14 +280,13 @@ const columnVisibilityItems = computed(
         <div class="flex flex-wrap items-start gap-3">
             <div class="flex flex-col gap-1">
                 <p class="text-xs font-medium text-muted">Rok</p>
-                <USelectMenu
+                <USelect
                     :ui="{
                         content: 'min-w-[8rem]',
                     }"
                     :model-value="selectedYear"
                     :items="yearOptions"
                     value-key="value"
-                    :search-input="{ placeholder: 'Wybierz rok' }"
                     color="primary"
                     @update:model-value="
                         (value: number) => {
@@ -299,14 +298,13 @@ const columnVisibilityItems = computed(
 
             <div class="flex flex-col gap-1">
                 <p class="text-xs font-medium text-muted">Rodzaj rankingu</p>
-                <USelectMenu
+                <USelect
                     :ui="{
                         content: 'min-w-[14rem]',
                     }"
                     :model-value="selectedType"
                     :items="typeOptions"
                     value-key="value"
-                    :search-input="{ placeholder: 'Wybierz rodzaj rankingu' }"
                     color="info"
                     @update:model-value="
                         (value: RodzajRankingu) => {
@@ -337,24 +335,23 @@ const columnVisibilityItems = computed(
             <div class="flex flex-col gap-1">
                 <p class="text-xs font-medium text-muted">Status</p>
                 <USelect
+                    v-model="selectedStatusForUi"
                     :ui="{
                         content: 'min-w-[14rem]',
                     }"
-                    v-model="selectedStatusForUi"
                     :items="rankingStatusOptions"
                     value-key="value" />
             </div>
 
             <div class="flex flex-col gap-1">
                 <p class="text-xs font-medium text-muted">Zakres</p>
-                <USelectMenu
+                <USelect
                     :ui="{
                         content: 'min-w-[10rem]',
                     }"
                     :model-value="selectedScope"
                     :items="scopeOptions"
                     value-key="value"
-                    :search-input="{ placeholder: 'Wybierz zakres' }"
                     color="warning"
                     @update:model-value="
                         (value: RankingScope) => handleScopeChange(value)
