@@ -67,10 +67,10 @@ const stats = ref([
     },
     {
         value: 0,
-        target: 100,
-        suffix: "%",
-        label: "Danych publicznych",
-        icon: "i-mdi-lock-open-variant",
+        target: 3,
+        suffix: "",
+        label: "Kroki do znalezienia szkoły",
+        icon: "i-mdi-rocket-launch",
     },
 ])
 const statsTriggered = ref(false)
@@ -207,8 +207,7 @@ const faq = [
     },
     {
         label: "Jak obliczany jest wynik szkoły?",
-        content:
-            "Wynik jest normalizowany do skali 0–100. Obliczany jest na podstawie ważonej mediany wyników z trzech przedmiotów: matematyki (50%), języka polskiego (25%) i języka angielskiego (25%). Mediany są ważone liczbą zdających, a wyniki z poprzednich lat mają mniejszy wpływ na wynik końcowy (zanik czasowy – każdy wcześniejszy rok liczony jest z wagą 70% względem kolejnego).",
+        slot: "scoring-system",
     },
     {
         label: "Czy mogę zasugerować nową funkcję?",
@@ -453,7 +452,44 @@ const faq = [
                 </div>
 
                 <div class="space-y-3" data-reveal>
-                    <UAccordion :items="faq" />
+                    <UAccordion :items="faq">
+                        <template #scoring-system-body>
+                            <div
+                                class="space-y-2 text-sm text-muted leading-relaxed">
+                                <p>
+                                    <strong
+                                        >Wynik szkoły jest normalizowany do
+                                        skali 0–100</strong
+                                    >.
+                                </p>
+                                <p>
+                                    Bazuje na
+                                    <strong>ważonej medianie</strong> wyników z
+                                    trzech przedmiotów:
+                                </p>
+                                <p>
+                                    <strong>matematyka (50%)</strong>,
+                                    <strong>język polski (25%)</strong>,
+                                    <strong>język angielski (25%)</strong>.
+                                </p>
+                                <p>
+                                    Mediany są ważone liczbą zdających, a
+                                    starsze lata mają mniejszy wpływ przez
+                                    <strong>zanik czasowy</strong>.
+                                </p>
+                                <UButton
+                                    to="https://github.com/neogib/edu-map-rankings/wiki/Scoring-System"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    variant="link"
+                                    size="xs"
+                                    trailing-icon="i-mdi-open-in-new"
+                                    class="px-0">
+                                    Czytaj więcej
+                                </UButton>
+                            </div>
+                        </template>
+                    </UAccordion>
                 </div>
             </div>
         </section>
