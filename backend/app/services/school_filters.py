@@ -2,8 +2,9 @@
 # pyright: reportUnknownArgumentType = false
 # pyright: reportUnknownMemberType = false
 from sqlalchemy import Select
-from sqlmodel import col, exists, func, select
+from sqlmodel import col, exists, func, literal, select
 
+from app.models.locations import Miejscowosc
 from app.models.schools import (
     StatusPublicznoprawny,
     Szkola,
@@ -14,8 +15,8 @@ from app.schemas.filters import FilterParams
 
 
 def build_schools_short_query(
-    filters: FilterParams,
-) -> Select[tuple[int, str, float | None, str, str, float, float]]:
+    filters: FilterParams, include_miejscowosc: bool = False
+) -> Select[tuple[int, str, float | None, str, str, float, float, str | None]]:
     """
     Apply filters to the Szkola query based on the provided FilterParams.
     """
@@ -28,10 +29,18 @@ def build_schools_short_query(
             col(StatusPublicznoprawny.nazwa).label("status"),
             func.ST_Y(Szkola.geom).label("latitude"),
             func.ST_X(Szkola.geom).label("longitude"),
+            (
+                col(Miejscowosc.nazwa).label("miejscowosc")
+                if include_miejscowosc
+                else literal(None).label("miejscowosc")
+            ),
         )
         .join(TypSzkoly)
         .join(StatusPublicznoprawny)
     )
+
+    if include_miejscowosc:
+        statement = statement.join(Miejscowosc)
 
     if not filters.closed:
         statement = statement.where(~(col(Szkola.zlikwidowana)))

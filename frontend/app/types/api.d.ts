@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Schools Live */
+        get: operations["read_schools_live_api_v1_schools_live_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}": {
         parameters: {
             query?: never;
@@ -438,6 +455,25 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** SzkolaPublicShortWithMiejscowosc */
+        SzkolaPublicShortWithMiejscowosc: {
+            /** Nazwa */
+            nazwa: string;
+            /** Id */
+            id: number;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Wynik */
+            wynik: number | null;
+            /** Typ */
+            typ: string;
+            /** Status */
+            status: string;
+            /** Miejscowosc */
+            miejscowosc: string;
+        };
         /** SzkolaPublicWithRelations */
         SzkolaPublicWithRelations: {
             /** Nazwa */
@@ -669,6 +705,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SzkolaPublicShort"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_schools_live_api_v1_schools_live_get: {
+        parameters: {
+            query?: {
+                minLng?: number | null;
+                minLat?: number | null;
+                maxLng?: number | null;
+                maxLat?: number | null;
+                bbox_mode?: "within" | "outside";
+                /** @description Search query for school name */
+                q?: string | null;
+                /** @description Filter by school type IDs */
+                type?: number[] | null;
+                /** @description Filter by public/private status IDs */
+                status?: number[] | null;
+                /** @description Filter by student category IDs */
+                category?: number[] | null;
+                /** @description Filter by vocational training IDs */
+                career?: number[] | null;
+                min_score?: number | null;
+                max_score?: number | null;
+                /** @description Include closed/liquidated schools in the results */
+                closed?: boolean;
+                limit?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SzkolaPublicShortWithMiejscowosc"][];
                 };
             };
             /** @description Validation Error */

@@ -35,6 +35,10 @@ class SzkolaPublicShort(SzkolaBase):
     status: str
 
 
+class SzkolaPublicShortWithMiejscowosc(SzkolaPublicShort):
+    miejscowosc: str
+
+
 class SzkolaPublicWithRelations(SzkolaPublic):
     etapy_edukacji: list["EtapEdukacjiPublic"]
     typ: "TypSzkolyPublic"

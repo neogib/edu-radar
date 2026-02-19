@@ -8,7 +8,11 @@ from app.models.schools import (
     Szkola,
 )
 from app.schemas.filters import FilterParams
-from app.schemas.schools import SzkolaPublicShort, SzkolaPublicWithRelations
+from app.schemas.schools import (
+    SzkolaPublicShort,
+    SzkolaPublicShortWithMiejscowosc,
+    SzkolaPublicWithRelations,
+)
 from app.services.school_service import SchoolService
 
 _ = SzkolaPublicWithRelations.model_rebuild()
@@ -49,6 +53,13 @@ async def read_school_short(
     school_id: int, service: SchoolServiceDep
 ) -> SzkolaPublicShort:
     return service.get_school_short(school_id)
+
+
+@router.get("/live")
+async def read_schools_live(
+    service: SchoolServiceDep, filters: Annotated[FilterParams, Query()]
+) -> list[SzkolaPublicShortWithMiejscowosc]:
+    return service.get_schools_short_with_miejscowosc(filters)
 
 
 @router.get("/{school_id}", response_model=SzkolaPublicWithRelations)

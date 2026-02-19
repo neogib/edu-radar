@@ -333,6 +333,298 @@
         }
       }
     },
+    "/api/v1/schools/live": {
+      "get": {
+        "tags": [
+          "schools"
+        ],
+        "summary": "Read Schools Live",
+        "operationId": "read_schools_live_api_v1_schools_live_get",
+        "parameters": [
+          {
+            "name": "minLng",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 180,
+                  "minimum": -180
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Minlng"
+            }
+          },
+          {
+            "name": "minLat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 90,
+                  "minimum": -90
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Minlat"
+            }
+          },
+          {
+            "name": "maxLng",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 180,
+                  "minimum": -180
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Maxlng"
+            }
+          },
+          {
+            "name": "maxLat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 90,
+                  "minimum": -90
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Maxlat"
+            }
+          },
+          {
+            "name": "bbox_mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "within",
+                "outside"
+              ],
+              "type": "string",
+              "default": "within",
+              "title": "Bbox Mode"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 2
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Search query for school name",
+              "title": "Q"
+            },
+            "description": "Search query for school name"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by school type IDs",
+              "title": "Type"
+            },
+            "description": "Filter by school type IDs"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by public/private status IDs",
+              "title": "Status"
+            },
+            "description": "Filter by public/private status IDs"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by student category IDs",
+              "title": "Category"
+            },
+            "description": "Filter by student category IDs"
+          },
+          {
+            "name": "career",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by vocational training IDs",
+              "title": "Career"
+            },
+            "description": "Filter by vocational training IDs"
+          },
+          {
+            "name": "min_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Score"
+            }
+          },
+          {
+            "name": "max_score",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 100,
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Score"
+            }
+          },
+          {
+            "name": "closed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include closed/liquidated schools in the results",
+              "default": false,
+              "title": "Closed"
+            },
+            "description": "Include closed/liquidated schools in the results"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 1000,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SzkolaPublicShortWithMiejscowosc"
+                  },
+                  "title": "Response Read Schools Live Api V1 Schools Live Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}": {
       "get": {
         "tags": [
@@ -1646,6 +1938,61 @@
           "status"
         ],
         "title": "SzkolaPublicShort"
+      },
+      "SzkolaPublicShortWithMiejscowosc": {
+        "properties": {
+          "nazwa": {
+            "type": "string",
+            "title": "Nazwa"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "wynik": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wynik"
+          },
+          "typ": {
+            "type": "string",
+            "title": "Typ"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "miejscowosc": {
+            "type": "string",
+            "title": "Miejscowosc"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nazwa",
+          "id",
+          "latitude",
+          "longitude",
+          "wynik",
+          "typ",
+          "status",
+          "miejscowosc"
+        ],
+        "title": "SzkolaPublicShortWithMiejscowosc"
       },
       "SzkolaPublicWithRelations": {
         "properties": {

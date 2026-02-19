@@ -13,7 +13,10 @@ from app.models.exam_results import WynikE8, WynikEM
 from app.models.locations import Gmina, Miejscowosc, Powiat
 from app.models.schools import Szkola
 from app.schemas.filters import FilterParams
-from app.schemas.schools import SzkolaPublicShort
+from app.schemas.schools import (
+    SzkolaPublicShort,
+    SzkolaPublicShortWithMiejscowosc,
+)
 from app.services.base_service import BaseService
 from app.services.exceptions import EntityNotFoundError, SchoolLocationNotFoundError
 from app.services.school_filters import build_schools_short_query
@@ -32,7 +35,7 @@ class SchoolService(BaseService[Szkola]):
         return self._get_entity(school_id)
 
     def get_school_short(self, school_id: int) -> SzkolaPublicShort:
-        "Get basic infor about school just to display on map. Does not include relations to other tables, so it's faster to query. For just one school we can take all columns without performance issues."
+        """Get a short version of the school data, including coordinates and related names."""
         school = self.get_school(school_id)
 
         if not school.geom:
@@ -83,7 +86,7 @@ class SchoolService(BaseService[Szkola]):
     def get_schools(self) -> list[Szkola]:
         return self._get_entities()
 
-    def get_schools_short(self, filters: FilterParams):
+    def get_schools_short(self, filters: FilterParams) -> list[SzkolaPublicShort]:
         stmt = build_schools_short_query(filters)
 
         rows = (
@@ -91,6 +94,17 @@ class SchoolService(BaseService[Szkola]):
         )  # use execute from sqlalchemy Session to get mappings
 
         return [SzkolaPublicShort.model_validate(row) for row in rows]
+
+    def get_schools_short_with_miejscowosc(
+        self, filters: FilterParams
+    ) -> list[SzkolaPublicShort]:
+        stmt = build_schools_short_query(filters, include_miejscowosc=True)
+
+        rows = (
+            self.session.connection().execute(stmt).mappings().all()
+        )  # use execute from sqlalchemy Session to get mappings
+
+        return [SzkolaPublicShortWithMiejscowosc.model_validate(row) for row in rows]
 
     async def stream_schools(self, filters: FilterParams, request: Request):
         last_id = 0
