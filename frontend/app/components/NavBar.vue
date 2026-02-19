@@ -37,7 +37,7 @@ const items = computed<NavigationMenuItem[]>(() => [
     },
     {
         label: "O nas",
-        to: "/",
+        to: "/about",
         icon: "i-mdi-information",
         active: route.path.startsWith("/about"),
     },
