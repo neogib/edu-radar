@@ -7,6 +7,7 @@ import type {
     MapSearchSuggestion,
     PhotonSearchSuggestion,
 } from "~/types/mapSearch"
+import type { SzkolaPublicShortWithMiejscowosc } from "~/types/schools"
 
 const emit = defineEmits<{
     panelClose: []
@@ -14,9 +15,9 @@ const emit = defineEmits<{
 }>()
 
 const mapInstance = useMap(MAP_CONFIG.mapKey)
+const { $api } = useNuxtApp()
 
 const { q, filters, setSearchQuery } = useSchoolFilters()
-const { fetchSchools } = useSchools()
 const { setSingleSchoolData } = useSchoolGeoJSONSource()
 const { fetchPhotonSuggestions } = usePhotonGeocoding()
 
@@ -109,13 +110,16 @@ const fetchSuggestions = async (query: string) => {
     }
 
     try {
-        const schools = await fetchSchools({
-            query: {
-                ...filters.value,
-                q: query,
-                limit: PHOTON_CONFIG.schoolSuggestionLimit,
+        const schools = await $api<SzkolaPublicShortWithMiejscowosc[]>(
+            "/schools/live",
+            {
+                query: {
+                    ...filters.value,
+                    q: query,
+                    limit: PHOTON_CONFIG.schoolSuggestionLimit,
+                },
             },
-        })
+        )
 
         if (requestId !== currentSuggestionRequestId) {
             return
@@ -336,7 +340,7 @@ defineExpose({
                     <div class="flex gap-2 items-center text-xs text-muted">
                         <span>{{ suggestion.school.status }}</span>
                         <span>•</span>
-                        <span>{{ suggestion.school.typ }}</span>
+                        <span>{{ suggestion.school.miejscowosc }}</span>
                     </div>
                 </template>
                 <template v-else>

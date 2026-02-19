@@ -4,7 +4,6 @@ import type { NavigationMenuItem } from "@nuxt/ui"
 const items: NavigationMenuItem[] = [
     { label: "O nas", to: "/about" },
     { label: "Kontakt", to: "/contact" },
-    { label: "Polityka prywatności", to: "/privacy-policy" },
 ]
 </script>
 

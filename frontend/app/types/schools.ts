@@ -8,6 +8,8 @@ import type { components, paths } from "./api"
 type schemas = components["schemas"]
 
 export type SzkolaPublicShort = schemas["SzkolaPublicShort"]
+export type SzkolaPublicShortWithMiejscowosc =
+    schemas["SzkolaPublicShortWithMiejscowosc"]
 export type SzkolaPublicWithRelations = schemas["SzkolaPublicWithRelations"]
 export type TypSzkolyPublic = schemas["TypSzkolyPublic"]
 export type StatusPublicznoprawnyPublic = schemas["StatusPublicznoprawnyPublic"]

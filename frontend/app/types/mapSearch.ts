@@ -1,9 +1,9 @@
-import type { SzkolaPublicShort } from "~/types/schools"
+import type { SzkolaPublicShortWithMiejscowosc } from "~/types/schools"
 
 export type SchoolSearchSuggestion = {
     kind: "school"
     key: string
-    school: SzkolaPublicShort
+    school: SzkolaPublicShortWithMiejscowosc
 }
 
 export type PhotonSearchSuggestion = {
@@ -14,4 +14,6 @@ export type PhotonSearchSuggestion = {
     coordinates: [number, number]
 }
 
-export type MapSearchSuggestion = SchoolSearchSuggestion | PhotonSearchSuggestion
+export type MapSearchSuggestion =
+    | SchoolSearchSuggestion
+    | PhotonSearchSuggestion
