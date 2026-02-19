@@ -14,6 +14,7 @@ useSeoMeta({
 
 /* ───── scroll-reveal observer ───── */
 let observer: IntersectionObserver | null = null
+let statsObserver: IntersectionObserver | null = null
 
 onMounted(async () => {
     await nextTick()
@@ -31,8 +32,22 @@ onMounted(async () => {
     document
         .querySelectorAll("[data-reveal]")
         .forEach((el) => observer?.observe(el))
+    const el = document.getElementById("stats-section")
+    if (el) {
+        statsObserver = new IntersectionObserver(
+            (entries) => {
+                const [entry] = entries
+                if (entry?.isIntersecting) runCounters()
+            },
+            { threshold: 0.3 },
+        )
+        statsObserver.observe(el)
+    }
 })
-onUnmounted(() => observer?.disconnect())
+onUnmounted(() => {
+    observer?.disconnect()
+    statsObserver?.disconnect()
+})
 
 /* ───── animated counters ───── */
 const stats = ref([
@@ -79,20 +94,6 @@ function runCounters() {
         }, dur / steps)
     })
 }
-
-onMounted(async () => {
-    await nextTick()
-    const el = document.getElementById("stats-section")
-    if (!el) return
-    const obs = new IntersectionObserver(
-        (entries) => {
-            const [entry] = entries
-            if (entry?.isIntersecting) runCounters()
-        },
-        { threshold: 0.3 },
-    )
-    obs.observe(el)
-})
 
 /* ───── data ───── */
 const highlights = [
@@ -274,7 +275,7 @@ const faq = [
         <!-- ============ STATS ============ -->
         <section
             id="stats-section"
-            class="relative bg-primary/[0.03] border-y border-primary/10">
+            class="relative bg-primary/3 border-y border-primary/10">
             <div
                 class="mx-auto max-w-4xl px-4 py-14 grid gap-8 text-center sm:grid-cols-3">
                 <div
@@ -333,7 +334,7 @@ const faq = [
         </section>
 
         <!-- ============ HOW IT WORKS ============ -->
-        <section class="bg-primary/[0.03] border-y border-primary/10">
+        <section class="bg-primary/3 border-y border-primary/10">
             <div class="mx-auto max-w-5xl px-4 py-20 space-y-14">
                 <div class="text-center space-y-3" data-reveal>
                     <h2 class="text-3xl font-bold tracking-tight">
@@ -440,7 +441,7 @@ const faq = [
         </section>
 
         <!-- ============ FAQ ============ -->
-        <section class="bg-primary/[0.03] border-y border-primary/10">
+        <section class="bg-primary/3 border-y border-primary/10">
             <div class="mx-auto max-w-3xl px-4 py-20 space-y-10">
                 <div class="text-center space-y-3" data-reveal>
                     <h2 class="text-3xl font-bold tracking-tight">
