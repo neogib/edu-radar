@@ -28,6 +28,7 @@ const {
     directionOptions,
     voivodeshipOptions,
     countyOptions,
+    statusOptions,
 } = useRankingsOptions(filtersData)
 
 const search = ref("")
@@ -44,10 +45,24 @@ const {
     selectedDirection,
     selectedVoivodeshipId,
     selectedCountyId,
+    selectedStatusId,
 } = useRankingsData(
     filtersData.value?.years[0] ?? new Date().getFullYear() - 1,
     debouncedSearch,
 )
+
+const rankingStatusOptions = computed(() => [
+    { label: "Wszystkie", value: null },
+    ...statusOptions.value,
+])
+
+const selectedStatusForUi = computed<number | null>({
+    get: () => selectedStatusId.value ?? null,
+    set: (value) => {
+        selectedStatusId.value = value ?? undefined
+        selectedPage.value = 1
+    },
+})
 
 watchDebounced(
     search,
@@ -317,6 +332,17 @@ const columnVisibilityItems = computed(
                             selectedPage = 1
                         }
                     " />
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <p class="text-xs font-medium text-muted">Status</p>
+                <USelect
+                    :ui="{
+                        content: 'min-w-[14rem]',
+                    }"
+                    v-model="selectedStatusForUi"
+                    :items="rankingStatusOptions"
+                    value-key="value" />
             </div>
 
             <div class="flex flex-col gap-1">

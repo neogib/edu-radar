@@ -400,6 +400,8 @@ export interface components {
             voivodeships: components["schemas"]["WojewodztwoPublic"][];
             /** Counties */
             counties: components["schemas"]["PowiatPublic"][];
+            /** Statuses */
+            statuses: components["schemas"]["StatusPublicznoprawnyPublic"][];
         };
         /** RankingsResponse */
         RankingsResponse: {
@@ -972,6 +974,8 @@ export interface operations {
                 countyId?: number | null;
                 /** @description Optional search term to filter schools by name (case-insensitive, partial match) */
                 search?: string | null;
+                /** @description Optional filter for school status. If provided, only schools matching this status will be included in the ranking. */
+                statusId?: number | null;
             };
             header?: never;
             path?: never;

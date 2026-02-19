@@ -1235,6 +1235,24 @@
               "title": "Search"
             },
             "description": "Optional search term to filter schools by name (case-insensitive, partial match)"
+          },
+          {
+            "name": "statusId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional filter for school status. If provided, only schools matching this status will be included in the ranking.",
+              "title": "Statusid"
+            },
+            "description": "Optional filter for school status. If provided, only schools matching this status will be included in the ranking."
           }
         ],
         "responses": {
@@ -1805,6 +1823,13 @@
             },
             "type": "array",
             "title": "Counties"
+          },
+          "statuses": {
+            "items": {
+              "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
+            },
+            "type": "array",
+            "title": "Statuses"
           }
         },
         "type": "object",
@@ -1814,7 +1839,8 @@
           "types",
           "directions",
           "voivodeships",
-          "counties"
+          "counties",
+          "statuses"
         ],
         "title": "RankingsFiltersResponse"
       },

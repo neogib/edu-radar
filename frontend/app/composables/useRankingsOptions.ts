@@ -66,6 +66,13 @@ export const useRankingsOptions = (
         })),
     )
 
+    const statusOptions = computed<SelectRankingFiltersItem[]>(() =>
+        (filtersData.value?.statuses ?? []).map((status) => ({
+            label: status.nazwa.toLowerCase(),
+            value: status.id,
+        })),
+    )
+
     return {
         yearOptions,
         typeOptions,
@@ -73,5 +80,6 @@ export const useRankingsOptions = (
         directionOptions,
         voivodeshipOptions,
         countyOptions,
+        statusOptions,
     }
 }

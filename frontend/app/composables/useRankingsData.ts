@@ -37,6 +37,13 @@ export const useRankingsData = (
             transform: (v) => (v !== undefined ? Number(v) : undefined),
         },
     )
+    const selectedStatusId = usePushRouteQuery<number | undefined>(
+        "statusId",
+        undefined,
+        {
+            transform: (v) => (v !== undefined ? Number(v) : undefined),
+        },
+    )
 
     const canFetchRankings = computed(() => {
         if (selectedScope.value === "WOJEWODZTWO") {
@@ -57,6 +64,7 @@ export const useRankingsData = (
         voivodeshipId: selectedVoivodeshipId.value,
         countyId: selectedCountyId.value,
         search: search.value || undefined,
+        statusId: selectedStatusId.value,
     }))
 
     const {
@@ -86,5 +94,6 @@ export const useRankingsData = (
         selectedDirection,
         selectedVoivodeshipId,
         selectedCountyId,
+        selectedStatusId,
     }
 }
