@@ -97,7 +97,7 @@ class SchoolService(BaseService[Szkola]):
 
     def get_schools_short_with_miejscowosc(
         self, filters: FilterParams
-    ) -> list[SzkolaPublicShort]:
+    ) -> list[SzkolaPublicShortWithMiejscowosc]:
         stmt = build_schools_short_query(filters, include_miejscowosc=True)
 
         rows = (

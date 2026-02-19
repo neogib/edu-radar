@@ -7,7 +7,7 @@ from app.models.ranking import RodzajRankingu
 from app.schemas.base import CustomBaseModel
 from app.schemas.locations import PowiatPublic, WojewodztwoPublic
 from app.schemas.ranking_shared import RankingPublic
-from app.schemas.schools import SzkolaRankingRow
+from app.schemas.schools import StatusPublicznoprawnyPublic, SzkolaRankingRow
 
 
 class RankingScope(Enum):
@@ -19,6 +19,11 @@ class RankingScope(Enum):
 class RankingDirection(Enum):
     BEST = "BEST"
     WORST = "WORST"
+
+
+class RankingSchoolsStatus(Enum):
+    PUBLICZNA = "publiczna"
+    NIEPUBLICZNA = "niepubliczna"
 
 
 class PaginationParams(CustomBaseModel):
@@ -49,6 +54,10 @@ class RankingsParams(PaginationParams):
     search: str | None = Field(
         None,
         description="Optional search term to filter schools by name (case-insensitive, partial match)",
+    )
+    status_id: int | None = Field(
+        None,
+        description="Optional filter for school status. If provided, only schools matching this status will be included in the ranking.",
     )
 
     @model_validator(mode="after")
@@ -86,3 +95,4 @@ class RankingsFiltersResponse(CustomBaseModel):
     directions: list[RankingDirection]
     voivodeships: list[WojewodztwoPublic]
     counties: list[PowiatPublic]
+    statuses: list[StatusPublicznoprawnyPublic]
