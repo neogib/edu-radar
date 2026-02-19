@@ -6,17 +6,10 @@ definePageMeta({
     layout: false,
 })
 
-useSeoMeta({
-    title: "Mapa szkół w Polsce - Ranking | EduRadar",
-    description:
-        "Interaktywna mapa szkół w Polsce z rankingami, wynikami egzaminów i filtrowaniem.",
-    ogTitle: "Sprawdź ranking swojej szkoły – EduRadar",
-    ogDescription:
-        "Znajdź najlepsze szkoły w swojej okolicy. Przeszukuj szkoły, porównuj rankingi i sprawdzaj najnowsze wyniki.",
-    ogImage: "/og-image.png",
-    twitterImage: "/og-image.png",
-    twitterCard: "summary_large_image",
-})
+usePageSeo(
+    "Mapa szkół w Polsce - Ranking | EduRadar",
+    "Interaktywna mapa szkół w Polsce z rankingami, wynikami egzaminów i filtrowaniem.",
+)
 
 const selectedSchool = ref<SzkolaPublicWithRelations | null>(null)
 const overlay = useOverlay()

@@ -1,16 +1,10 @@
 <script setup lang="ts">
 import heroImage from "@/assets/images/hero-image.png"
 
-useSeoMeta({
-    title: "O nas - EduRadar",
-    description:
-        "Dowiedz się, czym jest EduRadar i jak pomagamy rodzicom oraz uczniom porównywać szkoły w Polsce.",
-    ogTitle: "O nas - EduRadar",
-    ogDescription:
-        "Dowiedz się, czym jest EduRadar i jak pomagamy rodzicom oraz uczniom porównywać szkoły w Polsce.",
-    ogImage: "/og-image.png",
-    twitterCard: "summary_large_image",
-})
+usePageSeo(
+    "O nas - EduRadar",
+    "Dowiedz się, czym jest EduRadar i jak pomagamy rodzicom oraz uczniom porównywać szkoły w Polsce.",
+)
 
 /* ───── scroll-reveal observer ───── */
 let observer: IntersectionObserver | null = null

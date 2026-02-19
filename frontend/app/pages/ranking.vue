@@ -13,17 +13,10 @@ import type {
     RankingDirection,
 } from "~/types/ranking"
 
-useSeoMeta({
-    title: "Ranking szkół w Polsce - EduRadar",
-    description:
-        "Analizuj pozycję szkół w rankingach – porównuj miejsca w kraju, województwie lub powiecie.",
-    ogTitle: "Ranking szkół w Polsce – EduRadar",
-    ogDescription:
-        "Analizuj pozycję szkół w rankingach – porównuj miejsca w kraju, województwie lub powiecie.",
-    ogImage: "/og-image.png",
-    twitterImage: "/og-image.png",
-    twitterCard: "summary_large_image",
-})
+usePageSeo(
+    "Ranking szkół w Polsce - EduRadar",
+    "Analizuj pozycję szkół w rankingach – porównuj miejsca w kraju, województwie lub powiecie.",
+)
 
 const { data: filtersData, error: filtersError } =
     await useApi<RankingsFiltersResponse>("/rankings/filters")
