@@ -2,20 +2,13 @@
 const { multiSelectFilters } = await useFilterData()
 
 // get filters from route.query
-const { hasActiveFilters, totalActiveFilters, filterKey } = useSchoolFilters()
-
-const { loadRemainingSchools } = useSchoolGeoJSONSource()
+const { hasActiveFilters, totalActiveFilters } = useSchoolFilters()
 
 // Filter panel visibility
 const isFilterPanelOpen = ref(false)
-const filterKeyChanged = ref(false)
 
 // Search interactions
 const searchRef = useTemplateRef("searchRef")
-
-watch(filterKey, () => {
-    filterKeyChanged.value = true
-})
 
 const handlePanelToggle = () => {
     isFilterPanelOpen.value = !isFilterPanelOpen.value
@@ -40,18 +33,6 @@ const handlePanelClose = () => {
     multiSelectFilters.forEach((filter) => {
         filter.addingState = false
     })
-
-    handlePanelSubmit()
-}
-
-const handlePanelSubmit = () => {
-    // trigger search if filters changed
-    if (!filterKeyChanged.value) {
-        return
-    }
-    filterKeyChanged.value = false
-
-    void loadRemainingSchools()
 }
 </script>
 
