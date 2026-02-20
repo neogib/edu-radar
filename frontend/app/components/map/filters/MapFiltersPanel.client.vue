@@ -2,10 +2,6 @@
 import type { MultiFilter } from "~/types/filters"
 import type { FiltersOptions } from "~/types/schools"
 
-defineEmits<{
-    close: []
-}>()
-
 const multiSelectFilters = defineModel<MultiFilter[]>()
 
 const { min_score, max_score, hasActiveFilters, resetFilters } =
@@ -44,9 +40,7 @@ const canAddMore = (
     if (!userSelections || userSelections.length === 0) {
         return true
     }
-    const numberOfTotalOptions = optionsKey.length
-
-    return userSelections.length < numberOfTotalOptions
+    return userSelections.length < optionsKey.length
 }
 </script>
 <template>
@@ -217,8 +211,7 @@ const canAddMore = (
             </div>
 
             <!-- Actions -->
-            <div
-                class="flex justify-between items-center pt-2 border-t border-default">
+            <div class="flex items-center justify-end pt-2 border-t border-default">
                 <UButton
                     v-if="hasActiveFilters"
                     icon="i-mdi-close-circle"
@@ -227,14 +220,6 @@ const canAddMore = (
                     variant="ghost"
                     size="sm"
                     @click="resetFilters" />
-                <div v-else />
-
-                <UButton
-                    icon="i-mdi-magnify"
-                    size="sm"
-                    label="Pokaż wyniki"
-                    color="primary"
-                    @click="$emit('close')" />
             </div>
         </div>
     </div>

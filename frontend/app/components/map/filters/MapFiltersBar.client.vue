@@ -62,9 +62,7 @@ const handlePanelClose = () => {
         <!-- Filter Panel -->
         <Transition name="slide-fade">
             <div v-show="isFilterPanelOpen">
-                <MapFiltersPanel
-                    v-model="multiSelectFilters"
-                    @close="handlePanelClose" />
+                <MapFiltersPanel v-model="multiSelectFilters" />
             </div>
         </Transition>
     </div>
