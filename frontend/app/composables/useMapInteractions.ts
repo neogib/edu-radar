@@ -38,7 +38,14 @@ export const useMapInteractions = (
         if (!map.isStyleLoaded()) return
         if (!map.getSource(MAP_CONFIG.sourceId)) return
 
-        map.setFeatureState({ source: MAP_CONFIG.sourceId, id }, state)
+        map.setFeatureState(
+            {
+                source: MAP_CONFIG.sourceId,
+                sourceLayer: MAP_CONFIG.martinSourceLayer,
+                id,
+            },
+            state,
+        )
     }
 
     const setupMapEventHandlers = (map: maplibregl.Map) => {
@@ -170,14 +177,9 @@ export const useMapInteractions = (
         )
             return
 
-        const clusterId = firstFeature.properties.cluster_id
-        const source = map.getSource(
-            MAP_CONFIG.sourceId,
-        ) as maplibregl.GeoJSONSource
-        const zoom = await source.getClusterExpansionZoom(clusterId)
         map.easeTo({
             center: firstFeature.geometry.coordinates as [number, number],
-            zoom,
+            zoom: Math.min(map.getZoom() + 2, MAP_CONFIG.maxZoom),
             duration: 150,
         })
     }
