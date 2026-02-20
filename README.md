@@ -16,10 +16,11 @@
 
 ## ⚙️ Configuration
 
-### Environment variables
+Before running the project, configure the following env files (copy from the provided examples and fill in your values):
 
-Create `backend/.env` (you can copy from [`backend/.env.example`](backend/.env.example)) and set credentials. RSPO credentials are needed for fetching data from their API.
-Next setup `frontend/.env` with the API URL (if different from default `http://localhost:8000`) and running [Martin](https://martin.maplibre.org/) URL. Check Martin installation steps if you want to run it without docker. For **Martin** configure `backend/martin/.env` with PostgreSQL database URL. You can copy example .env files from [`frontend/.env.example`](frontend/.env.example) and [`backend/martin/.env.example`](backend/martin/.env.example).
+- [`backend/.env.example`](backend/.env.example) — app credentials, including RSPO API credentials required for data fetching
+- [`frontend/.env.example`](frontend/.env.example) — API URL (defaults to `http://localhost:8000`) and [Martin](https://martin.maplibre.org/) tile server URL
+- [`backend/martin/.env.example`](backend/martin/.env.example) — PostgreSQL connection URL for Martin
 
 ---
 

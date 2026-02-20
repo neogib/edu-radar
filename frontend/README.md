@@ -55,4 +55,4 @@ Public runtime variables should be defined using:
 NUXT_PUBLIC_*
 ```
 
-Example configuration in [`frontend/.env.example`](frontend/.env.example).
+Example configuration in [`.env.example`](frontend/.env.example).
