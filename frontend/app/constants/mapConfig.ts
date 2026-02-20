@@ -25,12 +25,7 @@ export const MAP_CONFIG = {
     zoomThreshold: 8,
     mapKey: "mainMap",
     sourceId: "schools",
-} as const
-
-export const GeoJSON_SOURCE_CONFIG = {
-    clusterMaxZoom: 12,
-    clusterRadius: 40,
-    clusterMinPoints: 3,
+    martinSourceLayer: "szkola_clustered",
 } as const
 
 export const SCHOOL_ICONS = {

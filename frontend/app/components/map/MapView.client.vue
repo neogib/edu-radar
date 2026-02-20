@@ -5,7 +5,6 @@ import type {
     MapSourceDataEvent,
     StyleSpecification,
 } from "maplibre-gl"
-import { useSchoolGeoJSONSource } from "~/composables/useSchoolGeoJSONSource"
 import { MAP_CONFIG, ICONS } from "~/constants/mapConfig"
 import type { SzkolaPublicWithRelations } from "~/types/schools"
 
@@ -37,12 +36,6 @@ const statusIcon = computed(() => {
         return "i-material-symbols-public-off"
     return "i-mdi-shield-check"
 })
-
-// for map data loading
-const initialBbox = useInitialBbox()
-const { isUnderZoomThreshold } = useMapState()
-const { startFiltersWatcher, loadSchoolsFromBbox, loadSchoolsStreaming } =
-    useSchoolGeoJSONSource()
 
 const isSchoolLayer = (layer: LayerSpecification): boolean =>
     "source" in layer &&
@@ -133,30 +126,7 @@ const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     const map = event.map
     setupMapEventHandlers(map)
     registerStyleImageMissingHandler(map)
-    startFiltersWatcher()
     await waitForSchoolsSource(map)
-    await initializeWithSource(map)
-}
-
-const initializeWithSource = async (map: maplibregl.Map) => {
-    if (initialBbox.value) {
-        // when there is an initial bbox, on map load we need to only get schools outside this bbox becaues schools inside bbox are already loaded
-        await loadSchoolsStreaming(initialBbox.value)
-        return
-    }
-    if (isUnderZoomThreshold.value) {
-        // if under zoom threshold, just load all schools via streaming
-        // no need to load by bbox first
-        await loadSchoolsStreaming()
-        return
-    }
-
-    // no initial bbox, load schools for current map bounds when zoom is greater than threshold
-    await loadSchoolsFromBbox()
-
-    // then load schools outside current bounds via streaming
-    const bbox = getBoundingBoxFromBounds(map.getBounds())
-    await loadSchoolsStreaming(bbox)
 }
 
 watch(

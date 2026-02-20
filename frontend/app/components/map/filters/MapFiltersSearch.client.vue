@@ -18,7 +18,6 @@ const mapInstance = useMap(MAP_CONFIG.mapKey)
 const { $api } = useNuxtApp()
 
 const { q, filters, setSearchQuery } = useSchoolFilters()
-const { setSingleSchoolData } = useSchoolGeoJSONSource()
 const { fetchPhotonSuggestions } = usePhotonGeocoding()
 
 // Search state
@@ -180,8 +179,6 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
 
         isSearchFocused.value = false
         highlightedIndex.value = -1
-
-        void setSingleSchoolData(school.id)
 
         // Fly to school
         const map = mapInstance.map as maplibregl.Map

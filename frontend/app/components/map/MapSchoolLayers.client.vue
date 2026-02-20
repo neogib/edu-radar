@@ -3,91 +3,80 @@ import {
     getClusterLayerStyle,
     getPointLayerStyle,
 } from "~/constants/mapLayerStyles"
-import { GeoJSON_SOURCE_CONFIG, MAP_CONFIG } from "~/constants/mapConfig"
+import { MAP_CONFIG } from "~/constants/mapConfig"
 
-const route = useRoute()
 const colorMode = useColorMode()
-const initialBbox = useInitialBbox()
-const { schoolsGeoJSONFeatures } = useSchools()
+const runtimeConfig = useRuntimeConfig()
 const { filters } = useSchoolFilters()
-const { bboxController } = useControllers()
+
 const isDarkMode = computed(() => colorMode.value === "dark")
 const pointLayerStyle = computed(() => getPointLayerStyle(isDarkMode.value))
 const clusterLayerStyle = computed(() => getClusterLayerStyle(isDarkMode.value))
 
-const schoolsSource = shallowRef<GeoJSON.FeatureCollection>({
-    type: "FeatureCollection",
-    features: [],
+const buildCsvParam = (
+    values: number[] | null | undefined,
+): string | undefined => {
+    if (!values || values.length === 0) return undefined
+    return values.join(",")
+}
+
+const martinQueryString = computed(() => {
+    const params = new URLSearchParams()
+
+    const type = buildCsvParam(filters.value.type)
+    const status = buildCsvParam(filters.value.status)
+    const category = buildCsvParam(filters.value.category)
+    const career = buildCsvParam(filters.value.career)
+
+    if (type) params.set("type", type)
+    if (status) params.set("status", status)
+    if (category) params.set("category", category)
+    if (career) params.set("career", career)
+    if (filters.value.min_score !== undefined) {
+        params.set("min_score", String(filters.value.min_score))
+    }
+    if (filters.value.max_score !== undefined) {
+        params.set("max_score", String(filters.value.max_score))
+    }
+    if (filters.value.q) {
+        params.set("q", filters.value.q)
+    }
+
+    return params.toString()
 })
 
-// set to default bbox if default map view is used
-const shouldUseDefaultBbox = () =>
-    !initialBbox.value &&
-    Number(route.query.x) === MAP_CONFIG.defaultCenter[0] &&
-    Number(route.query.y) === MAP_CONFIG.defaultCenter[1] &&
-    Number(route.query.z) === MAP_CONFIG.defaultZoom
-
-const loadSchools = async () => {
-    // load initial schools only when initialBbox exists
-    if (!initialBbox.value) return
-
-    // abort previous bbox request and create a new controller
-    bboxController.value?.abort()
-    bboxController.value = new AbortController()
-
-    const schools = await schoolsGeoJSONFeatures({
-        query: {
-            ...filters.value,
-            ...initialBbox.value!,
-        },
-        signal: bboxController.value.signal,
-    })
-    schoolsSource.value = {
-        type: "FeatureCollection",
-        features: schools,
-    }
-}
-
-if (shouldUseDefaultBbox()) {
-    initialBbox.value = MAP_CONFIG.defaultBbox
-}
-await loadSchools()
+const martinTiles = computed(() => {
+    const endpoint = `${runtimeConfig.public.martinBase}/szkola_clustered/{z}/{x}/{y}`
+    const query = martinQueryString.value
+    return [query ? `${endpoint}?${query}` : endpoint]
+})
 </script>
 
 <template>
-    <!-- Default Source -->
-    <MglGeoJsonSource
+    <MglVectorSource
         :source-id="MAP_CONFIG.sourceId"
-        :data="schoolsSource"
-        :cluster="true"
-        :cluster-max-zoom="GeoJSON_SOURCE_CONFIG.clusterMaxZoom"
-        :cluster-radius="GeoJSON_SOURCE_CONFIG.clusterRadius"
-        :cluster-min-points="GeoJSON_SOURCE_CONFIG.clusterMinPoints"
-        :promote-id="'id'"
-        :cluster-properties="{
-            sum: [
-                '+',
-                ['case', ['!=', ['get', 'wynik'], null], ['get', 'wynik'], 0],
-            ],
-            nonNullCount: ['+', ['case', ['!=', ['get', 'wynik'], null], 1, 0]],
-        }">
+        :tiles="martinTiles"
+        :promote-id="'state_id'">
         <MglSymbolLayer
             layer-id="unclustered-points"
             :source="MAP_CONFIG.sourceId"
-            :filter="['!', ['has', 'point_count']]"
+            :source-layer="MAP_CONFIG.martinSourceLayer"
+            :filter="['==', ['get', 'cluster'], false]"
             :paint="pointLayerStyle.paint"
             :layout="pointLayerStyle.layout" />
 
         <MglCircleLayer
             layer-id="clusters"
             :source="MAP_CONFIG.sourceId"
-            :filter="['has', 'cluster']"
+            :source-layer="MAP_CONFIG.martinSourceLayer"
+            :filter="['==', ['get', 'cluster'], true]"
             :paint="clusterLayerStyle.paint" />
 
         <MglSymbolLayer
             layer-id="cluster-count"
             :source="MAP_CONFIG.sourceId"
-            :filter="['has', 'cluster']"
+            :source-layer="MAP_CONFIG.martinSourceLayer"
+            :filter="['==', ['get', 'cluster'], true]"
             :layout="clusterLayerStyle.layout" />
-    </MglGeoJsonSource>
+    </MglVectorSource>
 </template>
