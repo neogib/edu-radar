@@ -9,8 +9,8 @@ export default defineNuxtRouteMiddleware((to) => {
     const y = Number(to.query.y)
     const z = Number(to.query.z)
 
-    const validX = !isNaN(x) && x >= -90 && x <= 90
-    const validY = !isNaN(y) && y >= -180 && y <= 180
+    const validX = !isNaN(x) && x >= -180 && x <= 180
+    const validY = !isNaN(y) && y >= -90 && y <= 90
     const validZ =
         !isNaN(z) && z >= MAP_CONFIG.minZoom && z <= MAP_CONFIG.maxZoom
 
