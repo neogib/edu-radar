@@ -34,7 +34,6 @@ export const useHistoryState = () => {
                 await waitForMoveEnd(map)
             }
         }
-
     }
 
     const handlePopState = () => {

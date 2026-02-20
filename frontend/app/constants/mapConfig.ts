@@ -22,7 +22,6 @@ export const MAP_CONFIG = {
     voivodeshipZoom: 10,
     maxZoom: 19,
     minZoom: 4,
-    zoomThreshold: 8,
     mapKey: "mainMap",
     sourceId: "schools",
     martinSourceLayer: "szkola_clustered",
