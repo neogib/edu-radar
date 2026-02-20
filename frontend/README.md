@@ -1,6 +1,6 @@
-# Frontend – EduMap Rankings
+# Frontend – EduRadar
 
-Nuxt 4 frontend for the EduMap Rankings project.
+Nuxt 4 frontend for the EduRadar project.
 
 ---
 
@@ -55,9 +55,4 @@ Public runtime variables should be defined using:
 NUXT_PUBLIC_*
 ```
 
-Example configuration in `frontend/.env`:
-
-```env
-NUXT_PUBLIC_API_BASE=/api
-NUXT_PROXY_URL=http://localhost:8000
-```
+Example configuration in [`frontend/.env.example`](frontend/.env.example).

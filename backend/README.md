@@ -1,6 +1,6 @@
-# Backend – EduMap Rankings
+# Backend – EduRadar
 
-FastAPI backend for the EduMap Rankings project.
+FastAPI backend for the EduRadar project.
 
 ---
 
@@ -18,18 +18,11 @@ FastAPI backend for the EduMap Rankings project.
 
 ### Environment Variables
 
-Create a `.env` file in:
+Copy the example env files and fill in your values:
 
-```
-backend/.env
-```
-
-```ini
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-POSTGRES_SERVER=
-POSTGRES_PORT=5432
-POSTGRES_DB=
+```bash
+cp backend/.env.example backend/.env
+cp backend/martin/.env.example backend/martin/.env
 ```
 
 These variables are used both for Docker and native execution.
