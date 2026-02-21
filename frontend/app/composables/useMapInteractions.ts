@@ -1,5 +1,5 @@
 import { useDebounceFn } from "@vueuse/core"
-import maplibregl from "maplibre-gl"
+import type maplibregl from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
 import type {
     SzkolaPublicWithRelations,
