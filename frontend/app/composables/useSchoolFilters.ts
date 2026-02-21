@@ -57,8 +57,16 @@ export const useSchoolFilters = () => {
     // Number filters
     const numberSerializer = (v: number | undefined) =>
         v !== undefined ? String(v) : undefined
-    const minScore = createComputedFilter("minScore", parseNumber, numberSerializer)
-    const maxScore = createComputedFilter("maxScore", parseNumber, numberSerializer)
+    const minScore = createComputedFilter(
+        "minScore",
+        parseNumber,
+        numberSerializer,
+    )
+    const maxScore = createComputedFilter(
+        "maxScore",
+        parseNumber,
+        numberSerializer,
+    )
 
     // Search query
     const q = createComputedFilter("q", parseQueryString, (v) =>

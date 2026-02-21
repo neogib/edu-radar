@@ -211,7 +211,8 @@ const canAddMore = (
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center justify-end pt-2 border-t border-default">
+            <div
+                class="flex items-center justify-end pt-2 border-t border-default">
                 <UButton
                     v-if="hasActiveFilters"
                     icon="i-mdi-close-circle"
