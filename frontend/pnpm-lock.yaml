@@ -72,6 +72,9 @@ importers:
       '@iconify-json/noto':
         specifier: ^1.2.7
         version: 1.2.7
+      '@iconify-json/simple-icons':
+        specifier: ^1.2.71
+        version: 1.2.71
       '@types/geojson':
         specifier: ^7946.0.16
         version: 7946.0.16
@@ -719,6 +722,9 @@ packages:
 
   '@iconify-json/noto@1.2.7':
     resolution: {integrity: sha512-2pNHliXnMLpnepNTZwR9hPBSl6GmhIfXPnudFCHY5v9pJhmA7LoVb/pFY0qLDY/k+3ikET8RXRf7XFxc/pHObA==}
+
+  '@iconify-json/simple-icons@1.2.71':
+    resolution: {integrity: sha512-rNoDFbq1fAYiEexBvrw613/xiUOPEu5MKVV/X8lI64AgdTzLQUUemr9f9fplxUMPoxCBP2rWzlhOEeTHk/Sf0Q==}
 
   '@iconify/collections@1.0.642':
     resolution: {integrity: sha512-SjQpWEQDG8votqjmF/G0CCmFFYaQfm+GECNjAEhzyIGB/RpzOUWcGCIBnFQA/YCg3I+wC5sZpWF/Mko6KWeMwg==}
@@ -6437,6 +6443,10 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/noto@1.2.7':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/simple-icons@1.2.71':
     dependencies:
       '@iconify/types': 2.0.0
 

@@ -12,9 +12,9 @@ export default defineNuxtConfig({
     ],
     // Runtime environment configuration
     runtimeConfig: {
-        proxyURL: "http://localhost:8000",
         public: {
-            apiBase: "/api",
+            apiBase: "http://localhost:8000/api/v1",
+            martinBase: "http://localhost:3001",
         },
     },
     css: ["~/assets/css/main.css"],

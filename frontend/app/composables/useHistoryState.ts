@@ -1,11 +1,8 @@
 import { useMap } from "@indoorequal/vue-maplibre-gl"
 import type { Map } from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
-import { getBoundingBoxFromBounds } from "~/utils/bbox"
 
 export const useHistoryState = () => {
-    const { loadSchoolsFromBbox, loadSchoolsStreaming } =
-        useSchoolGeoJSONSource()
     const mapInstance = useMap(MAP_CONFIG.mapKey)
 
     const waitForMoveEnd = (map: Map): Promise<void> =>
@@ -37,19 +34,6 @@ export const useHistoryState = () => {
                 await waitForMoveEnd(map)
             }
         }
-
-        // under threshold we load all schools directly (no bbox split)
-        if (map.getZoom() < MAP_CONFIG.zoomThreshold) {
-            await loadSchoolsStreaming()
-            return
-        }
-
-        // first load schools currently visible in bbox
-        await loadSchoolsFromBbox()
-
-        // then stream schools outside current bbox
-        const bounds = map.getBounds()
-        await loadSchoolsStreaming(getBoundingBoxFromBounds(bounds))
     }
 
     const handlePopState = () => {

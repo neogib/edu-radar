@@ -6,7 +6,7 @@ WORKDIR /app/frontend
 RUN corepack enable 
 
 # Copy manifests separately (cache layers)
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 RUN pnpm install
 
 # Copy the rest of the sources

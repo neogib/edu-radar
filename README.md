@@ -1,12 +1,12 @@
-# EduMap Ranking
+# EduRadar
 
 ## 🛠️ Tech stack:
 
 - **Frontend:** Nuxt 4, Vue 3, TypeScript, Tailwind CSS
 - **Backend:** FastAPI, PostgreSQL, SQLModel
 - **Map:** MapLibre GL (via Vue MapLibre) + OpenFreeMap
+- **Martin** for map tile rendering
 - **Package Managers:** pnpm (Frontend), uv (Backend)
-- **Testing:** Vitest, Playwright, and Pytest
 - **Containers:** Docker with Docker Compose Watch
 
 ## 📦 Project structure
@@ -14,21 +14,13 @@
 - [`frontend/README.md`](frontend/README.md) – frontend setup, Nuxt specifics
 - [`backend/README.md`](backend/README.md) – backend setup, FastAPI & database details
 
-## 🗄️ Database Configuration
+## ⚙️ Configuration
 
-### PostgreSQL Environment Variables
+Before running the project, configure the following env files (copy from the provided examples and fill in your values):
 
-Create `backend/.env` (you can copy from `backend/.env.example`) and set credentials:
-
-```ini
-POSTGRES_USER=
-POSTGRES_PASSWORD=
-POSTGRES_SERVER=
-POSTGRES_PORT=5432
-POSTGRES_DB=
-RSPO_USERNAME=
-RSPO_PASSWORD=
-```
+- [`backend/.env.example`](backend/.env.example) — app credentials, including RSPO API credentials required for data fetching
+- [`frontend/.env.example`](frontend/.env.example) — API URL (defaults to `http://localhost:8000`) and [Martin](https://martin.maplibre.org/) tile server URL
+- [`backend/martin/.env.example`](backend/martin/.env.example) — PostgreSQL connection URL for Martin
 
 ---
 
@@ -42,8 +34,8 @@ RSPO_PASSWORD=
 ### 2. Clone the repository:
 
 ```bash
-git clone https://github.com/neogib/edu-map-rankings.git
-cd edu-map-rankings
+git clone https://github.com/neogib/edu-radar.git
+cd edu-radar
 ```
 
 ### 3. Running the project with docker (first time & development)

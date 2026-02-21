@@ -10,15 +10,21 @@ import type {
 import type { SzkolaPublicShortWithMiejscowosc } from "~/types/schools"
 
 const emit = defineEmits<{
-    panelClose: []
+    close: []
     filterPanelClosed: []
+    focusChange: [focused: boolean]
 }>()
+
+defineShortcuts({
+    "/": () => {
+        expandSearch()
+    },
+})
 
 const mapInstance = useMap(MAP_CONFIG.mapKey)
 const { $api } = useNuxtApp()
 
-const { q, filters, setSearchQuery } = useSchoolFilters()
-const { setSingleSchoolData } = useSchoolGeoJSONSource()
+const { q, filters } = useSchoolFilters()
 const { fetchPhotonSuggestions } = usePhotonGeocoding()
 
 // Search state
@@ -46,22 +52,27 @@ watch(q, (newQ) => {
     }
 })
 
-defineShortcuts({
-    "/": () => {
-        expandSearch()
-    },
-})
-
-const expandSearch = () => {
+const expandSearch = async () => {
     isSearchExpanded.value = true
+    await nextTick()
+    searchInput.value?.inputRef?.focus()
+}
+
+const setSearchFocused = (focused: boolean) => {
+    isSearchFocused.value = focused
+    emit("focusChange", focused)
 }
 
 const collapseSearch = () => {
     // Only collapse if search is empty
-    if (searchQuery.value.trim().length === 0) {
-        isSearchExpanded.value = false
-        isSearchFocused.value = false
-    }
+    if (searchQuery.value.trim().length) return
+    isSearchExpanded.value = false
+    setSearchFocused(false)
+}
+
+const closeSearch = () => {
+    setSearchFocused(false)
+    collapseSearch()
 }
 
 const handleSearchButtonClick = async () => {
@@ -70,12 +81,12 @@ const handleSearchButtonClick = async () => {
     } else {
         // when search is expanded, submit query
         await submitQuery()
-        emit("panelClose")
+        emit("close")
     }
 }
 
 const handleFocus = () => {
-    isSearchFocused.value = true
+    setSearchFocused(true)
 
     // if filters were opened, close them
     emit("filterPanelClosed")
@@ -152,10 +163,6 @@ const fetchSuggestions = async (query: string) => {
 
 const submitQuery = async () => {
     const trimmedQuery = searchQuery.value.trim()
-    // check if query changed
-    if (trimmedQuery === q.value || (trimmedQuery.length === 0 && !q.value))
-        return
-
     // Validate length
     if (trimmedQuery.length > 0 && trimmedQuery.length < 2) {
         useToast().add({
@@ -167,8 +174,12 @@ const submitQuery = async () => {
         return
     }
 
-    // trigger search with new query
-    await setSearchQuery(trimmedQuery)
+    // check if query changed
+    const normalized = parseQueryString(trimmedQuery)
+    if (normalized === q.value) return
+
+    // trigger schools fetching with new query
+    q.value = trimmedQuery
 }
 
 const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
@@ -178,10 +189,8 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
         q.value = school.nazwa
         searchQuery.value = school.nazwa
 
-        isSearchFocused.value = false
+        setSearchFocused(false)
         highlightedIndex.value = -1
-
-        void setSingleSchoolData(school.id)
 
         // Fly to school
         const map = mapInstance.map as maplibregl.Map
@@ -193,7 +202,7 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
         return
     }
 
-    isSearchFocused.value = false
+    setSearchFocused(false)
     highlightedIndex.value = -1
 
     const map = mapInstance.map as maplibregl.Map
@@ -205,10 +214,10 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
 
     if (q.value) {
         preserveSearchInputOnQClear.value = true
-        await setSearchQuery(undefined)
+        q.value = undefined
     }
 
-    emit("panelClose")
+    emit("close")
 }
 
 const scrollToSelected = () => {
@@ -231,32 +240,27 @@ const handleKeyDown = (e: KeyboardEvent) => {
     if (!isSearchFocused.value || searchSuggestions.value.length === 0) {
         return
     }
-
+    const handledKeys = ["ArrowDown", "ArrowUp", "Enter", "Escape"]
+    if (!handledKeys.includes(e.key)) return
+    e.preventDefault()
     if (e.key === "ArrowDown") {
-        e.preventDefault()
         highlightedIndex.value =
             (highlightedIndex.value + 1) % searchSuggestions.value.length
         scrollToSelected()
     } else if (e.key === "ArrowUp") {
-        e.preventDefault()
         highlightedIndex.value =
             (highlightedIndex.value - 1 + searchSuggestions.value.length) %
             searchSuggestions.value.length
         scrollToSelected()
     } else if (e.key === "Enter" && highlightedIndex.value >= 0) {
-        e.preventDefault()
         const selected = searchSuggestions.value[highlightedIndex.value]
         if (selected) {
             void handleSelectSuggestion(selected)
         }
     } else if (e.key === "Escape") {
-        isSearchFocused.value = false
+        setSearchFocused(false)
         highlightedIndex.value = -1
     }
-}
-
-const blur = () => {
-    isSearchFocused.value = false
 }
 
 const moveFocusToMap = () => {
@@ -275,9 +279,7 @@ const moveFocusToMap = () => {
 }
 
 defineExpose({
-    collapseSearch,
-    blur,
-    isSearchFocused,
+    closeSearch,
 })
 </script>
 <template>

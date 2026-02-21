@@ -38,7 +38,7 @@
                 </p>
 
                 <UButton
-                    to="https://github.com/neogib/edu-map-rankings/wiki/Scoring-System"
+                    to="https://github.com/neogib/edu-radar/wiki/Scoring-System"
                     target="_blank"
                     rel="noopener noreferrer"
                     variant="link"

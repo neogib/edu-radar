@@ -49,15 +49,8 @@ const handleSidebarClose = () => {
     selectedSchool.value = null
 }
 
-const initialBbox = useInitialBbox()
-const { bboxController, streamingController } = useControllers()
 onUnmounted(() => {
     sidebar.close()
-    // Reset initialBbox when leaving map page
-    initialBbox.value = undefined
-    // abort controllers
-    bboxController.value?.abort()
-    streamingController.value?.abort()
 })
 </script>
 
@@ -68,7 +61,7 @@ onUnmounted(() => {
         <MapLegend />
 
         <div v-show="!selectedSchool">
-            <MapFiltersBar />
+            <MapFilters />
         </div>
 
         <!-- MapView taking full remaining space -->

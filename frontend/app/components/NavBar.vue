@@ -79,7 +79,7 @@ const items = computed<NavigationMenuItem[]>(() => [
                 <UButton
                     color="neutral"
                     variant="ghost"
-                    to="https://github.com/neogib/edu-map-rankings"
+                    to="https://github.com/neogib/edu-radar"
                     target="_blank"
                     icon="i-simple-icons-github"
                     aria-label="GitHub" />
