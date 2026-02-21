@@ -61,7 +61,7 @@ onUnmounted(() => {
         <MapLegend />
 
         <div v-show="!selectedSchool">
-            <MapFiltersBar />
+            <MapFilters />
         </div>
 
         <!-- MapView taking full remaining space -->

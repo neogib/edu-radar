@@ -10,8 +10,9 @@ import type {
 import type { SzkolaPublicShortWithMiejscowosc } from "~/types/schools"
 
 const emit = defineEmits<{
-    panelClose: []
+    close: []
     filterPanelClosed: []
+    focusChange: [focused: boolean]
 }>()
 
 const mapInstance = useMap(MAP_CONFIG.mapKey)
@@ -55,11 +56,16 @@ const expandSearch = () => {
     isSearchExpanded.value = true
 }
 
+const setSearchFocused = (focused: boolean) => {
+    isSearchFocused.value = focused
+    emit("focusChange", focused)
+}
+
 const collapseSearch = () => {
     // Only collapse if search is empty
     if (searchQuery.value.trim().length === 0) {
         isSearchExpanded.value = false
-        isSearchFocused.value = false
+        setSearchFocused(false)
     }
 }
 
@@ -69,12 +75,12 @@ const handleSearchButtonClick = async () => {
     } else {
         // when search is expanded, submit query
         await submitQuery()
-        emit("panelClose")
+        emit("close")
     }
 }
 
 const handleFocus = () => {
-    isSearchFocused.value = true
+    setSearchFocused(true)
 
     // if filters were opened, close them
     emit("filterPanelClosed")
@@ -177,7 +183,7 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
         q.value = school.nazwa
         searchQuery.value = school.nazwa
 
-        isSearchFocused.value = false
+        setSearchFocused(false)
         highlightedIndex.value = -1
 
         // Fly to school
@@ -190,7 +196,7 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
         return
     }
 
-    isSearchFocused.value = false
+    setSearchFocused(false)
     highlightedIndex.value = -1
 
     const map = mapInstance.map as maplibregl.Map
@@ -205,7 +211,7 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
         await setSearchQuery(undefined)
     }
 
-    emit("panelClose")
+    emit("close")
 }
 
 const scrollToSelected = () => {
@@ -247,13 +253,13 @@ const handleKeyDown = (e: KeyboardEvent) => {
             void handleSelectSuggestion(selected)
         }
     } else if (e.key === "Escape") {
-        isSearchFocused.value = false
+        setSearchFocused(false)
         highlightedIndex.value = -1
     }
 }
 
 const blur = () => {
-    isSearchFocused.value = false
+    setSearchFocused(false)
 }
 
 const moveFocusToMap = () => {
@@ -274,7 +280,6 @@ const moveFocusToMap = () => {
 defineExpose({
     collapseSearch,
     blur,
-    isSearchFocused,
 })
 </script>
 <template>

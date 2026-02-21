@@ -5,27 +5,29 @@ const { multiSelectFilters } = await useFilterData()
 const { hasActiveFilters, totalActiveFilters } = useSchoolFilters()
 
 // Filter panel visibility
-const isFilterPanelOpen = ref(false)
+const isPanelOpen = ref(false)
+const isSearchFocused = ref(false)
 
 // Search interactions
 const searchRef = useTemplateRef("searchRef")
 
 const handlePanelToggle = () => {
-    isFilterPanelOpen.value = !isFilterPanelOpen.value
+    isPanelOpen.value = !isPanelOpen.value
 
     // set search focus to false to hide suggestions
     searchRef.value?.blur()
 
-    if (isFilterPanelOpen.value) {
+    if (isPanelOpen.value) {
         searchRef.value?.collapseSearch()
         return
     }
 
-    handlePanelClose()
+    closeFilters()
 }
 
-const handlePanelClose = () => {
-    isFilterPanelOpen.value = false
+const closeFilters = () => {
+    isPanelOpen.value = false
+    isSearchFocused.value = false
     searchRef.value?.blur()
     searchRef.value?.collapseSearch()
 
@@ -33,6 +35,10 @@ const handlePanelClose = () => {
     multiSelectFilters.forEach((filter) => {
         filter.addingState = false
     })
+}
+
+const handleSearchFocusChange = (focused: boolean) => {
+    isSearchFocused.value = focused
 }
 </script>
 
@@ -42,11 +48,12 @@ const handlePanelClose = () => {
         <div class="flex gap-2 items-center">
             <MapFiltersSearch
                 ref="searchRef"
-                @panel-close="handlePanelClose"
-                @filter-panel-closed="isFilterPanelOpen = false" />
+                @close="closeFilters"
+                @focus-change="handleSearchFocusChange"
+                @filter-panel-closed="isPanelOpen = false" />
             <!-- Filter Toggle Button -->
             <UButton
-                :icon="isFilterPanelOpen ? 'i-mdi-filter-off' : 'i-mdi-filter'"
+                :icon="isPanelOpen ? 'i-mdi-filter-off' : 'i-mdi-filter'"
                 :color="hasActiveFilters ? 'info' : 'neutral'"
                 :variant="hasActiveFilters ? 'solid' : 'outline'"
                 size="md"
@@ -61,16 +68,16 @@ const handlePanelClose = () => {
 
         <!-- Filter Panel -->
         <Transition name="slide-fade">
-            <div v-show="isFilterPanelOpen">
+            <div v-show="isPanelOpen">
                 <MapFiltersPanel v-model="multiSelectFilters" />
             </div>
         </Transition>
     </div>
     <!-- Overlay for closing search input/filter panel when clicking outside -->
     <div
-        v-if="isFilterPanelOpen || searchRef?.isSearchFocused"
+        v-if="isPanelOpen || isSearchFocused"
         class="fixed inset-0 z-10 bg-black/25 dark:bg-black/45"
-        @click="handlePanelClose" />
+        @click="closeFilters" />
 </template>
 
 <style scoped>
