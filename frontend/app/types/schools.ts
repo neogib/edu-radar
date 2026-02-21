@@ -8,8 +8,6 @@ import type { components, paths } from "./api"
 type schemas = components["schemas"]
 
 export type SzkolaPublicShort = schemas["SzkolaPublicShort"]
-export type SzkolaPublicShortWithMiejscowosc =
-    schemas["SzkolaPublicShortWithMiejscowosc"]
 export type SzkolaPublicWithRelations = schemas["SzkolaPublicWithRelations"]
 export type TypSzkolyPublic = schemas["TypSzkolyPublic"]
 export type StatusPublicznoprawnyPublic = schemas["StatusPublicznoprawnyPublic"]
@@ -19,7 +17,7 @@ export type KsztalcenieZawodowePublic = schemas["KsztalcenieZawodowePublic"]
 export type WynikE8PublicWithPrzedmiot = schemas["WynikE8PublicWithPrzedmiot"]
 export type WynikEMPublicWithPrzedmiot = schemas["WynikEMPublicWithPrzedmiot"]
 
-export type FiltersResponse = schemas["FiltersResponse"]
+export type SchoolFiltersResponse = schemas["SchoolFiltersResponse"]
 export type FiltersOptions =
     | TypSzkolyPublic[]
     | KategoriaUczniowPublic[]
@@ -27,7 +25,7 @@ export type FiltersOptions =
     | KsztalcenieZawodowePublic[]
 
 export type SchoolFilterParams =
-    paths["/api/v1/schools/"]["get"]["parameters"]["query"]
+    paths["/api/v1/schools/live"]["get"]["parameters"]["query"]
 
 export type SchoolFeatureProperties = {
     id: number

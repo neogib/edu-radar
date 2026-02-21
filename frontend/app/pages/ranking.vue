@@ -83,9 +83,9 @@ const getPlaceByScope = (
     ranking: RankingWithSchool,
     scope: RankingScope,
 ): number => {
-    if (scope === "WOJEWODZTWO") return ranking.miejsce_wojewodztwo
-    if (scope === "POWIAT") return ranking.miejsce_powiat
-    return ranking.miejsce_kraj
+    if (scope === "WOJEWODZTWO") return ranking.miejsceWojewodztwo
+    if (scope === "POWIAT") return ranking.miejscePowiat
+    return ranking.miejsceKraj
 }
 
 const tableRows = computed<RankingTableRow[]>(() => {
@@ -98,7 +98,7 @@ const tableRows = computed<RankingTableRow[]>(() => {
         place: getPlaceByScope(ranking, scope),
         schoolName: ranking.szkola.nazwa,
         city: ranking.szkola.miejscowosc.nazwa,
-        status: ranking.szkola.status_publicznoprawny.nazwa,
+        status: ranking.szkola.statusPublicznoprawny.nazwa,
         score: formatNumber(ranking.wynik),
     }))
 })

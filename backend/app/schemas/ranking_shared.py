@@ -1,5 +1,6 @@
 from app.models.ranking import RankingBase
+from app.schemas.base import CustomBaseModel
 
 
-class RankingPublic(RankingBase):
+class RankingPublic(CustomBaseModel, RankingBase):
     id: int

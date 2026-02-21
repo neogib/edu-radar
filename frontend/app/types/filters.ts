@@ -2,7 +2,7 @@ import type { FiltersOptions, SchoolFilterParams } from "./schools"
 
 export type FiltersParamsWihtoutBbox = Omit<
     NonNullable<SchoolFilterParams>,
-    "min_lng" | "min_lat" | "max_lng" | "max_lat" | "limit"
+    "minLng" | "minLat" | "maxLng" | "maxLat" | "limit"
 >
 /**
  * Base filter configuration

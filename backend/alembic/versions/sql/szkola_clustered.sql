@@ -37,8 +37,8 @@ filter_params AS (
         string_to_array(NULLIF(query_params->>'status', ''), ',')::integer[] AS status_ids,
         string_to_array(NULLIF(query_params->>'category', ''), ',')::integer[] AS category_ids,
         string_to_array(NULLIF(query_params->>'career', ''), ',')::integer[] AS career_ids,
-        NULLIF(query_params->>'min_score', '')::double precision AS min_score,
-        NULLIF(query_params->>'max_score', '')::double precision AS max_score,
+        NULLIF(query_params->>'minScore', '')::double precision AS min_score,
+        NULLIF(query_params->>'maxScore', '')::double precision AS max_score,
         NULLIF(BTRIM(query_params->>'q'), '') AS search_query
 ),
 source_points AS (
