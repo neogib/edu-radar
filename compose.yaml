@@ -9,38 +9,19 @@ services:
       - ./backend/martin:/config:ro
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: prod
     ports:
       - "8000:8000"
     env_file: ./backend/.env
     environment:
       - PYTHONUNBUFFERED=1
-      - UV_NO_DEV=0
-    develop:
-      watch:
-        # Sync the backend directory with the `/app/backend` directory in the container
-        - action: sync
-          path: ./backend
-          target: /app/backend
-          # Exclude the project virtual environment — it could be for a
-          # different platform in the container
-          ignore:
-            - .venv/
 
-        # Rebuild the image if dependencies change by checking uv.lock
-        - action: rebuild
-          path: ./backend/uv.lock
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: prod
     ports:
       - "3000:3000"
     env_file: ./frontend/.env
-    develop:
-      watch:
-        - action: sync
-          path: ./frontend
-          target: /app/frontend
-          ignore:
-            - node_modules
-        - action: rebuild
-          path: ./frontend/package.json

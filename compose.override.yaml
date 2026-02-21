@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    develop:
+      watch:
+        # Sync backend source into the running container for fast iteration.
+        - action: sync
+          path: ./backend
+          target: /app/backend
+          ignore:
+            - .venv/
+
+        # Rebuild image when lockfile changes (dependency graph update).
+        - action: rebuild
+          path: ./backend/uv.lock
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app/frontend
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./frontend/package.json
