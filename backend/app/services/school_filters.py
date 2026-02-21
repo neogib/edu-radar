@@ -36,6 +36,9 @@ def build_schools_short_query(
         .join(Miejscowosc)
     )
 
+    # exclude schools for which geom is null since they can't be displayed on the map
+    statement = statement.where(col(Szkola.geom) != None)  # noqa: E711
+
     if not filters.closed:
         statement = statement.where(~(col(Szkola.zlikwidowana)))
 
