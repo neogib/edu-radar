@@ -26,6 +26,12 @@ Before running the project, configure the following env files (copy from the pro
 
 ## 🐳 Running the project with Docker
 
+### Docker files used
+
+- `compose.yaml` — shared base config (prod-safe defaults)
+- `compose.override.yaml` — development overrides (auto-loaded by Docker Compose)
+- `compose.prod.yaml` — explicit production overlay
+
 ### 1. Prerequisites
 
 - **Windows/macOS:** Install [Docker Desktop](https://www.docker.com/products/docker-desktop).
@@ -50,6 +56,28 @@ This will build the images, start all services, and watch files defined in `deve
 
 ---
 
+### 4. Running the project in production mode
+
+Build all production images:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml build
+```
+
+Start all services in background:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml up -d
+```
+
+Stop production services:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml down
+```
+
+---
+
 ### Stopping the services
 
 To stop **and remove** containers, networks, and related resources:
@@ -69,13 +97,13 @@ docker compose stop
 If you want to force a clean rebuild without cache:
 
 ```bash
-docker compose build --no-cache
-docker compose up
+docker compose -f compose.yaml -f compose.prod.yaml build --no-cache
+docker compose -f compose.yaml -f compose.prod.yaml up -d
 ```
 
 ---
 
-## ⚙️ Running the project natively (without Docker)
+## ⚙️ Running the project natively (without Docker) for development
 
 ### 1. Clone the repository:
 

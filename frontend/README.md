@@ -47,6 +47,28 @@ The app will be available at:
 http://localhost:3000
 ```
 
+---
+
+## 🐳 Running with Docker
+
+The frontend Dockerfile is multi-stage:
+
+- `dev` target: Nuxt dev server with HMR
+- `prod` target: Nitro output (`node /app/frontend/server/index.mjs`)
+
+From the project root (development):
+
+```bash
+docker compose up frontend --watch
+```
+
+Production-like run:
+
+```bash
+docker compose -f compose.yaml -f compose.prod.yaml build frontend
+docker compose -f compose.yaml -f compose.prod.yaml up -d frontend
+```
+
 ## 🌍 Environment Variables
 
 Public runtime variables should be defined using:
