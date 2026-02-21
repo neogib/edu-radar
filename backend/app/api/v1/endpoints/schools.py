@@ -6,7 +6,7 @@ from app.dependencies import SessionDep
 from app.models.schools import (
     Szkola,
 )
-from app.schemas.filters import FilterParams
+from app.schemas.school_filters import SchoolFilterParams
 from app.schemas.schools import (
     SzkolaPublicShort,
     SzkolaPublicWithRelations,
@@ -31,7 +31,7 @@ SchoolServiceDep = Annotated[SchoolService, Depends(get_school_service)]
 
 @router.get("/live")
 async def read_schools_live(
-    service: SchoolServiceDep, filters: Annotated[FilterParams, Query()]
+    service: SchoolServiceDep, filters: Annotated[SchoolFilterParams, Query()]
 ) -> list[SzkolaPublicShort]:
     return service.get_schools_live(filters)
 

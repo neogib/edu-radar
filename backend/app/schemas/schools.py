@@ -33,9 +33,6 @@ class SzkolaPublicShort(SzkolaBase):
     wynik: float | None
     typ: str
     status: str
-
-
-class SzkolaPublicShortWithMiejscowosc(SzkolaPublicShort):
     miejscowosc: str
 
 

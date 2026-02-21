@@ -10,14 +10,14 @@ from app.schemas.schools import (
 )
 
 
-class FiltersResponse(BaseModel):
+class SchoolFiltersResponse(BaseModel):
     school_types: list[TypSzkolyPublic]
     public_statuses: list[StatusPublicznoprawnyPublic]
     student_categories: list[KategoriaUczniowPublic]
     vocational_training: list[KsztalcenieZawodowePublic]
 
 
-class FilterParams(BaseModel):
+class SchoolFilterParams(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(
         validate_by_name=True, validate_by_alias=True
     )
