@@ -18,7 +18,7 @@ const emit = defineEmits<{
 const mapInstance = useMap(MAP_CONFIG.mapKey)
 const { $api } = useNuxtApp()
 
-const { q, filters, setSearchQuery } = useSchoolFilters()
+const { q, filters } = useSchoolFilters()
 const { fetchPhotonSuggestions } = usePhotonGeocoding()
 
 // Search state
@@ -173,7 +173,7 @@ const submitQuery = async () => {
     }
 
     // trigger search with new query
-    await setSearchQuery(trimmedQuery)
+    q.value = trimmedQuery
 }
 
 const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
@@ -208,7 +208,7 @@ const handleSelectSuggestion = async (suggestion: MapSearchSuggestion) => {
 
     if (q.value) {
         preserveSearchInputOnQClear.value = true
-        await setSearchQuery(undefined)
+        q.value = undefined
     }
 
     emit("close")
