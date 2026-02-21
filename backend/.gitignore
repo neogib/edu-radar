@@ -39,3 +39,6 @@ pip-delete-this-directory.txt
 
 # Generated data import checkpoint
 app/data_import/data/geo_checkpoint.txt
+
+# generated data for school addresses
+data/addresses/*.csv
