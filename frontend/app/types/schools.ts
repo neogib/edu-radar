@@ -26,18 +26,6 @@ export type FiltersOptions =
 
 export type SchoolFilterParams =
     paths["/api/v1/schools/live"]["get"]["parameters"]["query"]
-
-export type SchoolFeatureProperties = {
-    id: number
-    nazwa: string
-    typ: string
-    status: string
-    wynik: number | null
-}
-export type SchoolFeature = GeoJSON.Feature<
-    GeoJSON.Point,
-    SchoolFeatureProperties
->
 export type WynikPublicWithPrzedmiot =
     | WynikE8PublicWithPrzedmiot
     | WynikEMPublicWithPrzedmiot
