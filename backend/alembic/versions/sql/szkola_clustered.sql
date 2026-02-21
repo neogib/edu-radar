@@ -10,29 +10,24 @@ STABLE
 STRICT
 PARALLEL SAFE
 AS $$
-WITH tile_base AS (
+WITH tile AS (
     SELECT
-        ST_TileEnvelope(z, x, y) AS env_3857
-),
-tile AS (
-    SELECT
-        tb.env_3857,
+        ST_TileEnvelope(z, x, y) AS env_3857,
         ST_Expand(
-            tb.env_3857,
-            (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) * 0.1
+            ST_TileEnvelope(z, x, y),
+            (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) * 0.1
         ) AS env_3857_buffered,
         CASE
             WHEN z >= 13 THEN NULL::double precision
-            WHEN z <= 5 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 5.0
-            WHEN z <= 6 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 6.0
-            WHEN z <= 8 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 8.0
-            WHEN z <= 10 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 12.0
-            WHEN z <= 11 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 16.0
-            ELSE (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 20.0
+            WHEN z <= 5 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 5.0
+            WHEN z <= 6 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 6.0
+            WHEN z <= 8 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 8.0
+            WHEN z <= 10 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 12.0
+            WHEN z <= 11 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 16.0
+            ELSE (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 20.0
         END AS cell_size
-    FROM tile_base AS tb
 ),
-fp AS (
+filter_params AS (
     SELECT
         string_to_array(NULLIF(query_params->>'type', ''), ',')::integer[] AS type_ids,
         string_to_array(NULLIF(query_params->>'status', ''), ',')::integer[] AS status_ids,
@@ -42,17 +37,20 @@ fp AS (
         NULLIF(query_params->>'maxScore', '')::double precision AS max_score,
         NULLIF(BTRIM(query_params->>'q'), '') AS search_query
 ),
-source AS (
+source_points AS (
     SELECT
         s.id,
         s.nazwa,
         s.wynik,
-        s.typ_id,
-        s.status_publicznoprawny_id,
+        ts.nazwa AS typ,
+        sp.nazwa AS status,
         s.geom_3857
     FROM public.szkola AS s
+    LEFT JOIN public.typ_szkoly AS ts ON ts.id = s.typ_id
+    LEFT JOIN public.status_publicznoprawny AS sp ON sp.id = s.status_publicznoprawny_id
+    LEFT JOIN public.miejscowosc AS m ON m.id = s.miejscowosc_id
     CROSS JOIN tile AS t
-    CROSS JOIN fp
+    CROSS JOIN filter_params AS fp
     WHERE s.geom_3857 IS NOT NULL
       AND s.aktualna = true
       AND s.zlikwidowana = false
@@ -91,124 +89,84 @@ source AS (
       AND (
           fp.search_query IS NULL
           OR s.nazwa ILIKE '%' || fp.search_query || '%'
-          OR EXISTS (
-              SELECT 1
-              FROM public.miejscowosc AS m
-              WHERE m.id = s.miejscowosc_id
-                AND m.nazwa ILIKE '%' || fp.search_query || '%'
-          )
+          OR m.nazwa ILIKE '%' || fp.search_query || '%'
       )
 ),
 bucketed AS (
     SELECT
-        s.id,
-        s.wynik,
-        s.geom_3857,
-        (t.cell_size IS NULL) AS is_point,
         CASE
-            WHEN t.cell_size IS NULL THEN s.id::bigint
-            ELSE NULL::bigint
-        END AS point_key,
-        CASE
-            WHEN t.cell_size IS NULL THEN NULL::bigint
-            ELSE FLOOR(ST_X(s.geom_3857) / t.cell_size)::bigint
-        END AS grid_x,
-        CASE
-            WHEN t.cell_size IS NULL THEN NULL::bigint
-            ELSE FLOOR(ST_Y(s.geom_3857) / t.cell_size)::bigint
-        END AS grid_y
-    FROM source AS s
+            WHEN t.cell_size IS NULL THEN CONCAT('pt:', sp.id::text)
+            ELSE CONCAT(
+                'cl:',
+                FLOOR(ST_X(sp.geom_3857) / t.cell_size)::bigint::text,
+                ':',
+                FLOOR(ST_Y(sp.geom_3857) / t.cell_size)::bigint::text
+            )
+        END AS bucket_id,
+        sp.id,
+        sp.nazwa,
+        sp.typ,
+        sp.status,
+        sp.wynik,
+        sp.geom_3857
+    FROM source_points AS sp
     CROSS JOIN tile AS t
 ),
 aggregated AS (
     SELECT
-        b.is_point,
-        b.point_key,
-        b.grid_x,
-        b.grid_y,
+        b.bucket_id,
         COUNT(*)::integer AS point_count,
         SUM(COALESCE(b.wynik, 0))::double precision AS sum_wynik,
         COUNT(b.wynik)::integer AS non_null_count,
         ST_Centroid(ST_Collect(b.geom_3857)) AS geom_3857,
-        MIN(b.id)::integer AS first_id
+        MIN(b.id)::integer AS first_id,
+        MIN(b.nazwa) AS first_nazwa,
+        MIN(b.typ) AS first_typ,
+        MIN(b.status) AS first_status,
+        MIN(b.wynik)::double precision AS first_wynik
     FROM bucketed AS b
-    GROUP BY b.is_point, b.point_key, b.grid_x, b.grid_y
-),
-single_points AS (
-    SELECT
-        s.id,
-        s.nazwa,
-        s.wynik,
-        ts.nazwa AS typ,
-        sp.nazwa AS status
-    FROM aggregated AS a
-    JOIN source AS s ON s.id = a.first_id
-    LEFT JOIN public.typ_szkoly AS ts ON ts.id = s.typ_id
-    LEFT JOIN public.status_publicznoprawny AS sp ON sp.id = s.status_publicznoprawny_id
-    WHERE a.point_count = 1
-),
-identified AS (
-    SELECT
-        a.*,
-        CASE
-            WHEN a.is_point THEN CONCAT('pt:', a.point_key::text)
-            ELSE CONCAT('cl:', a.grid_x::text, ':', a.grid_y::text)
-        END AS bucket_id,
-        ABS(
-            hashtext(
-                CASE
-                    WHEN a.is_point THEN CONCAT('pt:', a.point_key::text)
-                    ELSE CONCAT('cl:', a.grid_x::text, ':', a.grid_y::text)
-                END
-            )::bigint
-        ) AS hashed_bucket_id
-    FROM aggregated AS a
+    GROUP BY b.bucket_id
 ),
 prepared AS (
     SELECT
-        ST_AsMVTGeom(i.geom_3857, t.env_3857, 4096, 64, true) AS geom,
-        (i.point_count > 1) AS cluster,
-        i.point_count,
-        i.point_count AS point_count_abbreviated,
-        i.sum_wynik AS sum,
-        i.non_null_count AS "nonNullCount",
+        ST_AsMVTGeom(a.geom_3857, t.env_3857, 4096, 64, true) AS geom,
+        (a.point_count > 1) AS cluster,
+        a.point_count,
+        a.point_count AS point_count_abbreviated,
+        a.sum_wynik AS sum,
+        a.non_null_count AS "nonNullCount",
         CASE
-            WHEN i.point_count = 1 THEN i.first_id
+            WHEN a.point_count = 1 THEN a.first_id
             ELSE NULL
         END AS id,
         CASE
-            WHEN i.point_count = 1 THEN sp.nazwa
+            WHEN a.point_count = 1 THEN a.first_nazwa
             ELSE NULL
         END AS nazwa,
         CASE
-            WHEN i.point_count = 1 THEN sp.typ
+            WHEN a.point_count = 1 THEN a.first_typ
             ELSE NULL
         END AS typ,
         CASE
-            WHEN i.point_count = 1 THEN sp.status
+            WHEN a.point_count = 1 THEN a.first_status
             ELSE NULL
         END AS status,
         CASE
-            WHEN i.point_count = 1 THEN sp.wynik
+            WHEN a.point_count = 1 THEN a.first_wynik
             ELSE NULL
         END AS wynik,
         CASE
-            WHEN i.point_count = 1 THEN i.first_id::bigint
-            ELSE -i.hashed_bucket_id
+            WHEN a.point_count = 1 THEN a.first_id
+            ELSE -ABS(hashtext(a.bucket_id))
         END AS state_id,
         CASE
-            WHEN i.point_count > 1 THEN i.hashed_bucket_id
+            WHEN a.point_count > 1 THEN ABS(hashtext(a.bucket_id))
             ELSE NULL
-        END AS cluster_id,
-        CASE
-            WHEN i.point_count = 1 THEN i.first_id::bigint
-            ELSE i.hashed_bucket_id + 3000000000::bigint
-        END AS feature_id
-    FROM identified AS i
+        END AS cluster_id
+    FROM aggregated AS a
     CROSS JOIN tile AS t
-    LEFT JOIN single_points AS sp ON i.point_count = 1 AND sp.id = i.first_id
 )
-SELECT ST_AsMVT(prepared, 'szkola_clustered', 4096, 'geom', 'feature_id')
+SELECT ST_AsMVT(prepared, 'szkola_clustered', 4096, 'geom')
 FROM prepared
 WHERE geom IS NOT NULL;
 $$;
