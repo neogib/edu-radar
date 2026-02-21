@@ -15,6 +15,12 @@ const emit = defineEmits<{
     focusChange: [focused: boolean]
 }>()
 
+defineShortcuts({
+    "/": () => {
+        expandSearch()
+    },
+})
+
 const mapInstance = useMap(MAP_CONFIG.mapKey)
 const { $api } = useNuxtApp()
 
@@ -46,14 +52,10 @@ watch(q, (newQ) => {
     }
 })
 
-defineShortcuts({
-    "/": () => {
-        expandSearch()
-    },
-})
-
-const expandSearch = () => {
+const expandSearch = async () => {
     isSearchExpanded.value = true
+    await nextTick()
+    searchInput.value?.inputRef?.focus()
 }
 
 const setSearchFocused = (focused: boolean) => {
@@ -63,10 +65,14 @@ const setSearchFocused = (focused: boolean) => {
 
 const collapseSearch = () => {
     // Only collapse if search is empty
-    if (searchQuery.value.trim().length === 0) {
-        isSearchExpanded.value = false
-        setSearchFocused(false)
-    }
+    if (searchQuery.value.trim().length) return
+    isSearchExpanded.value = false
+    setSearchFocused(false)
+}
+
+const closeSearch = () => {
+    setSearchFocused(false)
+    collapseSearch()
 }
 
 const handleSearchButtonClick = async () => {
@@ -157,10 +163,6 @@ const fetchSuggestions = async (query: string) => {
 
 const submitQuery = async () => {
     const trimmedQuery = searchQuery.value.trim()
-    // check if query changed
-    if (trimmedQuery === q.value || (trimmedQuery.length === 0 && !q.value))
-        return
-
     // Validate length
     if (trimmedQuery.length > 0 && trimmedQuery.length < 2) {
         useToast().add({
@@ -172,7 +174,11 @@ const submitQuery = async () => {
         return
     }
 
-    // trigger search with new query
+    // check if query changed
+    const normalized = parseQueryString(trimmedQuery)
+    if (normalized === q.value) return
+
+    // trigger schools fetching with new query
     q.value = trimmedQuery
 }
 
@@ -234,20 +240,19 @@ const handleKeyDown = (e: KeyboardEvent) => {
     if (!isSearchFocused.value || searchSuggestions.value.length === 0) {
         return
     }
-
+    const handledKeys = ["ArrowDown", "ArrowUp", "Enter", "Escape"]
+    if (!handledKeys.includes(e.key)) return
+    e.preventDefault()
     if (e.key === "ArrowDown") {
-        e.preventDefault()
         highlightedIndex.value =
             (highlightedIndex.value + 1) % searchSuggestions.value.length
         scrollToSelected()
     } else if (e.key === "ArrowUp") {
-        e.preventDefault()
         highlightedIndex.value =
             (highlightedIndex.value - 1 + searchSuggestions.value.length) %
             searchSuggestions.value.length
         scrollToSelected()
     } else if (e.key === "Enter" && highlightedIndex.value >= 0) {
-        e.preventDefault()
         const selected = searchSuggestions.value[highlightedIndex.value]
         if (selected) {
             void handleSelectSuggestion(selected)
@@ -256,10 +261,6 @@ const handleKeyDown = (e: KeyboardEvent) => {
         setSearchFocused(false)
         highlightedIndex.value = -1
     }
-}
-
-const blur = () => {
-    setSearchFocused(false)
 }
 
 const moveFocusToMap = () => {
@@ -278,8 +279,7 @@ const moveFocusToMap = () => {
 }
 
 defineExpose({
-    collapseSearch,
-    blur,
+    closeSearch,
 })
 </script>
 <template>

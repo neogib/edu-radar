@@ -15,21 +15,15 @@ const handlePanelToggle = () => {
     isPanelOpen.value = !isPanelOpen.value
 
     // set search focus to false to hide suggestions
-    searchRef.value?.blur()
+    searchRef.value?.closeSearch()
 
-    if (isPanelOpen.value) {
-        searchRef.value?.collapseSearch()
-        return
-    }
-
-    closeFilters()
+    if (!isPanelOpen.value) closeFilters()
 }
 
 const closeFilters = () => {
     isPanelOpen.value = false
     isSearchFocused.value = false
-    searchRef.value?.blur()
-    searchRef.value?.collapseSearch()
+    searchRef.value?.closeSearch()
 
     // panel closed, set addingState to false for all filters
     multiSelectFilters.forEach((filter) => {
