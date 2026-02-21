@@ -4,13 +4,14 @@ from app.models.exam_results import (
     WynikE8Extra,
     WynikEMExtra,
 )
+from app.schemas.base import CustomBaseModel
 
 
-class PrzedmiotPublic(PrzedmiotBase):
+class PrzedmiotPublic(CustomBaseModel, PrzedmiotBase):
     id: int
 
 
-class WynikE8Public(WynikCommon, WynikE8Extra):
+class WynikE8Public(CustomBaseModel, WynikCommon, WynikE8Extra):
     id: int
 
 
@@ -18,7 +19,7 @@ class WynikE8PublicWithPrzedmiot(WynikE8Public):
     przedmiot: PrzedmiotPublic
 
 
-class WynikEMPublic(WynikCommon, WynikEMExtra):
+class WynikEMPublic(CustomBaseModel, WynikCommon, WynikEMExtra):
     id: int
 
 

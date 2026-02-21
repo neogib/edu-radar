@@ -106,8 +106,8 @@ const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
         const median = result.mediana ?? null
         const fallback =
             key === "e8"
-                ? (result as WynikE8PublicWithPrzedmiot).wynik_sredni
-                : (result as WynikEMPublicWithPrzedmiot).sredni_wynik
+                ? (result as WynikE8PublicWithPrzedmiot).wynikSredni
+                : (result as WynikEMPublicWithPrzedmiot).sredniWynik
         const wynik = median ?? fallback
 
         if (median === null && fallback !== null) {
@@ -116,7 +116,7 @@ const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
 
         grouped[subjectName].years[result.rok] = {
             wynik,
-            liczba_zdajacych: result.liczba_zdajacych,
+            liczba_zdajacych: result.liczbaZdajacych,
         }
     }
 

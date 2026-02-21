@@ -4,7 +4,7 @@ import type { FiltersOptions } from "~/types/schools"
 
 const multiSelectFilters = defineModel<MultiFilter[]>()
 
-const { min_score, max_score, hasActiveFilters, resetFilters } =
+const { minScore, maxScore, hasActiveFilters, resetFilters } =
     useSchoolFilters()
 
 // Get available items (not already selected) for a filter
@@ -189,7 +189,7 @@ const canAddMore = (
                     <div class="flex items-center gap-1">
                         <span class="text-xs text-muted">Min</span>
                         <UInputNumber
-                            v-model="min_score"
+                            v-model="minScore"
                             :min="0"
                             :max="100"
                             size="sm"
@@ -200,7 +200,7 @@ const canAddMore = (
                     <div class="flex items-center gap-1">
                         <span class="text-xs text-muted">Max</span>
                         <UInputNumber
-                            v-model="max_score"
+                            v-model="maxScore"
                             placeholder="100"
                             size="sm"
                             :min="0"

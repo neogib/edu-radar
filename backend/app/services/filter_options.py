@@ -7,7 +7,7 @@ from app.models.schools import (
     StatusPublicznoprawny,
     TypSzkoly,
 )
-from app.schemas.filters import FiltersResponse
+from app.schemas.school_filters import SchoolFiltersResponse
 from app.schemas.schools import (
     KategoriaUczniowPublic,
     KsztalcenieZawodowePublic,
@@ -21,7 +21,7 @@ student_categories_adapter = TypeAdapter(list[KategoriaUczniowPublic])
 vocational_training_adapter = TypeAdapter(list[KsztalcenieZawodowePublic])
 
 
-def get_filter_options(session: Session) -> FiltersResponse:
+def get_filter_options(session: Session) -> SchoolFiltersResponse:
     school_types = school_types_adapter.validate_python(
         session.exec(select(TypSzkoly).order_by(TypSzkoly.nazwa)).all()
     )
@@ -39,7 +39,7 @@ def get_filter_options(session: Session) -> FiltersResponse:
         ).all()
     )
 
-    return FiltersResponse(
+    return SchoolFiltersResponse(
         school_types=school_types,
         public_statuses=public_statuses,
         student_categories=student_categories,

@@ -57,16 +57,8 @@ export const useSchoolFilters = () => {
     // Number filters
     const numberSerializer = (v: number | undefined) =>
         v !== undefined ? String(v) : undefined
-    const min_score = createComputedFilter(
-        "min_score",
-        parseNumber,
-        numberSerializer,
-    )
-    const max_score = createComputedFilter(
-        "max_score",
-        parseNumber,
-        numberSerializer,
-    )
+    const minScore = createComputedFilter("minScore", parseNumber, numberSerializer)
+    const maxScore = createComputedFilter("maxScore", parseNumber, numberSerializer)
 
     // Search query
     const q = createComputedFilter("q", parseQueryString, (v) =>
@@ -79,8 +71,8 @@ export const useSchoolFilters = () => {
         status: status.value,
         category: category.value,
         career: career.value,
-        min_score: min_score.value,
-        max_score: max_score.value,
+        minScore: minScore.value,
+        maxScore: maxScore.value,
         q: q.value,
     }))
 
@@ -92,8 +84,8 @@ export const useSchoolFilters = () => {
             count += filters.value[key]?.length ?? 0
         }
         // Check number filters
-        if (filters.value.min_score !== undefined) count++
-        if (filters.value.max_score !== undefined) count++
+        if (filters.value.minScore !== undefined) count++
+        if (filters.value.maxScore !== undefined) count++
         return count
     })
 
@@ -107,8 +99,8 @@ export const useSchoolFilters = () => {
             status: undefined,
             category: undefined,
             career: undefined,
-            min_score: undefined,
-            max_score: undefined,
+            minScore: undefined,
+            maxScore: undefined,
             q: undefined,
         })
     }
@@ -118,8 +110,8 @@ export const useSchoolFilters = () => {
         status,
         category,
         career,
-        min_score,
-        max_score,
+        minScore,
+        maxScore,
         q,
 
         // Computed

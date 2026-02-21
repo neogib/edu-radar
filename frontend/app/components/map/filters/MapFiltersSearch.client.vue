@@ -7,7 +7,7 @@ import type {
     MapSearchSuggestion,
     PhotonSearchSuggestion,
 } from "~/types/mapSearch"
-import type { SzkolaPublicShortWithMiejscowosc } from "~/types/schools"
+import type { SzkolaPublicShort } from "~/types/schools"
 
 const emit = defineEmits<{
     close: []
@@ -121,16 +121,13 @@ const fetchSuggestions = async (query: string) => {
     }
 
     try {
-        const schools = await $api<SzkolaPublicShortWithMiejscowosc[]>(
-            "/schools/live",
-            {
-                query: {
-                    ...filters.value,
-                    q: query,
-                    limit: PHOTON_CONFIG.schoolSuggestionLimit,
-                },
+        const schools = await $api<SzkolaPublicShort[]>("/schools/live", {
+            query: {
+                ...filters.value,
+                q: query,
+                limit: PHOTON_CONFIG.schoolSuggestionLimit,
             },
-        )
+        })
 
         if (requestId !== currentSuggestionRequestId) {
             return

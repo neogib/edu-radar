@@ -33,7 +33,7 @@ export const useRankingGroups = (options: UseRankingGroupsOptions) => {
 
         const rankingByType = new Map<RodzajRankingu, RankingPublic>()
         for (const ranking of newestYearRankings) {
-            rankingByType.set(ranking.rodzaj_rankingu, ranking)
+            rankingByType.set(ranking.rodzajRankingu, ranking)
         }
 
         return EXAM_TYPE_ORDER.map((examType): RankingGroup | null => {
@@ -43,21 +43,21 @@ export const useRankingGroups = (options: UseRankingGroupsOptions) => {
             const allRows = [
                 {
                     scope: "KRAJ" as const,
-                    percentyl: ranking.percentyl_kraj,
-                    miejsce: ranking.miejsce_kraj,
-                    liczbaSzkol: ranking.liczba_szkol_kraj,
+                    percentyl: ranking.percentylKraj,
+                    miejsce: ranking.miejsceKraj,
+                    liczbaSzkol: ranking.liczbaSzkolKraj,
                 },
                 {
                     scope: "WOJEWODZTWO" as const,
-                    percentyl: ranking.percentyl_wojewodztwo,
-                    miejsce: ranking.miejsce_wojewodztwo,
-                    liczbaSzkol: ranking.liczba_szkol_wojewodztwo,
+                    percentyl: ranking.percentylWojewodztwo,
+                    miejsce: ranking.miejsceWojewodztwo,
+                    liczbaSzkol: ranking.liczbaSzkolWojewodztwo,
                 },
                 {
                     scope: "POWIAT" as const,
-                    percentyl: ranking.percentyl_powiat,
-                    miejsce: ranking.miejsce_powiat,
-                    liczbaSzkol: ranking.liczba_szkol_powiat,
+                    percentyl: ranking.percentylPowiat,
+                    miejsce: ranking.miejscePowiat,
+                    liczbaSzkol: ranking.liczbaSzkolPowiat,
                 },
             ]
 

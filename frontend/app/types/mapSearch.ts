@@ -1,9 +1,9 @@
-import type { SzkolaPublicShortWithMiejscowosc } from "~/types/schools"
+import type { SzkolaPublicShort } from "~/types/schools"
 
 export type SchoolSearchSuggestion = {
     kind: "school"
     key: string
-    school: SzkolaPublicShortWithMiejscowosc
+    school: SzkolaPublicShort
 }
 
 export type PhotonSearchSuggestion = {

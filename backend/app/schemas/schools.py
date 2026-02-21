@@ -26,16 +26,13 @@ class SzkolaPublic(CustomBaseModel, SzkolaAllData):
 
 # Short version of Szkola for listing schools with minimal info
 # Fields are compressed for minimal data transfer
-class SzkolaPublicShort(SzkolaBase):
+class SzkolaPublicShort(CustomBaseModel, SzkolaBase):
     id: int
     latitude: float
     longitude: float
     wynik: float | None
     typ: str
     status: str
-
-
-class SzkolaPublicShortWithMiejscowosc(SzkolaPublicShort):
     miejscowosc: str
 
 
@@ -52,28 +49,28 @@ class SzkolaPublicWithRelations(SzkolaPublic):
     rankingi: list[RankingPublic]
 
 
-class SzkolaRankingRow(SzkolaBase):
+class SzkolaRankingRow(CustomBaseModel, SzkolaBase):
     id: int
     numer_rspo: int
     status_publicznoprawny: "StatusPublicznoprawnyPublic"
     miejscowosc: MiejscowoscPublic
 
 
-class KsztalcenieZawodowePublic(KsztalcenieZawodoweBase):
+class KsztalcenieZawodowePublic(CustomBaseModel, KsztalcenieZawodoweBase):
     id: int
 
 
-class EtapEdukacjiPublic(EtapEdukacjiBase):
+class EtapEdukacjiPublic(CustomBaseModel, EtapEdukacjiBase):
     id: int
 
 
-class KategoriaUczniowPublic(KategoriaUczniowBase):
+class KategoriaUczniowPublic(CustomBaseModel, KategoriaUczniowBase):
     id: int
 
 
-class TypSzkolyPublic(TypSzkolyBase):
+class TypSzkolyPublic(CustomBaseModel, TypSzkolyBase):
     id: int
 
 
-class StatusPublicznoprawnyPublic(StatusPublicznoprawnyBase):
+class StatusPublicznoprawnyPublic(CustomBaseModel, StatusPublicznoprawnyBase):
     id: int

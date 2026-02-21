@@ -32,11 +32,11 @@ const martinQueryString = computed(() => {
     if (status) params.set("status", status)
     if (category) params.set("category", category)
     if (career) params.set("career", career)
-    if (filters.value.min_score !== undefined) {
-        params.set("min_score", String(filters.value.min_score))
+    if (filters.value.minScore !== undefined) {
+        params.set("minScore", String(filters.value.minScore))
     }
-    if (filters.value.max_score !== undefined) {
-        params.set("max_score", String(filters.value.max_score))
+    if (filters.value.maxScore !== undefined) {
+        params.set("maxScore", String(filters.value.maxScore))
     }
     if (filters.value.q) {
         params.set("q", filters.value.q)

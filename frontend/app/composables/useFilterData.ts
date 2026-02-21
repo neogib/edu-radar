@@ -1,5 +1,5 @@
 import type { ActiveSelections, MultiFilterRef } from "~/types/filters"
-import type { FiltersOptions, FiltersResponse } from "~/types/schools"
+import type { FiltersOptions, SchoolFiltersResponse } from "~/types/schools"
 import { mainSchoolTypes } from "~/constants/schoolTypes"
 
 export const useFilterData = async () => {
@@ -8,14 +8,14 @@ export const useFilterData = async () => {
 
     // Use $api instead of useApi to ensure data is fetched and available directly
     // This avoids potential issues with useFetch/useApi reactivity when used inside an async composable
-    const filterOptions = await $api<FiltersResponse>("/filters/")
+    const filterOptions = await $api<SchoolFiltersResponse>("/filters/")
 
     // Reorder school_types to place priority types first
     const reorderedSchoolTypes = [
-        ...filterOptions.school_types.filter((st) =>
+        ...filterOptions.schoolTypes.filter((st) =>
             mainSchoolTypes.includes(st.nazwa),
         ),
-        ...filterOptions.school_types.filter(
+        ...filterOptions.schoolTypes.filter(
             (st) => !mainSchoolTypes.includes(st.nazwa),
         ),
     ]
@@ -50,21 +50,21 @@ export const useFilterData = async () => {
             status,
             "Publiczna / niepubliczna",
             "Wybierz status...",
-            filterOptions.public_statuses || [],
+            filterOptions.publicStatuses || [],
         ),
         createMultiSelectFilters(
             "category",
             category,
             "Wiek uczniów",
             "Wybierz kategorię...",
-            filterOptions.student_categories || [],
+            filterOptions.studentCategories || [],
         ),
         createMultiSelectFilters(
             "career",
             career,
             "Kierunki zawodowe",
             "Wybierz zawód...",
-            filterOptions.vocational_training || [],
+            filterOptions.vocationalTraining || [],
         ),
     ])
 

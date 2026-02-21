@@ -1,12 +1,9 @@
 import { useDebounceFn } from "@vueuse/core"
-import type { GeoJSONFeature } from "maplibre-gl"
-import type maplibregl from "maplibre-gl"
+import maplibregl from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
-import type { MapMouseLayerEvent } from "~/types/map"
 import type {
     SzkolaPublicWithRelations,
-    SchoolFeatureProperties,
-    SchoolFeature,
+    SzkolaPublicShort,
 } from "~/types/schools"
 
 export const useMapInteractions = (
@@ -16,8 +13,19 @@ export const useMapInteractions = (
     ) => void,
     popupCoordinates: Ref<[number, number] | undefined>,
 ) => {
+    type SchoolVectorTileProperties = Omit<
+        SzkolaPublicShort,
+        "miejscowosc" | "latitude" | "longitude"
+    >
+    type SchoolVectorTileFeature = maplibregl.MapGeoJSONFeature & {
+        properties: SchoolVectorTileProperties
+    }
+    type MapMouseLayerEvent = maplibregl.MapMouseEvent & {
+        features?: maplibregl.MapGeoJSONFeature[]
+    }
+
     let currentFeatureCoordinates: string | undefined = undefined
-    const hoveredSchool: Ref<SchoolFeatureProperties | null> = ref(null)
+    const hoveredSchool: Ref<SchoolVectorTileProperties | null> = ref(null)
     const { $api } = useNuxtApp()
     const route = useRoute()
 
@@ -70,8 +78,9 @@ export const useMapInteractions = (
                         hover: false,
                     })
                 }
-                hoveredClusterId = (e.features[0] as GeoJSONFeature)
-                    .id as number
+                const hoveredId = Number(e.features[0]?.id)
+                if (!Number.isFinite(hoveredId)) return
+                hoveredClusterId = hoveredId
                 setFeatureStateSafe(map, hoveredClusterId, { hover: true })
             }
         })
@@ -95,10 +104,12 @@ export const useMapInteractions = (
     }
 
     const handleMouseMove = (map: maplibregl.Map, e: MapMouseLayerEvent) => {
-        const feature = e.features?.[0] as SchoolFeature | undefined
+        const feature = e.features?.[0] as SchoolVectorTileFeature | undefined
         if (!feature) return
 
         const pointGeometry = feature.geometry
+        if (pointGeometry.type !== "Point") return
+
         const featureCoordinates = pointGeometry.coordinates.toString()
         if (currentFeatureCoordinates !== featureCoordinates) {
             currentFeatureCoordinates = featureCoordinates
@@ -133,11 +144,11 @@ export const useMapInteractions = (
     }
 
     const handleClick = async (map: maplibregl.Map, e: MapMouseLayerEvent) => {
-        const feature = e.features?.[0]
+        const feature = e.features?.[0] as SchoolVectorTileFeature | undefined
         if (!feature) return
         if (feature.geometry.type !== "Point") return
 
-        const clickedSchoolId = Number(feature.properties?.id)
+        const clickedSchoolId = Number(feature.properties.id)
 
         if (selectedSchoolId !== null) {
             setFeatureStateSafe(map, selectedSchoolId, { clicked: false })
@@ -154,7 +165,7 @@ export const useMapInteractions = (
 
         // Fetch full school details and emit event
         const schoolFullDetails = await $api<SzkolaPublicWithRelations>(
-            `/schools/${feature.properties.id}`,
+            `/schools/${clickedSchoolId}`,
         )
 
         if (schoolFullDetails) {

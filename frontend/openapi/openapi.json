@@ -5,334 +5,6 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/api/v1/schools/stream": {
-      "get": {
-        "tags": [
-          "schools"
-        ],
-        "summary": "Read Schools Stream",
-        "operationId": "read_schools_stream_api_v1_schools_stream_get",
-        "parameters": [
-          {
-            "name": "minLng",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 180,
-                  "minimum": -180
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Minlng"
-            }
-          },
-          {
-            "name": "minLat",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 90,
-                  "minimum": -90
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Minlat"
-            }
-          },
-          {
-            "name": "maxLng",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 180,
-                  "minimum": -180
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Maxlng"
-            }
-          },
-          {
-            "name": "maxLat",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 90,
-                  "minimum": -90
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Maxlat"
-            }
-          },
-          {
-            "name": "bbox_mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "enum": [
-                "within",
-                "outside"
-              ],
-              "type": "string",
-              "default": "within",
-              "title": "Bbox Mode"
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "minLength": 2
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Search query for school name",
-              "title": "Q"
-            },
-            "description": "Search query for school name"
-          },
-          {
-            "name": "type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by school type IDs",
-              "title": "Type"
-            },
-            "description": "Filter by school type IDs"
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by public/private status IDs",
-              "title": "Status"
-            },
-            "description": "Filter by public/private status IDs"
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by student category IDs",
-              "title": "Category"
-            },
-            "description": "Filter by student category IDs"
-          },
-          {
-            "name": "career",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by vocational training IDs",
-              "title": "Career"
-            },
-            "description": "Filter by vocational training IDs"
-          },
-          {
-            "name": "min_score",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "maximum": 100,
-                  "minimum": 0
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Min Score"
-            }
-          },
-          {
-            "name": "max_score",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "maximum": 100,
-                  "minimum": 0
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Max Score"
-            }
-          },
-          {
-            "name": "closed",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Include closed/liquidated schools in the results",
-              "default": false,
-              "title": "Closed"
-            },
-            "description": "Include closed/liquidated schools in the results"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "maximum": 1000,
-                  "minimum": 1
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/schools/{school_id}/short": {
-      "get": {
-        "tags": [
-          "schools"
-        ],
-        "summary": "Read School Short",
-        "operationId": "read_school_short_api_v1_schools__school_id__short_get",
-        "parameters": [
-          {
-            "name": "school_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "title": "School Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SzkolaPublicShort"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/schools/live": {
       "get": {
         "tags": [
@@ -414,7 +86,7 @@
             }
           },
           {
-            "name": "bbox_mode",
+            "name": "bboxMode",
             "in": "query",
             "required": false,
             "schema": {
@@ -424,7 +96,7 @@
               ],
               "type": "string",
               "default": "within",
-              "title": "Bbox Mode"
+              "title": "Bboxmode"
             }
           },
           {
@@ -531,7 +203,7 @@
             "description": "Filter by vocational training IDs"
           },
           {
-            "name": "min_score",
+            "name": "minScore",
             "in": "query",
             "required": false,
             "schema": {
@@ -545,11 +217,11 @@
                   "type": "null"
                 }
               ],
-              "title": "Min Score"
+              "title": "Minscore"
             }
           },
           {
-            "name": "max_score",
+            "name": "maxScore",
             "in": "query",
             "required": false,
             "schema": {
@@ -563,7 +235,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Max Score"
+              "title": "Maxscore"
             }
           },
           {
@@ -605,7 +277,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/SzkolaPublicShortWithMiejscowosc"
+                    "$ref": "#/components/schemas/SzkolaPublicShort"
                   },
                   "title": "Response Read Schools Live Api V1 Schools Live Get"
                 }
@@ -667,299 +339,6 @@
         }
       }
     },
-    "/api/v1/schools/": {
-      "get": {
-        "tags": [
-          "schools"
-        ],
-        "summary": "Read Schools",
-        "description": "Get schools with optional filters.\n\n_**Note:**\nThis endpoint should only be used for smaller amounts of data. To get all schools consider using `/school/stream` endpoint with StreamingResponse._\n\n## Filter Logic\n- Filters are combined with AND logic between different filter types\n- Multiple values within the same filter use OR logic\n- Example: `type=1&typeid=2&status=1` means\n  (type 1 OR type 2) AND (status 1)",
-        "operationId": "read_schools_api_v1_schools__get",
-        "parameters": [
-          {
-            "name": "minLng",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 180,
-                  "minimum": -180
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Minlng"
-            }
-          },
-          {
-            "name": "minLat",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 90,
-                  "minimum": -90
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Minlat"
-            }
-          },
-          {
-            "name": "maxLng",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 180,
-                  "minimum": -180
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Maxlng"
-            }
-          },
-          {
-            "name": "maxLat",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "number",
-                  "maximum": 90,
-                  "minimum": -90
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Maxlat"
-            }
-          },
-          {
-            "name": "bbox_mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "enum": [
-                "within",
-                "outside"
-              ],
-              "type": "string",
-              "default": "within",
-              "title": "Bbox Mode"
-            }
-          },
-          {
-            "name": "q",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "minLength": 2
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Search query for school name",
-              "title": "Q"
-            },
-            "description": "Search query for school name"
-          },
-          {
-            "name": "type",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by school type IDs",
-              "title": "Type"
-            },
-            "description": "Filter by school type IDs"
-          },
-          {
-            "name": "status",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by public/private status IDs",
-              "title": "Status"
-            },
-            "description": "Filter by public/private status IDs"
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by student category IDs",
-              "title": "Category"
-            },
-            "description": "Filter by student category IDs"
-          },
-          {
-            "name": "career",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "integer"
-                  }
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by vocational training IDs",
-              "title": "Career"
-            },
-            "description": "Filter by vocational training IDs"
-          },
-          {
-            "name": "min_score",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "maximum": 100,
-                  "minimum": 0
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Min Score"
-            }
-          },
-          {
-            "name": "max_score",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "maximum": 100,
-                  "minimum": 0
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Max Score"
-            }
-          },
-          {
-            "name": "closed",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Include closed/liquidated schools in the results",
-              "default": false,
-              "title": "Closed"
-            },
-            "description": "Include closed/liquidated schools in the results"
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "integer",
-                  "maximum": 1000,
-                  "minimum": 1
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Limit"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SzkolaPublicShort"
-                  },
-                  "title": "Response Read Schools Api V1 Schools  Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/filters/": {
       "get": {
         "tags": [
@@ -973,7 +352,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FiltersResponse"
+                  "$ref": "#/components/schemas/SchoolFiltersResponse"
                 }
               }
             }
@@ -1316,46 +695,6 @@
         ],
         "title": "EtapEdukacjiPublic"
       },
-      "FiltersResponse": {
-        "properties": {
-          "school_types": {
-            "items": {
-              "$ref": "#/components/schemas/TypSzkolyPublic"
-            },
-            "type": "array",
-            "title": "School Types"
-          },
-          "public_statuses": {
-            "items": {
-              "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
-            },
-            "type": "array",
-            "title": "Public Statuses"
-          },
-          "student_categories": {
-            "items": {
-              "$ref": "#/components/schemas/KategoriaUczniowPublic"
-            },
-            "type": "array",
-            "title": "Student Categories"
-          },
-          "vocational_training": {
-            "items": {
-              "$ref": "#/components/schemas/KsztalcenieZawodowePublic"
-            },
-            "type": "array",
-            "title": "Vocational Training"
-          }
-        },
-        "type": "object",
-        "required": [
-          "school_types",
-          "public_statuses",
-          "student_categories",
-          "vocational_training"
-        ],
-        "title": "FiltersResponse"
-      },
       "GminaPublicWithPowiat": {
         "properties": {
           "nazwa": {
@@ -1366,9 +705,9 @@
             "type": "string",
             "title": "Teryt"
           },
-          "powiat_id": {
+          "powiatId": {
             "type": "integer",
-            "title": "Powiat Id"
+            "title": "Powiatid"
           },
           "id": {
             "type": "integer",
@@ -1382,7 +721,7 @@
         "required": [
           "nazwa",
           "teryt",
-          "powiat_id",
+          "powiatId",
           "id",
           "powiat"
         ],
@@ -1447,9 +786,9 @@
             "type": "string",
             "title": "Teryt"
           },
-          "gmina_id": {
+          "gminaId": {
             "type": "integer",
-            "title": "Gmina Id"
+            "title": "Gminaid"
           },
           "id": {
             "type": "integer",
@@ -1460,7 +799,7 @@
         "required": [
           "nazwa",
           "teryt",
-          "gmina_id",
+          "gminaId",
           "id"
         ],
         "title": "MiejscowoscPublic"
@@ -1475,9 +814,9 @@
             "type": "string",
             "title": "Teryt"
           },
-          "gmina_id": {
+          "gminaId": {
             "type": "integer",
-            "title": "Gmina Id"
+            "title": "Gminaid"
           },
           "id": {
             "type": "integer",
@@ -1491,7 +830,7 @@
         "required": [
           "nazwa",
           "teryt",
-          "gmina_id",
+          "gminaId",
           "id",
           "gmina"
         ],
@@ -1507,9 +846,9 @@
             "type": "string",
             "title": "Teryt"
           },
-          "wojewodztwo_id": {
+          "wojewodztwoId": {
             "type": "integer",
-            "title": "Wojewodztwo Id"
+            "title": "Wojewodztwoid"
           },
           "id": {
             "type": "integer",
@@ -1520,7 +859,7 @@
         "required": [
           "nazwa",
           "teryt",
-          "wojewodztwo_id",
+          "wojewodztwoId",
           "id"
         ],
         "title": "PowiatPublic"
@@ -1535,9 +874,9 @@
             "type": "string",
             "title": "Teryt"
           },
-          "wojewodztwo_id": {
+          "wojewodztwoId": {
             "type": "integer",
-            "title": "Wojewodztwo Id"
+            "title": "Wojewodztwoid"
           },
           "id": {
             "type": "integer",
@@ -1551,7 +890,7 @@
         "required": [
           "nazwa",
           "teryt",
-          "wojewodztwo_id",
+          "wojewodztwoId",
           "id",
           "wojewodztwo"
         ],
@@ -1587,69 +926,69 @@
         "properties": {
           "rok": {
             "type": "integer",
-            "minimum": 2000,
+            "minimum": 2000.0,
             "title": "Rok"
           },
-          "rodzaj_rankingu": {
+          "rodzajRankingu": {
             "$ref": "#/components/schemas/RodzajRankingu"
           },
           "wynik": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
             "title": "Wynik"
           },
-          "percentyl_kraj": {
+          "percentylKraj": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
-            "title": "Percentyl Kraj"
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentylkraj"
           },
-          "miejsce_kraj": {
+          "miejsceKraj": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Miejsce Kraj"
+            "minimum": 1.0,
+            "title": "Miejscekraj"
           },
-          "liczba_szkol_kraj": {
+          "liczbaSzkolKraj": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Liczba Szkol Kraj"
+            "minimum": 1.0,
+            "title": "Liczbaszkolkraj"
           },
-          "percentyl_wojewodztwo": {
+          "percentylWojewodztwo": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
-            "title": "Percentyl Wojewodztwo"
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentylwojewodztwo"
           },
-          "miejsce_wojewodztwo": {
+          "miejsceWojewodztwo": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Miejsce Wojewodztwo"
+            "minimum": 1.0,
+            "title": "Miejscewojewodztwo"
           },
-          "liczba_szkol_wojewodztwo": {
+          "liczbaSzkolWojewodztwo": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Liczba Szkol Wojewodztwo"
+            "minimum": 1.0,
+            "title": "Liczbaszkolwojewodztwo"
           },
-          "percentyl_powiat": {
+          "percentylPowiat": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
-            "title": "Percentyl Powiat"
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentylpowiat"
           },
-          "miejsce_powiat": {
+          "miejscePowiat": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Miejsce Powiat"
+            "minimum": 1.0,
+            "title": "Miejscepowiat"
           },
-          "liczba_szkol_powiat": {
+          "liczbaSzkolPowiat": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Liczba Szkol Powiat"
+            "minimum": 1.0,
+            "title": "Liczbaszkolpowiat"
           },
-          "szkola_id": {
+          "szkolaId": {
             "type": "integer",
-            "title": "Szkola Id"
+            "title": "Szkolaid"
           },
           "id": {
             "type": "integer",
@@ -1659,18 +998,18 @@
         "type": "object",
         "required": [
           "rok",
-          "rodzaj_rankingu",
+          "rodzajRankingu",
           "wynik",
-          "percentyl_kraj",
-          "miejsce_kraj",
-          "liczba_szkol_kraj",
-          "percentyl_wojewodztwo",
-          "miejsce_wojewodztwo",
-          "liczba_szkol_wojewodztwo",
-          "percentyl_powiat",
-          "miejsce_powiat",
-          "liczba_szkol_powiat",
-          "szkola_id",
+          "percentylKraj",
+          "miejsceKraj",
+          "liczbaSzkolKraj",
+          "percentylWojewodztwo",
+          "miejsceWojewodztwo",
+          "liczbaSzkolWojewodztwo",
+          "percentylPowiat",
+          "miejscePowiat",
+          "liczbaSzkolPowiat",
+          "szkolaId",
           "id"
         ],
         "title": "RankingPublic"
@@ -1688,69 +1027,69 @@
         "properties": {
           "rok": {
             "type": "integer",
-            "minimum": 2000,
+            "minimum": 2000.0,
             "title": "Rok"
           },
-          "rodzaj_rankingu": {
+          "rodzajRankingu": {
             "$ref": "#/components/schemas/RodzajRankingu"
           },
           "wynik": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
+            "maximum": 100.0,
+            "minimum": 0.0,
             "title": "Wynik"
           },
-          "percentyl_kraj": {
+          "percentylKraj": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
-            "title": "Percentyl Kraj"
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentylkraj"
           },
-          "miejsce_kraj": {
+          "miejsceKraj": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Miejsce Kraj"
+            "minimum": 1.0,
+            "title": "Miejscekraj"
           },
-          "liczba_szkol_kraj": {
+          "liczbaSzkolKraj": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Liczba Szkol Kraj"
+            "minimum": 1.0,
+            "title": "Liczbaszkolkraj"
           },
-          "percentyl_wojewodztwo": {
+          "percentylWojewodztwo": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
-            "title": "Percentyl Wojewodztwo"
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentylwojewodztwo"
           },
-          "miejsce_wojewodztwo": {
+          "miejsceWojewodztwo": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Miejsce Wojewodztwo"
+            "minimum": 1.0,
+            "title": "Miejscewojewodztwo"
           },
-          "liczba_szkol_wojewodztwo": {
+          "liczbaSzkolWojewodztwo": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Liczba Szkol Wojewodztwo"
+            "minimum": 1.0,
+            "title": "Liczbaszkolwojewodztwo"
           },
-          "percentyl_powiat": {
+          "percentylPowiat": {
             "type": "number",
-            "maximum": 100,
-            "minimum": 0,
-            "title": "Percentyl Powiat"
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percentylpowiat"
           },
-          "miejsce_powiat": {
+          "miejscePowiat": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Miejsce Powiat"
+            "minimum": 1.0,
+            "title": "Miejscepowiat"
           },
-          "liczba_szkol_powiat": {
+          "liczbaSzkolPowiat": {
             "type": "integer",
-            "minimum": 1,
-            "title": "Liczba Szkol Powiat"
+            "minimum": 1.0,
+            "title": "Liczbaszkolpowiat"
           },
-          "szkola_id": {
+          "szkolaId": {
             "type": "integer",
-            "title": "Szkola Id"
+            "title": "Szkolaid"
           },
           "id": {
             "type": "integer",
@@ -1763,18 +1102,18 @@
         "type": "object",
         "required": [
           "rok",
-          "rodzaj_rankingu",
+          "rodzajRankingu",
           "wynik",
-          "percentyl_kraj",
-          "miejsce_kraj",
-          "liczba_szkol_kraj",
-          "percentyl_wojewodztwo",
-          "miejsce_wojewodztwo",
-          "liczba_szkol_wojewodztwo",
-          "percentyl_powiat",
-          "miejsce_powiat",
-          "liczba_szkol_powiat",
-          "szkola_id",
+          "percentylKraj",
+          "miejsceKraj",
+          "liczbaSzkolKraj",
+          "percentylWojewodztwo",
+          "miejsceWojewodztwo",
+          "liczbaSzkolWojewodztwo",
+          "percentylPowiat",
+          "miejscePowiat",
+          "liczbaSzkolPowiat",
+          "szkolaId",
           "id",
           "szkola"
         ],
@@ -1848,25 +1187,25 @@
         "properties": {
           "page": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Page",
             "description": "Current page number"
           },
           "pageSize": {
             "type": "integer",
-            "maximum": 100,
+            "maximum": 100.0,
             "title": "Pagesize",
             "description": "Number of items per page"
           },
           "total": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Total",
             "description": "Total number of schools matching the ranking params criteria"
           },
           "totalPages": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Totalpages",
             "description": "Total number of pages available based on the page_size"
           },
@@ -1896,6 +1235,46 @@
           "EM_TECH"
         ],
         "title": "RodzajRankingu"
+      },
+      "SchoolFiltersResponse": {
+        "properties": {
+          "schoolTypes": {
+            "items": {
+              "$ref": "#/components/schemas/TypSzkolyPublic"
+            },
+            "type": "array",
+            "title": "Schooltypes"
+          },
+          "publicStatuses": {
+            "items": {
+              "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
+            },
+            "type": "array",
+            "title": "Publicstatuses"
+          },
+          "studentCategories": {
+            "items": {
+              "$ref": "#/components/schemas/KategoriaUczniowPublic"
+            },
+            "type": "array",
+            "title": "Studentcategories"
+          },
+          "vocationalTraining": {
+            "items": {
+              "$ref": "#/components/schemas/KsztalcenieZawodowePublic"
+            },
+            "type": "array",
+            "title": "Vocationaltraining"
+          }
+        },
+        "type": "object",
+        "required": [
+          "schoolTypes",
+          "publicStatuses",
+          "studentCategories",
+          "vocationalTraining"
+        ],
+        "title": "SchoolFiltersResponse"
       },
       "StatusPublicznoprawnyPublic": {
         "properties": {
@@ -1951,56 +1330,6 @@
           "status": {
             "type": "string",
             "title": "Status"
-          }
-        },
-        "type": "object",
-        "required": [
-          "nazwa",
-          "id",
-          "latitude",
-          "longitude",
-          "wynik",
-          "typ",
-          "status"
-        ],
-        "title": "SzkolaPublicShort"
-      },
-      "SzkolaPublicShortWithMiejscowosc": {
-        "properties": {
-          "nazwa": {
-            "type": "string",
-            "title": "Nazwa"
-          },
-          "id": {
-            "type": "integer",
-            "title": "Id"
-          },
-          "latitude": {
-            "type": "number",
-            "title": "Latitude"
-          },
-          "longitude": {
-            "type": "number",
-            "title": "Longitude"
-          },
-          "wynik": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Wynik"
-          },
-          "typ": {
-            "type": "string",
-            "title": "Typ"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
           },
           "miejscowosc": {
             "type": "string",
@@ -2018,7 +1347,7 @@
           "status",
           "miejscowosc"
         ],
-        "title": "SzkolaPublicShortWithMiejscowosc"
+        "title": "SzkolaPublicShort"
       },
       "SzkolaPublicWithRelations": {
         "properties": {
@@ -2056,7 +1385,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -2192,8 +1521,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 100,
-                "minimum": 0
+                "maximum": 100.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -2344,11 +1673,11 @@
             "type": "integer",
             "title": "Id"
           },
-          "numer_rspo": {
+          "numerRspo": {
             "type": "integer",
-            "title": "Numer Rspo"
+            "title": "Numerrspo"
           },
-          "status_publicznoprawny": {
+          "statusPublicznoprawny": {
             "$ref": "#/components/schemas/StatusPublicznoprawnyPublic"
           },
           "miejscowosc": {
@@ -2359,8 +1688,8 @@
         "required": [
           "nazwa",
           "id",
-          "numer_rspo",
-          "status_publicznoprawny",
+          "numerRspo",
+          "statusPublicznoprawny",
           "miejscowosc"
         ],
         "title": "SzkolaRankingRow"
@@ -2464,7 +1793,7 @@
       },
       "WynikE8PublicWithPrzedmiot": {
         "properties": {
-          "liczba_zdajacych": {
+          "liczbaZdajacych": {
             "anyOf": [
               {
                 "type": "integer"
@@ -2473,7 +1802,7 @@
                 "type": "null"
               }
             ],
-            "title": "Liczba Zdajacych"
+            "title": "Liczbazdajacych"
           },
           "mediana": {
             "anyOf": [
@@ -2486,7 +1815,7 @@
             ],
             "title": "Mediana"
           },
-          "wynik_sredni": {
+          "wynikSredni": {
             "anyOf": [
               {
                 "type": "number"
@@ -2495,15 +1824,15 @@
                 "type": "null"
               }
             ],
-            "title": "Wynik Sredni"
+            "title": "Wyniksredni"
           },
-          "szkola_id": {
+          "szkolaId": {
             "type": "integer",
-            "title": "Szkola Id"
+            "title": "Szkolaid"
           },
-          "przedmiot_id": {
+          "przedmiotId": {
             "type": "integer",
-            "title": "Przedmiot Id"
+            "title": "Przedmiotid"
           },
           "rok": {
             "type": "integer",
@@ -2519,10 +1848,11 @@
         },
         "type": "object",
         "required": [
-          "liczba_zdajacych",
-          "wynik_sredni",
-          "szkola_id",
-          "przedmiot_id",
+          "liczbaZdajacych",
+          "mediana",
+          "wynikSredni",
+          "szkolaId",
+          "przedmiotId",
           "rok",
           "id",
           "przedmiot"
@@ -2531,7 +1861,7 @@
       },
       "WynikEMPublicWithPrzedmiot": {
         "properties": {
-          "liczba_zdajacych": {
+          "liczbaZdajacych": {
             "anyOf": [
               {
                 "type": "integer"
@@ -2540,7 +1870,7 @@
                 "type": "null"
               }
             ],
-            "title": "Liczba Zdajacych"
+            "title": "Liczbazdajacych"
           },
           "mediana": {
             "anyOf": [
@@ -2553,7 +1883,7 @@
             ],
             "title": "Mediana"
           },
-          "sredni_wynik": {
+          "sredniWynik": {
             "anyOf": [
               {
                 "type": "number"
@@ -2562,7 +1892,7 @@
                 "type": "null"
               }
             ],
-            "title": "Sredni Wynik"
+            "title": "Sredniwynik"
           },
           "zdawalnosc": {
             "anyOf": [
@@ -2575,7 +1905,7 @@
             ],
             "title": "Zdawalnosc"
           },
-          "liczba_laureatow_finalistow": {
+          "liczbaLaureatowFinalistow": {
             "anyOf": [
               {
                 "type": "integer"
@@ -2584,15 +1914,15 @@
                 "type": "null"
               }
             ],
-            "title": "Liczba Laureatow Finalistow"
+            "title": "Liczbalaureatowfinalistow"
           },
-          "szkola_id": {
+          "szkolaId": {
             "type": "integer",
-            "title": "Szkola Id"
+            "title": "Szkolaid"
           },
-          "przedmiot_id": {
+          "przedmiotId": {
             "type": "integer",
-            "title": "Przedmiot Id"
+            "title": "Przedmiotid"
           },
           "rok": {
             "type": "integer",
@@ -2608,10 +1938,13 @@
         },
         "type": "object",
         "required": [
-          "liczba_zdajacych",
-          "sredni_wynik",
-          "szkola_id",
-          "przedmiot_id",
+          "liczbaZdajacych",
+          "mediana",
+          "sredniWynik",
+          "zdawalnosc",
+          "liczbaLaureatowFinalistow",
+          "szkolaId",
+          "przedmiotId",
           "rok",
           "id",
           "przedmiot"

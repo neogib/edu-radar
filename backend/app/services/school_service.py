@@ -1,30 +1,15 @@
-import logging
-from typing import cast
-
-from fastapi import Request
-from geoalchemy2 import WKBElement
-from pydantic import TypeAdapter
 from sqlalchemy.orm import joinedload, selectinload
-from sqlmodel import Session, col, select
+from sqlmodel import Session, select
 
 from app.core.sqlalchemy_typing import orm_rel_attr
-from app.data_import.utils.geo import get_coordinates_from_geom
 from app.models.exam_results import WynikE8, WynikEM
 from app.models.locations import Gmina, Miejscowosc, Powiat
 from app.models.schools import Szkola
-from app.schemas.filters import FilterParams
-from app.schemas.schools import (
-    SzkolaPublicShort,
-    SzkolaPublicShortWithMiejscowosc,
-)
+from app.schemas.school_filters import SchoolFilterParams
+from app.schemas.schools import SzkolaPublicShort
 from app.services.base_service import BaseService
-from app.services.exceptions import EntityNotFoundError, SchoolLocationNotFoundError
+from app.services.exceptions import EntityNotFoundError
 from app.services.school_filters import build_schools_short_query
-
-# Setup
-school_list_adapter = TypeAdapter(list[SzkolaPublicShort])
-
-logger = logging.getLogger(__name__)
 
 
 class SchoolService(BaseService[Szkola]):
@@ -33,24 +18,6 @@ class SchoolService(BaseService[Szkola]):
 
     def get_school(self, school_id: int) -> Szkola:
         return self._get_entity(school_id)
-
-    def get_school_short(self, school_id: int) -> SzkolaPublicShort:
-        """Get a short version of the school data, including coordinates and related names."""
-        school = self.get_school(school_id)
-
-        if not school.geom:
-            raise SchoolLocationNotFoundError(school_id)
-
-        point = get_coordinates_from_geom(cast(WKBElement, school.geom))
-        return SzkolaPublicShort(
-            id=school_id,
-            nazwa=school.nazwa,
-            longitude=point.x,
-            latitude=point.y,
-            wynik=school.wynik,
-            typ=school.typ.nazwa,
-            status=school.status_publicznoprawny.nazwa,
-        )
 
     def get_school_with_relations(self, school_id: int) -> Szkola:
         stmt = (
@@ -86,7 +53,7 @@ class SchoolService(BaseService[Szkola]):
     def get_schools(self) -> list[Szkola]:
         return self._get_entities()
 
-    def get_schools_short(self, filters: FilterParams) -> list[SzkolaPublicShort]:
+    def get_schools_live(self, filters: SchoolFilterParams) -> list[SzkolaPublicShort]:
         stmt = build_schools_short_query(filters)
 
         rows = (
@@ -94,39 +61,3 @@ class SchoolService(BaseService[Szkola]):
         )  # use execute from sqlalchemy Session to get mappings
 
         return [SzkolaPublicShort.model_validate(row) for row in rows]
-
-    def get_schools_short_with_miejscowosc(
-        self, filters: FilterParams
-    ) -> list[SzkolaPublicShortWithMiejscowosc]:
-        stmt = build_schools_short_query(filters, include_miejscowosc=True)
-
-        rows = (
-            self.session.connection().execute(stmt).mappings().all()
-        )  # use execute from sqlalchemy Session to get mappings
-
-        return [SzkolaPublicShortWithMiejscowosc.model_validate(row) for row in rows]
-
-    async def stream_schools(self, filters: FilterParams, request: Request):
-        last_id = 0
-
-        while True:
-            # Keyset pagination is stable for streaming large/updated datasets.
-            stmt = (
-                build_schools_short_query(filters)
-                .where(col(Szkola.id) > last_id)
-                .order_by(col(Szkola.id))
-            )
-            rows = self.session.connection().execute(stmt).mappings().all()
-
-            if not rows:
-                break
-
-            schools_chunk = school_list_adapter.validate_python(rows)
-            yield (school_list_adapter.dump_json(schools_chunk) + b"\n")
-
-            last_id = cast(int, rows[-1]["id"])
-
-            # abort when client disconnects
-            if await request.is_disconnected():
-                logger.info("Client disconnected, stopping schools stream")
-                break

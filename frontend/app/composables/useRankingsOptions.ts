@@ -61,7 +61,7 @@ export const useRankingsOptions = (
 
     const countyOptions = computed<SelectRankingFiltersItem[]>(() =>
         (filtersData.value?.counties ?? []).map((county) => ({
-            label: `${county.nazwa} (${voivodeshipNameById.value.get(county.wojewodztwo_id)?.toLowerCase() ?? "?"})`,
+            label: `${county.nazwa} (${voivodeshipNameById.value.get(county.wojewodztwoId)?.toLowerCase() ?? "?"})`,
             value: county.id,
         })),
     )

@@ -1,7 +1,8 @@
 from typing import ClassVar, Literal, Self, cast
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
+from app.schemas.base import CustomBaseModel
 from app.schemas.schools import (
     KategoriaUczniowPublic,
     KsztalcenieZawodowePublic,
@@ -10,21 +11,21 @@ from app.schemas.schools import (
 )
 
 
-class FiltersResponse(BaseModel):
+class SchoolFiltersResponse(CustomBaseModel):
     school_types: list[TypSzkolyPublic]
     public_statuses: list[StatusPublicznoprawnyPublic]
     student_categories: list[KategoriaUczniowPublic]
     vocational_training: list[KsztalcenieZawodowePublic]
 
 
-class FilterParams(BaseModel):
+class SchoolFilterParams(CustomBaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(
         validate_by_name=True, validate_by_alias=True
     )
-    min_lng: float | None = Field(None, ge=-180, le=180, alias="minLng")
-    min_lat: float | None = Field(None, ge=-90, le=90, alias="minLat")
-    max_lng: float | None = Field(None, ge=-180, le=180, alias="maxLng")
-    max_lat: float | None = Field(None, ge=-90, le=90, alias="maxLat")
+    min_lng: float | None = Field(None, ge=-180, le=180)
+    min_lat: float | None = Field(None, ge=-90, le=90)
+    max_lng: float | None = Field(None, ge=-180, le=180)
+    max_lat: float | None = Field(None, ge=-90, le=90)
     bbox_mode: Literal["within", "outside"] = "within"
     q: str | None = Field(
         None, min_length=2, description="Search query for school name"
