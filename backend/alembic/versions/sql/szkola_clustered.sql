@@ -13,14 +13,10 @@ AS $$
 WITH tile AS (
     SELECT
         ST_TileEnvelope(z, x, y) AS env_3857,
-        ST_Transform(ST_TileEnvelope(z, x, y), 4326) AS env_4326,
-        ST_Transform(
-            ST_Expand(
-                ST_TileEnvelope(z, x, y),
-                (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) * 0.1
-            ),
-            4326
-        ) AS env_4326_buffered,
+        ST_Expand(
+            ST_TileEnvelope(z, x, y),
+            (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) * 0.1
+        ) AS env_3857_buffered,
         CASE
             WHEN z >= 13 THEN NULL::double precision
             WHEN z <= 5 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 5.0
@@ -48,17 +44,17 @@ source_points AS (
         s.wynik,
         ts.nazwa AS typ,
         sp.nazwa AS status,
-        ST_Transform(ST_CurveToLine(s.geom), 3857) AS geom_3857
+        s.geom_3857
     FROM public.szkola AS s
     LEFT JOIN public.typ_szkoly AS ts ON ts.id = s.typ_id
     LEFT JOIN public.status_publicznoprawny AS sp ON sp.id = s.status_publicznoprawny_id
     LEFT JOIN public.miejscowosc AS m ON m.id = s.miejscowosc_id
     CROSS JOIN tile AS t
     CROSS JOIN filter_params AS fp
-    WHERE s.geom IS NOT NULL
+    WHERE s.geom_3857 IS NOT NULL
       AND s.aktualna = true
       AND s.zlikwidowana = false
-      AND s.geom && t.env_4326_buffered
+      AND s.geom_3857 && t.env_3857_buffered
       AND (
           fp.type_ids IS NULL
           OR s.typ_id = ANY(fp.type_ids)

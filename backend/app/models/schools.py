@@ -146,6 +146,10 @@ class Szkola(SzkolaAllData, TimestampMixin, table=True):
     geom: object | None = Field(
         sa_column=Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
     )
+    # pre-projected geometry for map tile queries (Web Mercator)
+    geom_3857: object | None = Field(
+        sa_column=Column(Geometry(geometry_type="POINT", srid=3857), nullable=True)
+    )
 
     # this column is a control flag for editing school visiblity
     # aktualna = "should this record be shown by default"
