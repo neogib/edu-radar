@@ -249,6 +249,8 @@ const handleKeyDown = (e: KeyboardEvent) => {
             (highlightedIndex.value - 1 + searchSuggestions.value.length) %
             searchSuggestions.value.length
         scrollToSelected()
+    } else if (e.key == "Enter" && highlightedIndex.value < 0) {
+        void submitQuery()
     } else if (e.key === "Enter" && highlightedIndex.value >= 0) {
         const selected = searchSuggestions.value[highlightedIndex.value]
         if (selected) {
