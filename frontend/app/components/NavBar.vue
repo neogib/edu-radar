@@ -43,7 +43,7 @@ const items = computed<NavigationMenuItem[]>(() => [
     },
     {
         label: "Kontakt",
-        to: "/",
+        to: "/contact",
         icon: "i-mdi-email",
         active: route.path.startsWith("/contact"),
     },
