@@ -9,6 +9,7 @@ export default defineNuxtConfig({
         "nuxt-maplibre",
         "@pinia/nuxt",
         "nuxt-charts",
+        "@nuxtjs/turnstile",
     ],
     // Runtime environment configuration
     runtimeConfig: {
