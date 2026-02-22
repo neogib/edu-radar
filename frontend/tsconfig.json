@@ -16,6 +16,7 @@
         }
     ],
     "compilerOptions": {
+        "strict": true,
         // setup for openapi typescript
         "module": "ESNext",
         "moduleResolution": "Bundler",
