@@ -1,6 +1,8 @@
 import tailwindcss from "@tailwindcss/vite"
 
 const isDev = process.env.NODE_ENV === "development"
+const siteUrl = process.env.NUXT_SITE_URL ?? "https://eduradar.4one.ovh"
+const siteName = process.env.NUXT_SITE_NAME ?? "EduRadar"
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -18,6 +20,14 @@ export default defineNuxtConfig({
     ],
     turnstile: {
         siteKey: "your_site_key", // replace with your actual site key or just set NUXT_PUBLIC_TURNSTILE_SITE_KEY in .env
+    },
+    site: {
+        url: siteUrl,
+        name: siteName,
+        indexable: !isDev,
+    },
+    ogImage: {
+        enabled: false,
     },
     // Runtime environment configuration
     runtimeConfig: {
@@ -82,7 +92,8 @@ export default defineNuxtConfig({
     },
     app: {
         head: {
-            title: "EduRadar",
+            title: siteName,
+            titleTemplate: "%s %separator %siteName",
             link: [
                 { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
             ],

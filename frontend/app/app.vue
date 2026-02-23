@@ -3,6 +3,7 @@ useSeoMeta({
     ogImage: "/og-image.png",
     twitterImage: "/og-image.png",
     twitterCard: "summary_large_image",
+    ogType: "website",
 })
 </script>
 
