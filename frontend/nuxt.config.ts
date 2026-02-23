@@ -11,6 +11,9 @@ export default defineNuxtConfig({
         "nuxt-charts",
         "@nuxtjs/turnstile",
     ],
+    turnstile: {
+        siteKey: "your_site_key",
+    },
     // Runtime environment configuration
     runtimeConfig: {
         proxyURL: "http://localhost:8000/api/v1",

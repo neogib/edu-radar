@@ -40,16 +40,64 @@ const state = reactive<ContactFormSchema>({
     message: "",
 })
 
+type TurnstileWidgetRef = {
+    reset: () => void
+}
+
+const turnstileToken = ref("")
+const turnstileError = ref("")
+const isSubmitting = ref(false)
+const turnstileRef = useTemplateRef<TurnstileWidgetRef>("turnstileRef")
+
+const { $api } = useNuxtApp()
 const toast = useToast()
 
 async function onSubmit(event: FormSubmitEvent<ContactFormSchema>) {
-    console.log("Contact form submitted:", event.data)
-    toast.add({
-        title: "Wiadomość wysłana",
-        description: "Dziękujemy! Skontaktujemy się z Tobą wkrótce.",
-        color: "success",
-        icon: "i-lucide-check-circle-2",
-    })
+    if (!turnstileToken.value) {
+        turnstileError.value = "Potwierdź weryfikację bezpieczeństwa."
+        return
+    }
+
+    turnstileError.value = ""
+    isSubmitting.value = true
+
+    try {
+        await $api("/contact", {
+            method: "POST",
+            body: {
+                ...event.data,
+                turnstileToken: turnstileToken.value,
+            },
+        })
+
+        console.log("Contact form submitted:", event.data)
+        state.name = ""
+        state.email = ""
+        state.topic = ""
+        state.message = ""
+
+        turnstileToken.value = ""
+        turnstileRef.value?.reset()
+
+        toast.add({
+            title: "Wiadomość wysłana",
+            description: "Dziękujemy! Skontaktujemy się z Tobą wkrótce.",
+            color: "success",
+            icon: "i-lucide-check-circle-2",
+        })
+    } catch {
+        turnstileToken.value = ""
+        turnstileRef.value?.reset()
+        toast.add({
+            title: "Nie udało się wysłać wiadomości",
+            description:
+                "Spróbuj ponownie za chwilę lub odśwież stronę, jeśli problem się powtarza.",
+            color: "error",
+            icon: "i-lucide-circle-alert",
+        })
+    } finally {
+        isSubmitting.value = false
+    }
 }
 </script>
 
@@ -131,11 +179,25 @@ async function onSubmit(event: FormSubmitEvent<ContactFormSchema>) {
                         placeholder="Opisz, w czym możemy pomóc..." />
                 </UFormField>
 
+                <UFormField label="Weryfikacja bezpieczeństwa" name="turnstile">
+                    <div class="rounded-lg border border-default p-3">
+                        <NuxtTurnstile
+                            ref="turnstileRef"
+                            v-model="turnstileToken"
+                            @update:model-value="turnstileError = ''" />
+                    </div>
+                    <p v-if="turnstileError" class="mt-2 text-sm text-error">
+                        {{ turnstileError }}
+                    </p>
+                </UFormField>
+
                 <UButton
                     type="submit"
                     color="primary"
                     variant="solid"
                     block
+                    :loading="isSubmitting"
+                    :disabled="isSubmitting"
                     class="justify-center">
                     <UIcon name="i-lucide-send" class="size-4" />
                     Wyślij wiadomość
