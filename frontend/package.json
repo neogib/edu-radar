@@ -22,6 +22,7 @@
         "@nuxt/eslint": "1.12.1",
         "@nuxt/scripts": "^0.13.2",
         "@nuxt/ui": "4.3.0",
+        "@nuxtjs/seo": "^3.4.0",
         "@nuxtjs/turnstile": "^1.1.1",
         "@pinia/nuxt": "0.11.3",
         "@tailwindcss/vite": "^4.1.18",

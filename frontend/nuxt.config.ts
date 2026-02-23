@@ -15,6 +15,7 @@ export default defineNuxtConfig({
         "@nuxt/scripts",
         "@nuxtjs/turnstile",
         "nuxt-security",
+        "@nuxtjs/seo",
     ],
     turnstile: {
         siteKey: "your_site_key", // replace with your actual site key or just set NUXT_PUBLIC_TURNSTILE_SITE_KEY in .env
