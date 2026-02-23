@@ -10,7 +10,6 @@ export default defineNuxtConfig({
         "@nuxt/eslint",
         "@nuxt/ui",
         "nuxt-maplibre",
-        "@pinia/nuxt",
         "nuxt-charts",
         "@nuxt/scripts",
         "@nuxtjs/turnstile",
