@@ -46,48 +46,15 @@ export default defineNuxtConfig({
     },
     security: {
         headers: {
-            strictTransportSecurity: isDev
-                ? false
-                : {
-                      maxAge: 15_552_000,
-                      includeSubdomains: true,
-                  },
-            crossOriginEmbedderPolicy: isDev ? "unsafe-none" : "require-corp",
-            contentSecurityPolicy: isDev
-                ? {
-                      "upgrade-insecure-requests": false,
-                      "script-src": [
-                          "'self'",
-                          "'unsafe-inline'",
-                          "'unsafe-eval'",
-                          "http:",
-                          "https:",
-                      ],
-                      "style-src": ["'self'", "'unsafe-inline'", "https:"],
-                      "connect-src": [
-                          "'self'",
-                          "http:",
-                          "https:",
-                          "ws:",
-                          "wss:",
-                      ],
-                  }
-                : {
-                      "script-src": [
-                          "'self'",
-                          "https:",
-                          "'unsafe-inline'",
-                          "'strict-dynamic'",
-                          "'nonce-{{nonce}}'",
-                      ],
-                      "style-src": ["'self'", "https:", "'unsafe-inline'"],
-                      "img-src": ["'self'", "data:", "blob:"],
-                      "font-src": ["'self'", "https:", "data:"],
-                      "object-src": ["'none'"],
-                      "base-uri": ["'none'"],
-                      "script-src-attr": ["'none'"],
-                      "upgrade-insecure-requests": true,
-                  },
+            strictTransportSecurity: false,
+            contentSecurityPolicy: false,
+            crossOriginEmbedderPolicy: false,
+            crossOriginOpenerPolicy: false,
+            crossOriginResourcePolicy: false,
+            originAgentCluster: false,
+            xFrameOptions: "SAMEORIGIN",
+            xContentTypeOptions: "nosniff",
+            referrerPolicy: "no-referrer-when-downgrade",
         },
     },
     app: {
