@@ -52,6 +52,48 @@ const turnstileRef = useTemplateRef<TurnstileWidgetRef>("turnstileRef")
 const { $api } = useNuxtApp()
 const toast = useToast()
 
+function notifyTurnstileError(description: string) {
+    turnstileToken.value = ""
+    turnstileError.value = description
+    toast.add({
+        title: "Błąd weryfikacji",
+        description,
+        color: "error",
+        icon: "i-lucide-shield-alert",
+    })
+}
+
+function handleTurnstileError(code?: string) {
+    const suffix = code ? ` (kod: ${code})` : ""
+    notifyTurnstileError(`Weryfikacja Turnstile nie powiodła się${suffix}.`)
+}
+
+function handleTurnstileExpired() {
+    notifyTurnstileError("Weryfikacja wygasła. Spróbuj ponownie.")
+}
+
+function handleWindowError(event: ErrorEvent) {
+    if (!event.message.includes("TurnstileError")) {
+        return
+    }
+    notifyTurnstileError(
+        "Wystąpił błąd skryptu Turnstile. Odśwież stronę i spróbuj ponownie.",
+    )
+}
+
+const turnstileOptions = {
+    "error-callback": handleTurnstileError,
+    "expired-callback": handleTurnstileExpired,
+}
+
+onMounted(() => {
+    window.addEventListener("error", handleWindowError)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener("error", handleWindowError)
+})
+
 async function onSubmit(event: FormSubmitEvent<ContactFormSchema>) {
     if (!turnstileToken.value) {
         turnstileError.value = "Potwierdź weryfikację bezpieczeństwa."
@@ -184,6 +226,7 @@ async function onSubmit(event: FormSubmitEvent<ContactFormSchema>) {
                         <NuxtTurnstile
                             ref="turnstileRef"
                             v-model="turnstileToken"
+                            :options="turnstileOptions"
                             @update:model-value="turnstileError = ''" />
                     </div>
                     <p v-if="turnstileError" class="mt-2 text-sm text-error">

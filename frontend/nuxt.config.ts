@@ -13,7 +13,7 @@ export default defineNuxtConfig({
         "@nuxtjs/turnstile",
     ],
     turnstile: {
-        siteKey: "your_site_key",
+        siteKey: "your_site_key", // replace with your actual site key or just set NUXT_PUBLIC_TURNSTILE_SITE_KEY in .env
     },
     // Runtime environment configuration
     runtimeConfig: {
