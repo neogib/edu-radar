@@ -11,6 +11,7 @@ export default defineNuxtConfig({
         "nuxt-charts",
         "@nuxt/scripts",
         "@nuxtjs/turnstile",
+        "nuxt-security",
     ],
     turnstile: {
         siteKey: "your_site_key", // replace with your actual site key or just set NUXT_PUBLIC_TURNSTILE_SITE_KEY in .env
