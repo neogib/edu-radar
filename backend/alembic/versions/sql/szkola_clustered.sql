@@ -78,12 +78,10 @@ source_points AS (
       )
       AND (
           fp.min_score IS NULL
-          OR s.wynik IS NULL
           OR s.wynik >= fp.min_score
       )
       AND (
           fp.max_score IS NULL
-          OR s.wynik IS NULL
           OR s.wynik <= fp.max_score
       )
       AND (
