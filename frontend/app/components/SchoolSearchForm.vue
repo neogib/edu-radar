@@ -4,7 +4,6 @@ import { mainSchoolTypes } from "~/constants/schoolTypes"
 import { VOIVODESHIP_NAMES } from "~/constants/voivodeships"
 import type { TypSzkolyPublic } from "~/types/schools"
 
-const initialBbox = useInitialBbox()
 const { data: schoolTypes } = await useApi<TypSzkolyPublic[]>(
     "/school_types/",
     {
@@ -35,8 +34,6 @@ const handleSubmit = async (selectedVoivodeship: string) => {
         console.error("Voivodeship not found:", selectedVoivodeship)
         return
     }
-
-    initialBbox.value = voivodeshipData.coordinates
 
     // Default school types if none selected
     let types = selectedSchoolTypes.value
