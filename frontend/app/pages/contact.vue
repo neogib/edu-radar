@@ -82,9 +82,10 @@ function handleWindowError(event: ErrorEvent) {
 }
 
 const turnstileOptions = {
+    size: "flexible",
     "error-callback": handleTurnstileError,
     "expired-callback": handleTurnstileExpired,
-}
+} satisfies Omit<Partial<Turnstile.RenderParameters>, "callback">
 
 onMounted(() => {
     window.addEventListener("error", handleWindowError)
@@ -222,13 +223,11 @@ async function onSubmit(event: FormSubmitEvent<ContactFormSchema>) {
                 </UFormField>
 
                 <UFormField label="Weryfikacja bezpieczeństwa" name="turnstile">
-                    <div class="rounded-lg border border-default p-3">
-                        <NuxtTurnstile
-                            ref="turnstileRef"
-                            v-model="turnstileToken"
-                            :options="turnstileOptions"
-                            @update:model-value="turnstileError = ''" />
-                    </div>
+                    <NuxtTurnstile
+                        ref="turnstileRef"
+                        v-model="turnstileToken"
+                        :options="turnstileOptions"
+                        @update:model-value="turnstileError = ''" />
                     <p v-if="turnstileError" class="mt-2 text-sm text-error">
                         {{ turnstileError }}
                     </p>
