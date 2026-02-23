@@ -57,6 +57,16 @@ export default defineNuxtConfig({
             referrerPolicy: "no-referrer-when-downgrade",
         },
     },
+    routeRules: {
+        "/og-image.jpg": {
+            cors: true,
+            security: {
+                headers: {
+                    xFrameOptions: false,
+                },
+            },
+        },
+    },
     app: {
         head: {
             title: siteName,
