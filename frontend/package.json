@@ -46,6 +46,7 @@
         "@iconify-json/noto": "^1.2.7",
         "@iconify-json/simple-icons": "^1.2.71",
         "@types/geojson": "^7946.0.16",
+        "@types/node": "^25.3.0",
         "eslint-config-prettier": "^10.1.8",
         "openapi-typescript": "^7.10.1",
         "prettier": "3.7.4",
