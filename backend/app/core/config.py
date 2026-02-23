@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str
+    TURNSTILE_SECRET_KEY: str = ""
 
     # PostgresDsn represents a standardized PostgreSQL connection string
     DATABASE_URI: PostgresDsn | None = None

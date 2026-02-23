@@ -9,3 +9,13 @@ class SchoolLocationNotFoundError(Exception):
     def __init__(self, school_id: int) -> None:
         self.school_id: int = school_id
         super().__init__(f"School location with id={school_id} not found")
+
+
+class TurnstileServiceUnavailableError(Exception):
+    pass
+
+
+class TurnstileVerificationFailedError(Exception):
+    def __init__(self, error_codes: list[str]) -> None:
+        self.error_codes: list[str] = error_codes
+        super().__init__("Turnstile verification failed")

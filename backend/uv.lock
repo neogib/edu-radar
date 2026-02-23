@@ -60,6 +60,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },
+    { name = "email-validator" },
     { name = "fastapi", extra = ["standard"] },
     { name = "geoalchemy2" },
     { name = "httpx" },
@@ -84,6 +85,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.17.2" },
+    { name = "email-validator", specifier = ">=2.3.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.127.0" },
     { name = "geoalchemy2", specifier = ">=0.18.1" },
     { name = "httpx", specifier = ">=0.28.1" },
