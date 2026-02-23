@@ -108,8 +108,8 @@ docker compose -f compose.yaml -f compose.prod.yaml up -d
 ### 1. Clone the repository:
 
 ```bash
-git clone https://github.com/neogib/edu-map-rankings.git
-cd edu-map-rankings
+git clone https://github.com/neogib/edu-radar.git
+cd edu-radar
 ```
 
 ### 2. Install dependencies:
