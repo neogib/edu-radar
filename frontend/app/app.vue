@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
-    ogImage: "/og-image.png",
-    twitterImage: "/og-image.png",
+    ogImage: "/og-image.jpg",
+    twitterImage: "/og-image.jpg",
     twitterCard: "summary_large_image",
     ogType: "website",
 })
