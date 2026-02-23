@@ -65,7 +65,7 @@ function notifyTurnstileError(description: string) {
 
 function handleTurnstileError(code?: string) {
     const suffix = code ? ` (kod: ${code})` : ""
-    notifyTurnstileError(`Weryfikacja Turnstile nie powiodła się${suffix}.`)
+    notifyTurnstileError(`Weryfikacja nie powiodła się${suffix}.`)
 }
 
 function handleTurnstileExpired() {
@@ -77,7 +77,7 @@ function handleWindowError(event: ErrorEvent) {
         return
     }
     notifyTurnstileError(
-        "Wystąpił błąd skryptu Turnstile. Odśwież stronę i spróbuj ponownie.",
+        "Wystąpił błąd skryptu weryfikacji. Odśwież stronę i spróbuj ponownie.",
     )
 }
 
@@ -113,7 +113,6 @@ async function onSubmit(event: FormSubmitEvent<ContactFormSchema>) {
             },
         })
 
-        console.log("Contact form submitted:", event.data)
         state.name = ""
         state.email = ""
         state.topic = ""

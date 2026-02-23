@@ -8,7 +8,6 @@ class KontaktBase(SQLModel):
     email: str = Field(max_length=254)
     topic: str = Field(max_length=150)
     message: str = Field(max_length=2000)
-    turnstile_token: str = Field(max_length=2048)
 
 
 class Kontakt(KontaktBase, TimestampMixin, table=True):

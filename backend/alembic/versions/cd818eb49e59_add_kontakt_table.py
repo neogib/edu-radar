@@ -29,7 +29,6 @@ def upgrade() -> None:
     sa.Column('email', sqlmodel.sql.sqltypes.AutoString(length=254), nullable=False),
     sa.Column('topic', sqlmodel.sql.sqltypes.AutoString(length=150), nullable=False),
     sa.Column('message', sqlmodel.sql.sqltypes.AutoString(length=2000), nullable=False),
-    sa.Column('turnstile_token', sqlmodel.sql.sqltypes.AutoString(length=2048), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
