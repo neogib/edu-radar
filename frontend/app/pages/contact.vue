@@ -2,10 +2,11 @@
 import type { FormSubmitEvent } from "@nuxt/ui"
 import * as v from "valibot"
 
-usePageSeo(
-    "Kontakt - EduRadar",
-    "Skontaktuj się z zespołem EduRadar w sprawie rankingu szkół i danych edukacyjnych.",
-)
+useSeoMeta({
+    title: "Kontakt",
+    description:
+        "Skontaktuj się z zespołem EduRadar w sprawie rankingu szkół i danych edukacyjnych.",
+})
 
 const schema = v.object({
     name: v.pipe(

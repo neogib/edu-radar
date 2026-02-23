@@ -1,5 +1,11 @@
 <script setup lang="ts">
 import logoFullVertical from "@/assets/logo/logo-full-vertical.svg"
+
+useSeoMeta({
+    title: "Wybierz szkołę świadomie",
+    description:
+        "Interaktywna mapa szkół. Znajdź najlepsze szkoły w swojej okolicy i porównuj rankingi.",
+})
 </script>
 
 <template>

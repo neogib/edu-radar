@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import heroImage from "@/assets/images/hero-image.png"
 
-usePageSeo(
-    "O nas - EduRadar",
-    "Dowiedz się, czym jest EduRadar i jak pomagamy rodzicom oraz uczniom porównywać szkoły w Polsce.",
-)
+useSeoMeta({
+    title: "O nas",
+    description:
+        "Dowiedz się, czym jest EduRadar i jak pomagamy rodzicom oraz uczniom porównywać szkoły w Polsce.",
+})
 
 /* ───── scroll-reveal observer ───── */
 let observer: IntersectionObserver | null = null

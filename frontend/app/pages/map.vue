@@ -6,10 +6,11 @@ definePageMeta({
     layout: false,
 })
 
-usePageSeo(
-    "Mapa szkół w Polsce - Ranking | EduRadar",
-    "Interaktywna mapa szkół w Polsce z rankingami, wynikami egzaminów i filtrowaniem.",
-)
+useSeoMeta({
+    title: "Mapa szkół w Polsce i rankingi",
+    description:
+        "Interaktywna mapa szkół w Polsce z rankingami, wynikami egzaminów i filtrowaniem.",
+})
 
 const selectedSchool = ref<SzkolaPublicWithRelations | null>(null)
 const overlay = useOverlay()
