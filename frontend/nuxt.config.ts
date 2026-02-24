@@ -7,7 +7,14 @@ const siteName = process.env.NUXT_SITE_NAME ?? "EduRadar"
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: "2025-07-15",
-    devtools: { enabled: true },
+    devtools: { enabled: isDev },
+    sourcemap: isDev
+        ? { client: true, server: true }
+        : { client: false, server: false },
+
+    experimental: {
+        buildCache: true,
+    },
     modules: [
         "@nuxt/eslint",
         "@nuxt/ui",
@@ -54,7 +61,6 @@ export default defineNuxtConfig({
             originAgentCluster: false,
             xFrameOptions: "SAMEORIGIN",
             xContentTypeOptions: "nosniff",
-            referrerPolicy: "no-referrer-when-downgrade",
         },
     },
     routeRules: {
