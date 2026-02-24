@@ -19,6 +19,7 @@ const [x, y, z] = [
 const emit = defineEmits<{
     "point-clicked": [school: SzkolaPublicWithRelations | null]
 }>()
+const isWebglSupported = ref<boolean | null>(null)
 
 const popupCoordinates: Ref<[number, number] | undefined> = ref(undefined)
 const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
@@ -129,6 +130,27 @@ const onMapLoaded = async (event: { map: maplibregl.Map }) => {
     await waitForSchoolsSource(map)
 }
 
+const checkWebglSupport = (): boolean => {
+    if (!window.WebGLRenderingContext) return false
+
+    const canvas = document.createElement("canvas")
+    try {
+        const context =
+            canvas.getContext("webgl2") || canvas.getContext("webgl")
+        return Boolean(context && typeof context.getParameter === "function")
+    } catch {
+        return false
+    }
+}
+
+onMounted(() => {
+    isWebglSupported.value = checkWebglSupport()
+})
+
+const onWebglUnsupportedModalClosePrevent = () => {
+    return navigateTo("/", { replace: true })
+}
+
 watch(
     () => colorMode.value,
     (mode, previousMode) => {
@@ -150,6 +172,7 @@ watch(
 
 <template>
     <MglMap
+        v-if="isWebglSupported === true"
         :map-key="MAP_CONFIG.mapKey"
         :map-style="initialMapStyle"
         :center="[x, y]"
@@ -217,4 +240,18 @@ watch(
 
         <MapSchoolLayers />
     </MglMap>
+
+    <UModal
+        :open="isWebglSupported === false"
+        title="WebGL nie jest wspierany"
+        :dismissible="false"
+        @close:prevent="onWebglUnsupportedModalClosePrevent">
+        <template #body>
+            <p class="text-sm text-toned">
+                Twoja przeglądarka nie wspiera WebGL, który jest wymagany do
+                wyświetlania mapy. Spróbuj włączyć WebGL w ustawieniach
+                przeglądarki lub użyj innej, która go wspiera.
+            </p>
+        </template>
+    </UModal>
 </template>
