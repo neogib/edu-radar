@@ -37,7 +37,7 @@ const handleSearchFocusChange = (focused: boolean) => {
 </script>
 
 <template>
-    <div class="absolute top-20 left-2 z-20 flex flex-col gap-2 max-w-[95%]">
+    <div class="filters-absolute-container">
         <!-- Search Bar -->
         <div class="flex gap-2 items-center">
             <MapFiltersSearch
@@ -59,14 +59,13 @@ const handleSearchFocusChange = (focused: boolean) => {
                 </template>
             </UButton>
         </div>
-
-        <!-- Filter Panel -->
-        <Transition name="slide-fade">
-            <div v-show="isPanelOpen">
-                <MapFiltersPanel v-model="multiSelectFilters" />
-            </div>
-        </Transition>
     </div>
+    <!-- Filter Panel -->
+    <Transition name="slide-fade">
+        <div v-show="isPanelOpen" class="filters-absolute-container mt-12">
+            <MapFiltersPanel v-model="multiSelectFilters" />
+        </div>
+    </Transition>
     <!-- Overlay for closing search input/filter panel when clicking outside -->
     <div
         v-if="isPanelOpen || isSearchFocused"
@@ -76,6 +75,10 @@ const handleSearchFocusChange = (focused: boolean) => {
 
 <style scoped>
 @reference "tailwindcss";
+
+.filters-absolute-container {
+    @apply absolute top-20 left-2 z-20 max-w-[95%];
+}
 
 .slide-fade-enter-active {
     @apply transition-all duration-300 ease-out;
