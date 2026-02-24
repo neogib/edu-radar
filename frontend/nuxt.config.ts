@@ -44,6 +44,9 @@ export default defineNuxtConfig({
             martinBase: "http://localhost:3001",
         },
     },
+    maplibre: {
+        css: false,
+    },
     css: ["~/assets/css/main.css"],
     vite: {
         plugins: [tailwindcss()],

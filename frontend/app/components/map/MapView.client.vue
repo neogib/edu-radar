@@ -245,6 +245,11 @@ watch(
         :open="isWebglSupported === false"
         title="WebGL nie jest wspierany"
         :dismissible="false"
+        @update:open="
+            (open) => {
+                if (!open) onWebglUnsupportedModalClosePrevent()
+            }
+        "
         @close:prevent="onWebglUnsupportedModalClosePrevent">
         <template #body>
             <p class="text-sm text-toned">
