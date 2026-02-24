@@ -63,14 +63,14 @@ const items = computed<NavigationMenuItem[]>(() => [
             <img
                 :src="logoHorizontalSmall"
                 alt="Ranking Szkół"
-                width="2247"
-                height="609"
+                :width="2247"
+                :height="609"
                 class="h-8 w-auto md:hidden" />
             <img
                 :src="logoFullHorizontal"
                 alt="Ranking Szkół"
-                width="3011"
-                height="609"
+                :width="3011"
+                :height="609"
                 class="hidden h-10 w-auto md:block" />
         </template>
 

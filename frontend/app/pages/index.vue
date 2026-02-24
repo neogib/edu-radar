@@ -21,8 +21,8 @@ useSeoMeta({
             <img
                 :src="logoFullVertical"
                 alt="Logo EduRadar"
-                width="1638"
-                height="1220"
+                :width="1638"
+                :height="1220"
                 class="mx-auto h-36 w-auto sm:h-44 md:h-56 lg:h-64" />
         </UPageHero>
 
