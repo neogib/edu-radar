@@ -15,7 +15,6 @@ class ContactService(BaseService[Kontakt]):
             email=str(payload.email),
             topic=payload.topic,
             message=payload.message,
-            turnstile_token=payload.turnstile_token,
         )
         self.session.add(kontakt)
         self.session.commit()
