@@ -9,7 +9,7 @@
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
                     <img
-                        src="~/assets/images/filter_schools.jpg"
+                        src="~/assets/images/filter_schools.png"
                         alt="Filtry i wyszukiwanie"
                         class="feature-image border border-accented" />
                     <h3 class="feature-heading text-highlighted">
@@ -23,7 +23,7 @@
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
                     <img
-                        src="~/assets/images/location.jpg"
+                        src="~/assets/images/location.png"
                         alt="Lokalizacja"
                         class="feature-image border border-accented" />
                     <h3 class="feature-heading text-highlighted">
@@ -36,7 +36,7 @@
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
                     <img
-                        src="~/assets/images/up-to-date_data.jpg"
+                        src="~/assets/images/up-to-date_data.png"
                         alt="Aktualne dane"
                         class="feature-image border border-accented" />
                     <h3 class="feature-heading text-highlighted">
