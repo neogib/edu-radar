@@ -1,4 +1,5 @@
 listen_addresses: "0.0.0.0:3001"
+route_prefix: "/tiles"
 
 postgres:
   connection_string: $MARTIN_DATABASE_URL
