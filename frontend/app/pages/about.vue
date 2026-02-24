@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import heroImage from "@/assets/images/hero-image.png"
-
 useSeoMeta({
     title: "O nas",
     description:
@@ -218,9 +216,10 @@ const faq = [
         <section
             class="relative isolate px-4 pt-20 pb-24 sm:pt-28 sm:pb-32 text-center overflow-hidden">
             <div class="pointer-events-none absolute inset-0 -z-20">
-                <img
-                    :src="heroImage"
-                    alt=""
+                <NuxtImg
+                    src="/images/hero-image.png"
+                    alt="Hero image of students and parents exploring school data on a large interactive map, surrounded by educational icons and charts"
+                    preload
                     class="h-full w-full object-cover"
                     aria-hidden="true" />
             </div>

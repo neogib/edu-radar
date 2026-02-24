@@ -8,9 +8,12 @@
             <div class="grid md:grid-cols-3 gap-8 mt-8">
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
-                    <img
-                        src="~/assets/images/filter_schools.png"
+                    <NuxtImg
+                        src="/images/filter_schools.png"
                         alt="Filtry i wyszukiwanie"
+                        width="144"
+                        height="144"
+                        loading="lazy"
                         class="feature-image border border-accented" />
                     <h3 class="feature-heading text-highlighted">
                         Filtry i wyszukiwanie
@@ -22,9 +25,12 @@
                 </div>
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
-                    <img
-                        src="~/assets/images/location.png"
+                    <NuxtImg
+                        src="/images/location.png"
                         alt="Lokalizacja"
+                        width="144"
+                        height="144"
+                        loading="lazy"
                         class="feature-image border border-accented" />
                     <h3 class="feature-heading text-highlighted">
                         Lokalizacja
@@ -35,9 +41,12 @@
                 </div>
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
-                    <img
-                        src="~/assets/images/up-to-date_data.png"
+                    <NuxtImg
+                        src="/images/up-to-date_data.png"
                         alt="Aktualne dane"
+                        width="144"
+                        height="144"
+                        loading="lazy"
                         class="feature-image border border-accented" />
                     <h3 class="feature-heading text-highlighted">
                         Aktualne dane
