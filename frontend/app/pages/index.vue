@@ -20,7 +20,9 @@ useSeoMeta({
             class="mb-6 sm:mb-8">
             <img
                 :src="logoFullVertical"
-                alt="Ranking Szkół"
+                alt="Logo EduRadar"
+                width="1638"
+                height="1220"
                 class="mx-auto h-36 w-auto sm:h-44 md:h-56 lg:h-64" />
         </UPageHero>
 
