@@ -26,8 +26,9 @@ const { setupMapEventHandlers, hoveredSchool } = useMapInteractions(
     emit,
     popupCoordinates,
 )
-const initialMapStyle =
-    colorMode.value === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle
+const mapStyle = computed(() =>
+    colorMode.value === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle,
+)
 const mapInstance = useMap(MAP_CONFIG.mapKey)
 
 const statusIcon = computed(() => {
@@ -159,7 +160,9 @@ watch(
 
         const nextStyle =
             mode === "dark" ? MAP_CONFIG.darkStyle : MAP_CONFIG.lightStyle
+
         const map = mapInstance.map as maplibregl.Map
+        if (!mapInstance.isLoaded) return
 
         map.setStyle(nextStyle, {
             diff: true,
@@ -174,7 +177,7 @@ watch(
     <MglMap
         v-if="isWebglSupported === true"
         :map-key="MAP_CONFIG.mapKey"
-        :map-style="initialMapStyle"
+        :map-style="mapStyle"
         :center="[x, y]"
         :zoom="z"
         :fade-duration="0"

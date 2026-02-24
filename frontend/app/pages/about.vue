@@ -219,6 +219,7 @@ const faq = [
                 <NuxtImg
                     src="/images/hero-image.png"
                     alt="Hero image of students and parents exploring school data on a large interactive map, surrounded by educational icons and charts"
+                    sizes="100vw"
                     preload
                     class="h-full w-full object-cover"
                     aria-hidden="true" />
