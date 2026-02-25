@@ -223,8 +223,11 @@ const faq = [
                     :width="1536"
                     :height="1024"
                     preload
-                    class="h-full w-full object-cover"
-                    aria-hidden="true" />
+                    class="block h-full w-full"
+                    :img-attrs="{
+                        class: 'h-full w-full object-cover',
+                        'aria-hidden': 'true',
+                    }" />
             </div>
             <div
                 class="pointer-events-none absolute inset-0 -z-10 bg-black/45" />

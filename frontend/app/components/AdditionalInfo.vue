@@ -14,7 +14,10 @@
                         width="144"
                         height="144"
                         loading="lazy"
-                        class="feature-image border border-accented" />
+                        class="feature-picture border border-accented"
+                        :img-attrs="{
+                            class: 'feature-image',
+                        }" />
                     <h3 class="feature-heading text-highlighted">
                         Filtry i wyszukiwanie
                     </h3>
@@ -31,7 +34,10 @@
                         width="144"
                         height="144"
                         loading="lazy"
-                        class="feature-image border border-accented" />
+                        class="feature-picture border border-accented"
+                        :img-attrs="{
+                            class: 'feature-image',
+                        }" />
                     <h3 class="feature-heading text-highlighted">
                         Lokalizacja
                     </h3>
@@ -47,7 +53,10 @@
                         width="144"
                         height="144"
                         loading="lazy"
-                        class="feature-image border border-accented" />
+                        class="feature-picture border border-accented"
+                        :img-attrs="{
+                            class: 'feature-image',
+                        }" />
                     <h3 class="feature-heading text-highlighted">
                         Aktualne dane
                     </h3>
@@ -64,7 +73,11 @@
 @reference "tailwindcss";
 
 .feature-image {
-    @apply w-36 h-36 rounded-full mb-4 mx-auto object-cover;
+    @apply h-full w-full object-cover;
+}
+
+.feature-picture {
+    @apply block w-36 h-36 rounded-full mb-4 mx-auto overflow-hidden;
 }
 
 .feature-heading {
