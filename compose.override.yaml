@@ -1,5 +1,6 @@
 services:
   backend:
+    image: edu-radar-backend:dev
     build:
       context: ./backend
       target: dev
@@ -17,6 +18,7 @@ services:
           path: ./backend/uv.lock
 
   frontend:
+    image: edu-radar-frontend:dev
     build:
       context: ./frontend
       target: dev
@@ -28,4 +30,4 @@ services:
           ignore:
             - node_modules
         - action: rebuild
-          path: ./frontend/package.json
+          path: ./frontend/pnpm-lock.yaml
