@@ -216,7 +216,7 @@ const faq = [
         <section
             class="relative isolate px-4 pt-20 pb-24 sm:pt-28 sm:pb-32 text-center overflow-hidden">
             <div class="pointer-events-none absolute inset-0 -z-20">
-                <NuxtImg
+                <NuxtPicture
                     src="/images/hero-image.png"
                     alt="Hero image of students and parents exploring school data on a large interactive map, surrounded by educational icons and charts"
                     sizes="sm:100vw md:100vw lg:100vw xl:100vw 2xl:100vw"

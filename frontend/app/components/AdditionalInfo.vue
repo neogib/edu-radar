@@ -8,7 +8,7 @@
             <div class="grid md:grid-cols-3 gap-8 mt-8">
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
-                    <NuxtImg
+                    <NuxtPicture
                         src="/images/filter_schools.png"
                         alt="Filtry i wyszukiwanie"
                         width="144"
@@ -25,7 +25,7 @@
                 </div>
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
-                    <NuxtImg
+                    <NuxtPicture
                         src="/images/location.png"
                         alt="Lokalizacja"
                         width="144"
@@ -41,7 +41,7 @@
                 </div>
                 <div
                     class="text-center rounded-xl border border-default bg-default p-5">
-                    <NuxtImg
+                    <NuxtPicture
                         src="/images/up-to-date_data.png"
                         alt="Aktualne dane"
                         width="144"
