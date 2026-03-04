@@ -1,6 +1,9 @@
 # EduRadar
 
-EduRadar is a map-first platform for exploring Polish schools using official education datasets. It combines a FastAPI + PostgreSQL backend with batch data ingestion and score normalization (0-100), then serves filterable ranking and location data to a Nuxt frontend with interactive MapLibre visualizations.
+[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
+[![pl](https://img.shields.io/badge/lang-pl-white.svg)](README.pl.md)
+
+EduRadar is an interactive map app for exploring Polish schools using official education datasets. It combines a FastAPI + PostgreSQL backend with batch data ingestion and score normalization (0-100), then serves filterable ranking and location data to a Nuxt frontend with interactive MapLibre visualizations.
 
 ## 🛠️ Tech stack:
 
