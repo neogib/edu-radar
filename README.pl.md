@@ -5,6 +5,15 @@
 
 EduRadar to interaktywna mapa do eksploracji polskich szkół na podstawie oficjalnych danych edukacyjnych. Łączy backend FastAPI + PostgreSQL z wsadowym importem danych i normalizacją wyników (0-100), a następnie udostępnia filtrowalne dane rankingowe i lokalizacyjne do frontendu Nuxt z interaktywną wizualizacją MapLibre.
 
+## 🎬 Demo
+
+![EduRadar - Zrzut ekranu](docs/media/home-page.webp)
+
+### Zrzuty ekranu
+
+- ![Widok mapy](docs/media/map-view.webp)
+- ![Widok rankingu](docs/media/ranking-view.webp)
+
 ## 🛠️ Tech Stack:
 
 - **Frontend:** Nuxt 4, Vue 3, TypeScript, Tailwind CSS
