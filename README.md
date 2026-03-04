@@ -1,5 +1,7 @@
 # EduRadar
 
+EduRadar is a map-first platform for exploring Polish schools using official education datasets. It combines a FastAPI + PostgreSQL backend with batch data ingestion and score normalization (0-100), then serves filterable ranking and location data to a Nuxt frontend with interactive MapLibre visualizations.
+
 ## 🛠️ Tech stack:
 
 - **Frontend:** Nuxt 4, Vue 3, TypeScript, Tailwind CSS
@@ -14,6 +16,46 @@
 - [`frontend/README.md`](frontend/README.md) – frontend setup, Nuxt specifics
 - [`backend/README.md`](backend/README.md) – backend setup, FastAPI & database details
 
+## ETL Pipeline
+
+This project uses **two separate ingestion pipelines** that are joined by the school RSPO number:
+
+1. **RSPO API pipeline (school registry data)**
+
+- Source: authenticated [RSPO API](https://api.rspo.gov.pl/api/placowki/) (paginated JSON).
+- Scope: active and closed schools, with administrative hierarchy and geolocation.
+- Processing: API responses are validated with Pydantic models and decomposed into normalized relational tables (e.g. `wojewodztwo`, `powiat`, `gmina`, `miejscowosc`, `ulica`, school metadata).
+- Persistence: schools are upserted by `numer_rspo`; existing records are updated (including relationships and geometry).
+
+2. **CIE/SIO pipeline (exam results data)**
+
+- Source: Excel files (`E8_data`, `EM_data`) from CIE/SIO exam publications: [Exams map](https://mapa.wyniki.edu.pl/MapaEgzaminow/).
+- Processing: files are parsed per exam type (`E8`, `EM`), subjects are extracted from multi-level headers, and results are matched to schools by RSPO.
+- Validation: result payloads are validated before insert; incomplete rows are skipped.
+- Persistence: results are bulk inserted into `wynik_e8` / `wynik_em` with conflict-safe deduplication (`szkola_id`, `przedmiot_id`, `rok`).
+
+3. **Geospatial transform pipeline (optional but supported)** (this was used in the early stages when location data for schools from the RSPO API was inaccurate)
+
+- Export school addresses to CSV for external geocoding.
+- Geocode addresses using a [Polish geocoding service](https://capap.gugik.gov.pl/app/geokodowanie/file.html)
+- Import converted coordinates back to PostGIS geometry.
+
+4. **Shifting overlapping schools**
+
+- Shift overlapping map points to reduce marker stacking.
+
+5. **Scoring and ranking pipeline**
+
+- School scores (`0-100`) are recalculated from exam tables using weighted subjects, multi-year decay, and fallback rules when median values are missing.
+- Rankings are rebuilt for the latest available year at national, voivodeship, and powiat levels.
+- EM rankings are split into `EM_TECH` and `EM_LO` groups based on school type.
+
+6. **Serving layer**
+
+- Final data is stored in PostgreSQL/PostGIS and consumed by:
+- FastAPI endpoints (filtering/search/rankings).
+- Martin vector tile server for map rendering. [Martin](https://martin.maplibre.org/) create MVT (Mapbox Vector Tiles) from any PostGIS table on the fly.
+
 ## ⚙️ Configuration
 
 Before running the project, configure the following env files (copy from the provided examples and fill in your values):
@@ -24,7 +66,7 @@ Before running the project, configure the following env files (copy from the pro
 
 ---
 
-## 🐳 Running the project with Docker
+## 🐳 Development - Running the project with Docker
 
 ### Docker files used
 
@@ -91,60 +133,3 @@ If you only want to stop containers without removing them:
 ```bash
 docker compose stop
 ```
-
----
-
-If you want to force a clean rebuild without cache:
-
-```bash
-docker compose -f compose.yaml -f compose.prod.yaml build --no-cache
-docker compose -f compose.yaml -f compose.prod.yaml up -d
-```
-
----
-
-## ⚙️ Running the project natively (without Docker) for development
-
-### 1. Clone the repository:
-
-```bash
-git clone https://github.com/neogib/edu-radar.git
-cd edu-radar
-```
-
-### 2. Install dependencies:
-
-#### Install backend dependencies (uv):
-
-```bash
-uv sync --project backend
-```
-
-#### Install frontend dependencies (using pnpm):
-
-```bash
-pnpm --dir frontend install
-```
-
-### 3. Run the services:
-
-#### Run backend:
-
-```bash
-uv run --project backend uvicorn app.main:app --reload
-```
-
-Or from `backend/`:
-
-```bash
-cd backend
-uv run uvicorn app.main:app --reload
-```
-
-#### Run frontend:
-
-```bash
-pnpm --dir frontend dev
-```
-
----
