@@ -59,6 +59,41 @@ Projekt korzysta z **dwóch niezależnych pipeline'ów importu danych**, które 
 - Endpointy FastAPI (filtrowanie/wyszukiwanie/rankingi).
 - Serwer kafli wektorowych Martin do renderowania mapy. [Martin](https://martin.maplibre.org/) tworzy MVT (Mapbox Vector Tiles) z dowolnej tabeli PostGIS w locie.
 
+## Diagram architektury
+
+```mermaid
+flowchart LR
+    RSPO[RSPO API]
+    CIE[Pliki Excel CIE/SIO]
+    API_IMPORT[Import API\nbackend/app/data_import/main.py -o api]
+    EXCEL_IMPORT[Import Excel\nbackend/app/data_import/main.py -o excel]
+    TRANSFORM[Transformacje Geo\nbackend/app/data_import/transform.py]
+    SCORE[Scoring\nbackend/app/data_import/scoring.py -o score]
+    RANK[Ranking\nbackend/app/data_import/scoring.py -o rank]
+    DB[(PostgreSQL + PostGIS)]
+    FASTAPI[API FastAPI]
+    MARTIN[Serwer kafli Martin]
+    NUXT[Frontend Nuxt + MapLibre]
+
+    RSPO --> API_IMPORT --> DB
+    CIE --> EXCEL_IMPORT --> DB
+    DB --> TRANSFORM --> DB
+    DB --> SCORE --> DB
+    DB --> RANK --> DB
+    DB --> FASTAPI --> NUXT
+    DB --> MARTIN --> NUXT
+```
+
+## Uwagi wydajnościowe
+
+- ETL używa przetwarzania wsadowego, aby obsłużyć duże zbiory danych (50k+ szkół) bez wczytywania wszystkiego do pamięci naraz.
+- Import RSPO pobiera stronicowane dane równolegle i zapisuje znormalizowane encje z cache-aware dekompozycją.
+- Import wyników egzaminów używa buforowanych insertów hurtowych oraz deduplikacji konfliktów na (`szkola_id`, `przedmiot_id`, `rok`).
+- Aktualizacje scoringu są wykonywane hurtowo (`UPDATE ... bind params`), zamiast aktualizacji rekord po rekordzie.
+- Rankingi są przebudowywane na danych z najnowszego roku przy użyciu zapytań zbiorczych i wstępnie grupowanych pozycji.
+- Dostarczanie warstwy mapowej jest optymalizowane przez kafle wektorowe Martina generowane bezpośrednio z tabel PostGIS.
+- Filtrowanie/wyszukiwanie/paginacja są realizowane po stronie backendu, aby utrzymać małe payloady i responsywne renderowanie mapy.
+
 ## ⚙️ Konfiguracja
 
 Przed uruchomieniem projektu skonfiguruj poniższe pliki env (skopiuj z przykładów i uzupełnij własnymi wartościami):
