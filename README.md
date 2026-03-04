@@ -59,6 +59,41 @@ This project uses **two separate ingestion pipelines** that are joined by the sc
 - FastAPI endpoints (filtering/search/rankings).
 - Martin vector tile server for map rendering. [Martin](https://martin.maplibre.org/) create MVT (Mapbox Vector Tiles) from any PostGIS table on the fly.
 
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+    RSPO[RSPO API]
+    CIE[CIE/SIO Excel Files]
+    API_IMPORT[API Import\nbackend/app/data_import/main.py -o api]
+    EXCEL_IMPORT[Excel Import\nbackend/app/data_import/main.py -o excel]
+    TRANSFORM[Geo Transform\nbackend/app/data_import/transform.py]
+    SCORE[Scoring\nbackend/app/data_import/scoring.py -o score]
+    RANK[Ranking\nbackend/app/data_import/scoring.py -o rank]
+    DB[(PostgreSQL + PostGIS)]
+    FASTAPI[FastAPI API]
+    MARTIN[Martin Tile Server]
+    NUXT[Nuxt + MapLibre Frontend]
+
+    RSPO --> API_IMPORT --> DB
+    CIE --> EXCEL_IMPORT --> DB
+    DB --> TRANSFORM --> DB
+    DB --> SCORE --> DB
+    DB --> RANK --> DB
+    DB --> FASTAPI --> NUXT
+    DB --> MARTIN --> NUXT
+```
+
+## Performance Notes
+
+- ETL uses batch processing to handle large datasets (50k+ schools) without loading everything into memory at once.
+- RSPO ingestion fetches paginated data concurrently and writes normalized entities with cache-aware decomposition.
+- Exam ingestion uses buffered bulk inserts and conflict-safe deduplication on (`szkola_id`, `przedmiot_id`, `rok`).
+- Score updates are executed in bulk (`UPDATE ... bind params`) instead of row-by-row updates.
+- Rankings are rebuilt from latest-year data with set-based queries and pre-grouped position calculations.
+- Map delivery is optimized via Martin vector tiles generated directly from PostGIS tables.
+- API filtering/searching/pagination are backend-driven to keep payloads small and map rendering responsive.
+
 ## ⚙️ Configuration
 
 Before running the project, configure the following env files (copy from the provided examples and fill in your values):
