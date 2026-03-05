@@ -35,7 +35,8 @@ filter_params AS (
         string_to_array(NULLIF(query_params->>'career', ''), ',')::integer[] AS career_ids,
         NULLIF(query_params->>'minScore', '')::double precision AS min_score,
         NULLIF(query_params->>'maxScore', '')::double precision AS max_score,
-        NULLIF(BTRIM(query_params->>'q'), '') AS search_query
+        NULLIF(BTRIM(query_params->>'q'), '') AS search_query,
+        COALESCE(NULLIF(query_params->>'closed', '')::boolean, false) AS include_closed
 ),
 source_points AS (
     SELECT
@@ -53,7 +54,10 @@ source_points AS (
     CROSS JOIN filter_params AS fp
     WHERE s.geom_3857 IS NOT NULL
       AND s.aktualna = true
-      AND s.zlikwidowana = false
+      AND (
+          fp.include_closed
+          OR s.zlikwidowana = false
+      )
       AND s.geom_3857 && t.env_3857_buffered
       AND (
           fp.type_ids IS NULL
