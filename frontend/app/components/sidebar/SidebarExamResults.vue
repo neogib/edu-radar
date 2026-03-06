@@ -312,68 +312,110 @@ const weightedMarkerConfig: MarkerConfig = {
                         <td
                             v-for="year in section.years"
                             :key="`${section.key}-${subject}-${year}`"
-                            class="text-center py-3 px-1">
+                            class="align-top text-center py-3 px-1">
                             <template v-if="subjectData.years[year]">
-                                <div
-                                    class="text-2xl font-bold mb-1"
-                                    :style="{
-                                        color: getScoreColor(
-                                            subjectData.years[year]?.wynik,
-                                        ),
+                                <UPopover
+                                    :content="{
+                                        side: 'top',
+                                        align: 'center',
+                                        sideOffset: 6,
                                     }">
-                                    {{
-                                        Math.round(
-                                            subjectData.years[year]?.wynik ?? 0,
-                                        )
-                                    }}
-                                </div>
-                                <div
-                                    class="inline-flex items-center gap-1 text-xs text-muted">
-                                    <UIcon
-                                        name="i-lucide-users"
-                                        class="size-3" />
-                                    {{
-                                        `${subjectData.years[year]?.liczba_zdajacych}`
-                                    }}
-                                </div>
-                                <div
-                                    v-if="
-                                        section.key === 'em' &&
-                                        (subjectData.years[year]?.zdawalnosc !==
-                                            null ||
-                                            subjectData.years[year]
-                                                ?.liczba_laureatow_finalistow !==
-                                                null)
-                                    "
-                                    class="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
-                                    <span
-                                        v-if="
-                                            subjectData.years[year]
-                                                ?.zdawalnosc !== null
-                                        "
-                                        class="inline-flex items-center gap-1">
-                                        <UIcon
-                                            name="i-mdi-percent"
-                                            class="size-3" />
-                                        {{
-                                            `${Math.round(subjectData.years[year]?.zdawalnosc ?? 0)}%`
-                                        }}
-                                    </span>
-                                    <span
-                                        v-if="
-                                            subjectData.years[year]
-                                                ?.liczba_laureatow_finalistow !==
-                                            null
-                                        "
-                                        class="inline-flex items-center gap-1">
-                                        <UIcon
-                                            name="i-mdi-trophy-outline"
-                                            class="size-3" />
-                                        {{
-                                            `L/F: ${subjectData.years[year]?.liczba_laureatow_finalistow}`
-                                        }}
-                                    </span>
-                                </div>
+                                    <button
+                                        type="button"
+                                        class="flex h-full w-full flex-col items-center justify-start rounded-md px-1 py-1 transition-colors hover:bg-accented/40 focus-visible:outline-2 focus-visible:outline-primary">
+                                        <div
+                                            class="text-2xl font-bold"
+                                            :style="{
+                                                color: getScoreColor(
+                                                    subjectData.years[year]
+                                                        ?.wynik,
+                                                ),
+                                            }">
+                                            {{
+                                                Math.round(
+                                                    subjectData.years[year]
+                                                        ?.wynik ?? 0,
+                                                )
+                                            }}
+                                        </div>
+                                        <div
+                                            class="mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted">
+                                            <span
+                                                class="inline-flex items-center gap-1">
+                                                <UIcon
+                                                    name="i-lucide-users"
+                                                    class="size-3" />
+                                                {{
+                                                    subjectData.years[year]
+                                                        ?.liczba_zdajacych ??
+                                                    "brak danych"
+                                                }}
+                                            </span>
+                                            <span
+                                                v-if="
+                                                    section.key === 'em' &&
+                                                    subjectData.years[year]
+                                                        ?.zdawalnosc !== null
+                                                "
+                                                class="inline-flex items-center gap-1">
+                                                <UIcon
+                                                    name="i-mdi-percent"
+                                                    class="size-3" />
+                                                {{
+                                                    `${Math.round(subjectData.years[year]?.zdawalnosc ?? 0)}%`
+                                                }}
+                                            </span>
+                                            <span
+                                                v-if="
+                                                    section.key === 'em' &&
+                                                    subjectData.years[year]
+                                                        ?.liczba_laureatow_finalistow !==
+                                                        null
+                                                "
+                                                class="inline-flex items-center gap-1">
+                                                <UIcon
+                                                    name="i-mdi-trophy-outline"
+                                                    class="size-3" />
+                                                {{
+                                                    subjectData.years[year]
+                                                        ?.liczba_laureatow_finalistow
+                                                }}
+                                            </span>
+                                        </div>
+                                    </button>
+
+                                    <template #content>
+                                        <div
+                                            class="rounded-md bg-elevated px-2 py-1.5 text-[11px] leading-tight text-default">
+                                            <p>
+                                                {{
+                                                    `Liczba zdających: ${subjectData.years[year]?.liczba_zdajacych ?? "brak danych"}`
+                                                }}
+                                            </p>
+                                            <p
+                                                v-if="
+                                                    section.key === 'em' &&
+                                                    subjectData.years[year]
+                                                        ?.zdawalnosc !== null
+                                                ">
+                                                {{
+                                                    `Zdawalność: ${Math.round(subjectData.years[year]?.zdawalnosc ?? 0)}%`
+                                                }}
+                                            </p>
+                                            <p
+                                                v-if="
+                                                    section.key === 'em' &&
+                                                    subjectData.years[year]
+                                                        ?.liczba_laureatow_finalistow !==
+                                                        null
+                                                ">
+                                                {{
+                                                    `Liczba laureatów/finalistów: ${subjectData.years[year]?.liczba_laureatow_finalistow}`
+                                                }}
+                                            </p>
+                                        </div>
+                                    </template>
+                                </UPopover>
                             </template>
                             <span v-else class="text-dimmed">-</span>
                         </td>
