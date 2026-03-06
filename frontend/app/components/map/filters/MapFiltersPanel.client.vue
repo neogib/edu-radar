@@ -178,44 +178,45 @@ const canAddMore = (
 
             <!-- Score Range Section -->
             <div
-                class="bg-muted rounded-lg p-2 flex flex-row flex-wrap gap-x-6 gap-y-2 items-center justify-center">
-                <div class="flex items-center gap-1.5">
-                    <UIcon name="i-mdi-star" class="text-amber-500 size-4" />
-                    <span class="text-sm font-medium text-toned"
-                        >Punkty (0-100)</span
-                    >
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-1">
-                        <span class="text-xs text-muted">Min</span>
-                        <UInputNumber
-                            v-model="minScore"
-                            :min="0"
-                            :max="100"
-                            size="sm"
-                            placeholder="0"
-                            class="w-25" />
+                class="bg-muted rounded-lg p-2 flex flex-wrap items-center justify-around gap-x-4 gap-y-2">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <div class="flex items-center gap-1.5">
+                        <UIcon
+                            name="i-mdi-star"
+                            class="text-amber-500 size-4" />
+                        <span class="text-sm font-medium text-toned"
+                            >Punkty (0-100)</span
+                        >
                     </div>
-                    <span class="text-dimmed text-xs">—</span>
-                    <div class="flex items-center gap-1">
-                        <span class="text-xs text-muted">Max</span>
-                        <UInputNumber
-                            v-model="maxScore"
-                            placeholder="100"
-                            size="sm"
-                            :min="0"
-                            :max="100"
-                            class="w-25" />
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1">
+                            <span class="text-xs text-muted">Min</span>
+                            <UInputNumber
+                                v-model="minScore"
+                                :min="0"
+                                :max="100"
+                                size="sm"
+                                placeholder="0"
+                                class="w-25" />
+                        </div>
+                        <span class="text-dimmed text-xs">—</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-xs text-muted">Max</span>
+                            <UInputNumber
+                                v-model="maxScore"
+                                placeholder="100"
+                                size="sm"
+                                :min="0"
+                                :max="100"
+                                class="w-25" />
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div
-                class="bg-muted rounded-lg p-2 flex items-center justify-center">
                 <UCheckbox
                     v-model="closed"
-                    label="Uwzględnij szkoły zlikwidowane"
-                    :ui="{ label: 'text-sm text-toned' }" />
+                    label="Szkoły zlikwidowane"
+                    size="xs"
+                    :ui="{ label: 'text-xs text-toned' }" />
             </div>
 
             <!-- Actions -->
