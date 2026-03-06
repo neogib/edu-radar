@@ -33,6 +33,13 @@ const websiteHref = computed<string | null>(() => {
         : `https://${website}`
 })
 
+const formatSchoolDate = (date: string) =>
+    new Date(date).toLocaleDateString("pl-PL", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    })
+
 const schoolInfoItems = computed(() => {
     const rows: Array<SchoolInfoItem | null> = [
         props.selectedPoint.liczbaUczniow !== null
@@ -82,6 +89,32 @@ const schoolInfoItems = computed(() => {
                   lines: [props.selectedPoint.stronaInternetowa],
                   href: websiteHref.value,
                   external: true,
+              }
+            : null,
+        props.selectedPoint.dataZalozenia
+            ? {
+                  key: "foundation-date",
+                  label: "Data założenia placówki",
+                  icon: "i-mdi-calendar-start",
+                  lines: [formatSchoolDate(props.selectedPoint.dataZalozenia)],
+              }
+            : null,
+        props.selectedPoint.dataRozpoczecia
+            ? {
+                  key: "start-date",
+                  label: "Data rozpoczęcia działalności",
+                  icon: "i-mdi-calendar-check",
+                  lines: [
+                      formatSchoolDate(props.selectedPoint.dataRozpoczecia),
+                  ],
+              }
+            : null,
+        props.selectedPoint.dataLikwidacji
+            ? {
+                  key: "liquidation-date",
+                  label: "Data likwidacji placówki",
+                  icon: "i-mdi-calendar-remove",
+                  lines: [formatSchoolDate(props.selectedPoint.dataLikwidacji)],
               }
             : null,
     ]
