@@ -81,7 +81,7 @@ const scoreColor = computed(() => {
         :content="contentProps"
         :ui="{
             overlay: 'lg:hidden',
-            body: 'overflow-x-hidden p-0 sm:p-0',
+            body: 'overflow-x-auto p-0 sm:p-0',
         }">
         <template #body>
             <div class="relative">

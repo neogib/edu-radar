@@ -117,6 +117,15 @@ const buildExamSection = <T extends WynikPublicWithPrzedmiot>(
         grouped[subjectName].years[result.rok] = {
             wynik,
             liczba_zdajacych: result.liczbaZdajacych,
+            zdawalnosc:
+                key === "em"
+                    ? (result as WynikEMPublicWithPrzedmiot).zdawalnosc
+                    : null,
+            liczba_laureatow_finalistow:
+                key === "em"
+                    ? (result as WynikEMPublicWithPrzedmiot)
+                          .liczbaLaureatowFinalistow
+                    : null,
         }
     }
 
@@ -326,6 +335,44 @@ const weightedMarkerConfig: MarkerConfig = {
                                     {{
                                         `${subjectData.years[year]?.liczba_zdajacych}`
                                     }}
+                                </div>
+                                <div
+                                    v-if="
+                                        section.key === 'em' &&
+                                        (subjectData.years[year]?.zdawalnosc !==
+                                            null ||
+                                            subjectData.years[year]
+                                                ?.liczba_laureatow_finalistow !==
+                                                null)
+                                    "
+                                    class="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-muted">
+                                    <span
+                                        v-if="
+                                            subjectData.years[year]
+                                                ?.zdawalnosc !== null
+                                        "
+                                        class="inline-flex items-center gap-1">
+                                        <UIcon
+                                            name="i-mdi-percent"
+                                            class="size-3" />
+                                        {{
+                                            `${Math.round(subjectData.years[year]?.zdawalnosc ?? 0)}%`
+                                        }}
+                                    </span>
+                                    <span
+                                        v-if="
+                                            subjectData.years[year]
+                                                ?.liczba_laureatow_finalistow !==
+                                            null
+                                        "
+                                        class="inline-flex items-center gap-1">
+                                        <UIcon
+                                            name="i-mdi-trophy-outline"
+                                            class="size-3" />
+                                        {{
+                                            `L/F: ${subjectData.years[year]?.liczba_laureatow_finalistow}`
+                                        }}
+                                    </span>
                                 </div>
                             </template>
                             <span v-else class="text-dimmed">-</span>

@@ -3,6 +3,8 @@ export type ExamSectionKey = "e8" | "em"
 type YearData = {
     wynik: number | null
     liczba_zdajacych: number | null
+    zdawalnosc?: number | null
+    liczba_laureatow_finalistow?: number | null
 }
 
 export type GroupedResults = Record<
