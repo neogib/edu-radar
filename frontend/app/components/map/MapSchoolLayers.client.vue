@@ -38,6 +38,9 @@ const martinQueryString = computed(() => {
     if (filters.value.maxScore !== undefined) {
         params.set("maxScore", String(filters.value.maxScore))
     }
+    if (filters.value.closed) {
+        params.set("closed", "true")
+    }
     if (filters.value.q) {
         params.set("q", filters.value.q)
     }

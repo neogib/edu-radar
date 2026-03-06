@@ -26,3 +26,13 @@ export const parseQueryString = (
     const s = String(Array.isArray(v) ? v[0] : v)
     return s.trim().length >= 2 ? s.trim() : undefined
 }
+
+export const parseBoolean = (
+    v: string | (string | null)[] | null | undefined,
+): boolean => {
+    if (!v) return false
+    const raw = String(Array.isArray(v) ? v[0] : v)
+        .trim()
+        .toLowerCase()
+    return raw === "true" || raw === "1" || raw === "yes"
+}

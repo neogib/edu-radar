@@ -4,7 +4,7 @@ import type { FiltersOptions } from "~/types/schools"
 
 const multiSelectFilters = defineModel<MultiFilter[]>()
 
-const { minScore, maxScore, hasActiveFilters, resetFilters } =
+const { minScore, maxScore, closed, hasActiveFilters, resetFilters } =
     useSchoolFilters()
 
 // Get available items (not already selected) for a filter
@@ -208,6 +208,14 @@ const canAddMore = (
                             class="w-25" />
                     </div>
                 </div>
+            </div>
+
+            <div
+                class="bg-muted rounded-lg p-2 flex items-center justify-center">
+                <UCheckbox
+                    v-model="closed"
+                    label="Uwzględnij szkoły zlikwidowane"
+                    :ui="{ label: 'text-sm text-toned' }" />
             </div>
 
             <!-- Actions -->

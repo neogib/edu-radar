@@ -1,6 +1,5 @@
 import { SELECTION_KEYS, type FiltersParamsWihtoutBbox } from "~/types/filters"
 import type { LocationQueryValue } from "vue-router"
-import { parseArrayOfIds, parseNumber, parseQueryString } from "~/utils/parsers"
 
 type RouteQueryValue = LocationQueryValue | LocationQueryValue[] | undefined
 
@@ -67,6 +66,9 @@ export const useSchoolFilters = () => {
         parseNumber,
         numberSerializer,
     )
+    const closed = createComputedFilter("closed", parseBoolean, (v: boolean) =>
+        v ? "true" : undefined,
+    )
 
     // Search query
     const q = createComputedFilter("q", parseQueryString, (v) =>
@@ -81,6 +83,7 @@ export const useSchoolFilters = () => {
         career: career.value,
         minScore: minScore.value,
         maxScore: maxScore.value,
+        closed: closed.value,
         q: q.value,
     }))
 
@@ -94,6 +97,7 @@ export const useSchoolFilters = () => {
         // Check number filters
         if (filters.value.minScore !== undefined) count++
         if (filters.value.maxScore !== undefined) count++
+        if (filters.value.closed) count++
         return count
     })
 
@@ -109,6 +113,7 @@ export const useSchoolFilters = () => {
             career: undefined,
             minScore: undefined,
             maxScore: undefined,
+            closed: undefined,
             q: undefined,
         })
     }
@@ -120,6 +125,7 @@ export const useSchoolFilters = () => {
         career,
         minScore,
         maxScore,
+        closed,
         q,
 
         // Computed
