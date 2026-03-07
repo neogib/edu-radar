@@ -28,8 +28,10 @@ target_metadata = SQLModel.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-settings = Settings()  # pyright: ignore[reportCallIssue]
-config.set_main_option("sqlalchemy.url", settings.get_connection_string())
+configured_url = config.get_main_option("sqlalchemy.url")
+if not configured_url or configured_url.startswith("driver://"):
+    settings = Settings()  # pyright: ignore[reportCallIssue]
+    config.set_main_option("sqlalchemy.url", settings.get_connection_string())
 
 
 # alembic should ignore extension tables like spatial_ref_sys
