@@ -1,9 +1,12 @@
 from typing import TypedDict
 
+import pytest
 from fastapi.testclient import TestClient
 from pydantic import TypeAdapter
 
 from app.schemas.schools import TypSzkolyPublic
+
+pytestmark = pytest.mark.seeded
 
 
 class ErrorResponse(TypedDict):
