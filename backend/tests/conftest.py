@@ -43,11 +43,13 @@ def migrated_test_db() -> Generator[None]:
 
 
 @pytest.fixture(scope="session")
-def engine(_migrated_test_db: None) -> Generator[Engine]:
+def engine(
+    migrated_test_db: None,  # noqa: ARG001  # pyright: ignore[reportUnusedParameter]
+) -> Generator[Engine]:
     # Fixture dependency order:
     # seeded_client -> seeded_session -> engine -> migrated_test_db
     # client -> session -> engine -> migrated_test_db
-    # Adding `_migrated_test_db` here guarantees migrations are applied first.
+    # Adding `migrated_test_db` here guarantees migrations are applied first.
     yield create_engine(get_test_connection_string())
 
 
