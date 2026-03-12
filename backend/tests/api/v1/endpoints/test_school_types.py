@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from pydantic import TypeAdapter
 
 from app.schemas.schools import TypSzkolyPublic
+from app.services.exceptions import EntityNotFoundError
 
 pytestmark = pytest.mark.seeded
 
@@ -67,8 +68,12 @@ def test_read_school_type_by_existing_id(seeded_client: TestClient) -> None:
 def test_read_school_type_returns_404_for_missing_id(
     seeded_client: TestClient,
 ) -> None:
-    response = seeded_client.get("/api/v1/school_types/999999")
+    school_type_id = 999999
+    response = seeded_client.get(f"/api/v1/school_types/{school_type_id}")
     assert response.status_code == 404
     data = error_response_adapter.validate_python(response.json())
 
-    assert data["detail"] == "TypSzkoly with id=999999 not found"
+    expected_error = EntityNotFoundError(
+        entity_id=school_type_id, model_name="TypSzkoly"
+    )
+    assert data["detail"] == str(expected_error)
