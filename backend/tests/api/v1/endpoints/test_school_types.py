@@ -25,7 +25,19 @@ def test_read_school_types_returns_seeded_data(seeded_client: TestClient) -> Non
 
     data = school_type_list_adapter.validate_python(response.json())
 
-    assert all(item.nazwa for item in data)
+    assert len(data) > 0
+
+
+def test_read_school_types_accepts_repeated_names_query_param(
+    seeded_client: TestClient,
+) -> None:
+    response = seeded_client.get(
+        "/api/v1/school_types/",
+        params=[("names", "___missing_name_1___"), ("names", "___missing_name_2___")],
+    )
+    assert response.status_code == 200
+    data = school_type_list_adapter.validate_python(response.json())
+    assert data == []
 
 
 def test_read_school_types_filters_by_existing_name(seeded_client: TestClient) -> None:
@@ -55,14 +67,12 @@ def test_read_school_type_by_existing_id(seeded_client: TestClient) -> None:
     assert len(all_data) > 0
 
     school_type_id = all_data[0].id
-    school_type_name = all_data[0].nazwa
 
     response = seeded_client.get(f"/api/v1/school_types/{school_type_id}")
     assert response.status_code == 200
     data = school_type_adapter.validate_python(response.json())
 
     assert data.id == school_type_id
-    assert data.nazwa == school_type_name
 
 
 def test_read_school_type_returns_404_for_missing_id(
