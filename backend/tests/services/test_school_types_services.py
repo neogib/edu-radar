@@ -3,6 +3,7 @@ from sqlmodel import Session
 
 from app.services.exceptions import EntityNotFoundError
 from app.services.school_type_service import SchoolTypeService
+from tests.constants import MISSING_INT_ID
 
 pytestmark = pytest.mark.seeded
 
@@ -70,14 +71,5 @@ def test_get_school_type_by_existing_id(
 def test_get_school_type_returns_not_found_for_missing_id(
     school_type_service: SchoolTypeService,
 ) -> None:
-    all_school_types = school_type_service.get_school_types()
-    assert len(all_school_types) > 0
-    existing_ids = [
-        school_type_id
-        for school_type in all_school_types
-        if (school_type_id := school_type.id) is not None
-    ]
-    assert len(existing_ids) == len(all_school_types)
-    missing_id = max(existing_ids) + 1
     with pytest.raises(EntityNotFoundError):
-        _ = school_type_service.get_school_type(missing_id)
+        _ = school_type_service.get_school_type(MISSING_INT_ID)
