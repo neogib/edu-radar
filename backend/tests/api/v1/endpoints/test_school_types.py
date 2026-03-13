@@ -68,12 +68,17 @@ def test_read_school_type_by_existing_id(seeded_client: TestClient) -> None:
 def test_read_school_type_returns_404_for_missing_id(
     seeded_client: TestClient,
 ) -> None:
-    school_type_id = 999999
-    response = seeded_client.get(f"/api/v1/school_types/{school_type_id}")
+    all_response = seeded_client.get("/api/v1/school_types/")
+    assert all_response.status_code == 200
+    all_data = school_type_list_adapter.validate_python(all_response.json())
+    assert len(all_data) > 0
+    missing_school_type_id = max(school_type.id for school_type in all_data) + 1
+
+    response = seeded_client.get(f"/api/v1/school_types/{missing_school_type_id}")
     assert response.status_code == 404
     data = error_response_adapter.validate_python(response.json())
 
     expected_error = EntityNotFoundError(
-        entity_id=school_type_id, model_name="TypSzkoly"
+        entity_id=missing_school_type_id, model_name="TypSzkoly"
     )
     assert data["detail"] == str(expected_error)
