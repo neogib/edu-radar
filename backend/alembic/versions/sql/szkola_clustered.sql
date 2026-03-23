@@ -10,22 +10,27 @@ STABLE
 STRICT
 PARALLEL SAFE
 AS $$
-WITH tile AS (
+WITH tile_base AS (
     SELECT
-        ST_TileEnvelope(z, x, y) AS env_3857,
+        ST_TileEnvelope(z, x, y) AS env_3857
+),
+tile AS (
+    SELECT
+        tb.env_3857,
         ST_Expand(
-            ST_TileEnvelope(z, x, y),
-            (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) * 0.1
+            tb.env_3857,
+            (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) * 0.1
         ) AS env_3857_buffered,
         CASE
             WHEN z >= 13 THEN NULL::double precision
-            WHEN z <= 5 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 5.0
-            WHEN z <= 6 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 6.0
-            WHEN z <= 8 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 8.0
-            WHEN z <= 10 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 12.0
-            WHEN z <= 11 THEN (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 16.0
-            ELSE (ST_XMax(ST_TileEnvelope(z, x, y)) - ST_XMin(ST_TileEnvelope(z, x, y))) / 20.0
+            WHEN z <= 5 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 5.0
+            WHEN z <= 6 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 6.0
+            WHEN z <= 8 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 8.0
+            WHEN z <= 10 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 12.0
+            WHEN z <= 11 THEN (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 16.0
+            ELSE (ST_XMax(tb.env_3857) - ST_XMin(tb.env_3857)) / 20.0
         END AS cell_size
+    FROM tile_base AS tb
 ),
 filter_params AS (
     SELECT
@@ -120,7 +125,13 @@ aggregated AS (
         COUNT(*)::integer AS point_count,
         SUM(COALESCE(b.wynik, 0))::double precision AS sum_wynik,
         COUNT(b.wynik)::integer AS non_null_count,
-        ST_Centroid(ST_Collect(b.geom_3857)) AS geom_3857,
+        ST_SetSRID(
+            ST_MakePoint(
+                AVG(ST_X(b.geom_3857)),
+                AVG(ST_Y(b.geom_3857))
+            ),
+            3857
+        ) AS geom_3857,
         MIN(b.id)::integer AS first_id,
         MIN(b.nazwa) AS first_nazwa,
         MIN(b.typ) AS first_typ,
