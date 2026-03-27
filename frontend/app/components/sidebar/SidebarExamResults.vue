@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { useExamSections } from "~/composables/useExamSections"
+import {
+    EXAM_TREND_CHART_CATEGORIES,
+    EXAM_TREND_MARKER_CONFIG,
+} from "~/constants/examSections"
 import type {
     WynikE8PublicWithPrzedmiot,
     WynikEMPublicWithPrzedmiot,
@@ -12,13 +16,7 @@ interface Props {
 
 const { wynikiE8, wynikiEm } = defineProps<Props>()
 
-const {
-    examSections,
-    hasExamResults,
-    getOrderedSubjects,
-    chartCategories,
-    weightedMarkerConfig,
-} = useExamSections({
+const { examSections, hasExamResults } = useExamSections({
     wynikiE8: () => wynikiE8,
     wynikiEm: () => wynikiEm,
 })
@@ -62,7 +60,7 @@ const {
                 class="weighted-chart-markers mb-4 rounded-lg border border-default bg-default p-2">
                 <LineChart
                     :data="section.weightedData"
-                    :categories="chartCategories"
+                    :categories="EXAM_TREND_CHART_CATEGORIES"
                     :height="180"
                     :x-formatter="
                         (tick: number): string =>
@@ -70,7 +68,7 @@ const {
                     "
                     :x-num-ticks="section.weightedData.length"
                     :y-num-ticks="3"
-                    :marker-config="weightedMarkerConfig"
+                    :marker-config="EXAM_TREND_MARKER_CONFIG"
                     :hide-legend="true"
                     :line-width="3"
                     :y-grid-line="true"
@@ -97,7 +95,7 @@ const {
                 </thead>
                 <tbody>
                     <tr
-                        v-for="[subject, subjectData] in getOrderedSubjects(
+                        v-for="[subject, subjectData] in getOrderedExamSubjects(
                             section,
                         )"
                         :key="`${section.key}-${subject}`"
