@@ -274,6 +274,12 @@ const getRankingDonutData = (percentyl: number): number[] => {
     return [better, rest]
 }
 
+const getRankingScopeColor = (scope: string) => {
+    if (scope === "KRAJ") return "primary"
+    if (scope === "WOJEWODZTWO") return "info"
+    return "neutral"
+}
+
 const locationLabel = computed(() => {
     if (!school.value) return ""
 
@@ -616,88 +622,87 @@ const locationLabel = computed(() => {
                                 v-for="group in rankingGroups"
                                 :key="`${group.examType}-${group.year}`"
                                 class="space-y-2">
-                                <h3 class="text-sm font-semibold text-default">
-                                    {{ group.label }} · {{ group.year }}
-                                </h3>
+                                <USeparator
+                                    :label="`${group.label} · ${group.year}`" />
 
-                                <div class="space-y-2">
+                                <UCard
+                                    v-for="row in group.rows"
+                                    :key="`${group.examType}-${group.year}-${row.scope}`"
+                                    :ui="{ body: 'p-3' }">
                                     <div
-                                        v-for="row in group.rows"
-                                        :key="`${group.examType}-${group.year}-${row.scope}`"
-                                        class="rounded-xl border border-default/70 bg-default/80 px-3 py-3 dark:border-white/10 dark:bg-elevated/70">
-                                        <div
-                                            class="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_110px]">
-                                            <div>
-                                                <p
-                                                    class="font-semibold"
-                                                    :class="row.textClass">
-                                                    TOP
-                                                    {{
-                                                        formatPercentyl(
+                                        class="grid grid-cols-1 items-center gap-3 sm:grid-cols-[minmax(0,1fr)_110px]">
+                                        <div>
+                                            <p
+                                                class="font-semibold"
+                                                :class="row.textClass">
+                                                TOP
+                                                {{
+                                                    formatPercentyl(
+                                                        row.percentyl,
+                                                    )
+                                                }}%
+                                            </p>
+                                            <UBadge
+                                                class="mt-1"
+                                                variant="soft"
+                                                :color="
+                                                    getRankingScopeColor(
+                                                        row.scope,
+                                                    )
+                                                ">
+                                                {{ row.scopeLabel }}
+                                            </UBadge>
+                                            <p class="mt-1 text-xs text-muted">
+                                                #{{ row.miejsce }} /
+                                                {{ row.liczbaSzkol }}
+                                            </p>
+                                            <p
+                                                class="mt-1 text-sm font-medium text-highlighted">
+                                                Lepsza od
+                                                {{
+                                                    formatPercentyl(
+                                                        getBetterThanPercent(
                                                             row.percentyl,
-                                                        )
-                                                    }}%
-                                                </p>
+                                                        ),
+                                                    )
+                                                }}% szkół
+                                            </p>
+                                        </div>
+
+                                        <div class="relative">
+                                            <DonutChart
+                                                :data="
+                                                    getRankingDonutData(
+                                                        row.percentyl,
+                                                    )
+                                                "
+                                                :categories="
+                                                    rankingDonutCategories
+                                                "
+                                                :height="120"
+                                                :radius="0"
+                                                :arc-width="16"
+                                                :hide-legend="true" />
+                                            <div
+                                                class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                                                 <span
-                                                    class="scope-badge mt-1"
-                                                    :class="
-                                                        row.scopeBadgeClass
-                                                    ">
-                                                    {{ row.scopeLabel }}
-                                                </span>
-                                                <p
-                                                    class="mt-1 text-xs text-muted">
-                                                    #{{ row.miejsce }} /
-                                                    {{ row.liczbaSzkol }}
-                                                </p>
-                                                <p
-                                                    class="mt-1 text-sm font-medium text-highlighted">
+                                                    class="text-[10px] text-muted">
                                                     Lepsza od
+                                                </span>
+                                                <span
+                                                    class="text-lg font-semibold text-success">
                                                     {{
                                                         formatPercentyl(
                                                             getBetterThanPercent(
                                                                 row.percentyl,
                                                             ),
                                                         )
-                                                    }}% szkół
-                                                </p>
-                                            </div>
-
-                                            <div class="relative">
-                                                <DonutChart
-                                                    :data="
-                                                        getRankingDonutData(
-                                                            row.percentyl,
-                                                        )
-                                                    "
-                                                    :categories="
-                                                        rankingDonutCategories
-                                                    "
-                                                    :height="120"
-                                                    :radius="0"
-                                                    :arc-width="16"
-                                                    :hide-legend="true" />
-                                                <div
-                                                    class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                                                    <span
-                                                        class="text-[10px] text-muted">
-                                                        Lepsza od
-                                                    </span>
-                                                    <span
-                                                        class="text-lg font-semibold text-success">
-                                                        {{
-                                                            formatPercentyl(
-                                                                getBetterThanPercent(
-                                                                    row.percentyl,
-                                                                ),
-                                                            )
-                                                        }}%
-                                                    </span>
-                                                </div>
+                                                    }}%
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </UCard>
                             </div>
                         </div>
                     </UCard>
@@ -714,9 +719,5 @@ const locationLabel = computed(() => {
 
 .weighted-chart-markers :deep(*[stroke="#2563eb"]) {
     marker: url("#weighted-chart-weighted");
-}
-
-.scope-badge {
-    @apply inline-flex max-w-full items-center truncate rounded-full px-2 py-0.5 text-xs font-semibold ring-1;
 }
 </style>
