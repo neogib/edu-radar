@@ -172,7 +172,9 @@ const scoreColor = computed(() => {
                 <SidebarExamResults
                     :wyniki-e8="selectedPoint.wynikiE8"
                     :wyniki-em="selectedPoint.wynikiEm" />
-                <SidebarSchoolInfo :selected-point="selectedPoint" />
+                <div class="border-b p-4">
+                    <SchoolInfoCard :school="selectedPoint" />
+                </div>
             </div>
         </template>
     </USlideover>
