@@ -178,7 +178,7 @@ const detailedResultsTableRows = computed<DetailedResultsTableRow[]>(() =>
         id: row.id,
         subject: row.subject,
         usesFallback: row.usesFallback,
-        score: formatNumber(row.score),
+        score: row.score,
         participants: formatNumber(row.participants, 0),
         passRate: formatPercent(row.passRate),
         laureates: formatNumber(row.laureates, 0),
@@ -234,7 +234,7 @@ const topSubjectChartData = computed<TopSubjectChartPoint[]>(() =>
 const topSubjectCategories = {
     score: {
         name: "Wynik",
-        color: "var(--ui-info)",
+        color: "var(--ui-primary)",
     },
 }
 
@@ -574,6 +574,26 @@ const locationLabel = computed(() => {
                                                     </template>
                                                 </UPopover>
                                             </div>
+                                        </template>
+                                        <template #score-cell="{ row }">
+                                            <span
+                                                class="text-lg font-bold"
+                                                :style="{
+                                                    color:
+                                                        row.original.score !==
+                                                        null
+                                                            ? getScoreColor(
+                                                                  row.original
+                                                                      .score,
+                                                              )
+                                                            : undefined,
+                                                }">
+                                                {{
+                                                    formatNumber(
+                                                        row.original.score,
+                                                    )
+                                                }}
+                                            </span>
                                         </template>
                                     </UTable>
                                 </div>

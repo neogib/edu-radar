@@ -17,7 +17,7 @@ export interface DetailedResultsTableRow {
     id: string
     subject: string
     usesFallback: boolean
-    score: string
+    score: number | null
     participants: string
     passRate: string
     laureates: string
