@@ -179,7 +179,8 @@ const canAddMore = (
             <!-- Score Range Section -->
             <div
                 class="bg-muted rounded-lg p-2 flex flex-wrap items-center justify-around gap-x-4 gap-y-2">
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <div
+                    class="flex flex-wrap items-center gap-x-3 gap-y-2 justify-center">
                     <div class="flex items-center gap-1.5">
                         <UIcon
                             name="i-mdi-star"
