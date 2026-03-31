@@ -95,7 +95,7 @@ const tableRows = computed<RankingTableRow[]>(() => {
     if (!scope) return []
 
     return rankings.map((ranking) => ({
-        id: ranking.id,
+        id: ranking.szkola.id,
         place: getPlaceByScope(ranking, scope),
         schoolName: ranking.szkola.nazwa,
         city: ranking.szkola.miejscowosc.nazwa,
@@ -194,6 +194,13 @@ const handleRowHover = (
     row: TableRow<RankingTableRow> | null,
 ) => {
     hoveredSchoolId.value = row?.original.id ?? null
+}
+
+const handleRowSelect = async (
+    _event: Event,
+    row: TableRow<RankingTableRow>,
+) => {
+    await navigateTo(`/schools/${row.original.id}`)
 }
 
 const tableMeta = computed(() => ({
@@ -435,12 +442,13 @@ const columnVisibilityItems = computed(
                 :data="tableRows"
                 :columns="columns"
                 :meta="tableMeta"
-                :on-hover="handleRowHover"
                 :loading="rankingsStatus === 'pending'"
                 loading-animation="carousel"
                 loading-color="primary"
                 empty="Brak wyników dla wybranych filtrów."
-                class="bg-transparent" />
+                class="bg-transparent"
+                @hover="handleRowHover"
+                @select="handleRowSelect" />
         </div>
 
         <div class="flex justify-center">
