@@ -111,18 +111,23 @@ const {
                         </h3>
                     </template>
 
-                    <BarChart
+                    <div
                         v-if="topSubjectChartData.length"
-                        :data="topSubjectChartData"
-                        :categories="topSubjectCategories"
-                        :y-axis="['score']"
-                        :height="260"
-                        :radius="4"
-                        :x-num-ticks="topSubjectChartData.length"
-                        :x-formatter="topSubjectXFormatter"
-                        :hide-legend="true"
-                        :y-grid-line="true"
-                        y-label="Wynik" />
+                        class="overflow-x-auto">
+                        <div class="min-w-160 sm:min-w-0">
+                            <BarChart
+                                :data="topSubjectChartData"
+                                :categories="topSubjectCategories"
+                                :y-axis="['score']"
+                                :height="260"
+                                :radius="4"
+                                :x-num-ticks="topSubjectChartData.length"
+                                :x-formatter="topSubjectXFormatter"
+                                :hide-legend="true"
+                                :y-grid-line="true"
+                                y-label="Wynik" />
+                        </div>
+                    </div>
 
                     <p v-else class="text-sm text-muted">
                         Brak kompletnych danych wynikowych dla tego roku.
