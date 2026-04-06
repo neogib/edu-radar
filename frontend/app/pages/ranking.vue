@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UBadge, UTooltip } from "#components"
+import { UBadge, UIcon, UTooltip } from "#components"
 import type { TableColumn, TableRow } from "@nuxt/ui"
 import type { Table as TanstackTable } from "@tanstack/table-core"
 import { watchDebounced } from "@vueuse/core"
@@ -175,9 +175,20 @@ const columns: TableColumn<RankingTableRow>[] = [
         header: "Wynik",
         cell: ({ row }) =>
             h(
-                "span",
-                { class: "font-medium text-primary" },
-                row.original.score,
+                "div",
+                { class: "flex w-full items-center justify-between gap-2" },
+                [
+                    h(
+                        "span",
+                        { class: "font-medium text-primary" },
+                        row.original.score,
+                    ),
+                    h(UIcon, {
+                        name: "i-lucide-chevron-right",
+                        class: "size-4 text-primary/70 opacity-60 transition-all group-hover:translate-x-0.5 group-hover:opacity-100",
+                        "aria-hidden": "true",
+                    }),
+                ],
             ),
     },
 ]
@@ -206,7 +217,12 @@ const handleRowSelect = async (
 const tableMeta = computed(() => ({
     class: {
         tr: (row: TableRow<RankingTableRow>) =>
-            isTooltipOpenForRow(row.original.id) ? "bg-primary/5" : "",
+            [
+                "group transition-colors hover:cursor-pointer hover:bg-primary/10 active:bg-primary/15 hover:ring-1 hover:ring-inset hover:ring-primary/25",
+                isTooltipOpenForRow(row.original.id) ? "bg-primary/10" : "",
+            ]
+                .filter(Boolean)
+                .join(" "),
     },
 }))
 
@@ -435,20 +451,31 @@ const columnVisibilityItems = computed(
                 </UDropdownMenu>
             </div>
 
-            <UTable
-                ref="table"
-                v-model:column-visibility="columnVisibility"
-                sticky
-                :data="tableRows"
-                :columns="columns"
-                :meta="tableMeta"
-                :loading="rankingsStatus === 'pending'"
-                loading-animation="carousel"
-                loading-color="primary"
-                empty="Brak wyników dla wybranych filtrów."
-                class="bg-transparent"
-                @hover="handleRowHover"
-                @select="handleRowSelect" />
+            <p class="px-4 pt-3 text-xs text-muted">
+                Kliknij wiersz, aby przejść do profilu szkoły.
+            </p>
+
+            <div
+                ref="rankingTableContainer"
+                tabindex="0"
+                role="region"
+                aria-label="Tabela rankingowa szkół"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/50">
+                <UTable
+                    ref="table"
+                    v-model:column-visibility="columnVisibility"
+                    sticky
+                    :data="tableRows"
+                    :columns="columns"
+                    :meta="tableMeta"
+                    :loading="rankingsStatus === 'pending'"
+                    loading-animation="carousel"
+                    loading-color="primary"
+                    empty="Brak wyników dla wybranych filtrów."
+                    class="bg-transparent"
+                    @hover="handleRowHover"
+                    @select="handleRowSelect" />
+            </div>
         </div>
 
         <div class="flex justify-center">
