@@ -91,6 +91,16 @@ const scoreColor = computed(() => {
                         {{ selectedPoint.nazwa }}
                     </h3>
 
+                    <UButton
+                        :to="`/schools/${selectedPoint.id}`"
+                        color="primary"
+                        variant="outline"
+                        icon="i-lucide-arrow-up-right"
+                        size="sm"
+                        class="mb-3">
+                        Zobacz pełny profil szkoły
+                    </UButton>
+
                     <div class="flex flex-wrap gap-2 mb-4">
                         <UBadge
                             color="primary"
