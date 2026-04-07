@@ -20,10 +20,12 @@ const overlay = useOverlay()
 const sidebar = overlay.create(LazySidebarMain)
 let sidebarRequestId = 0
 
-const schoolRouteParam = computed(() => {
-    const match = route.path.match(/^\/map\/schools\/([^/]+)\/?$/)
-    if (!match) return null
-    return match[1] ?? null
+const isSchoolRoute = computed(() => route.path.startsWith("/map/schools/"))
+
+const selectedSchoolIdFromRoute = computed<number | null>(() => {
+    const schoolId = Number.parseInt(String(route.params.id), 10)
+    if (!Number.isInteger(schoolId) || schoolId <= 0) return null
+    return schoolId
 })
 
 const navigateToMap = () =>
@@ -94,16 +96,14 @@ const fetchSchoolById = async (schoolId: number) => {
 }
 
 watch(
-    schoolRouteParam,
-    async (schoolRouteId) => {
-        if (schoolRouteId === null) {
+    [selectedSchoolIdFromRoute, isSchoolRoute],
+    async ([schoolId, schoolRoute]) => {
+        if (!schoolRoute) {
             closeSidebar()
             return
         }
 
-        const schoolId = Number.parseInt(schoolRouteId, 10)
-
-        if (!Number.isInteger(schoolId) || schoolId <= 0) {
+        if (schoolId === null) {
             closeSidebar()
             await navigateToMap()
             return

@@ -61,12 +61,6 @@ const handleContentTransitionEnd = (event: Event) => {
     }
 }
 
-const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-        emit("close")
-    }
-}
-
 const isPublicSchool = (status: string) => {
     return !status.toLowerCase().includes("nie")
 }
@@ -88,8 +82,7 @@ const scoreColor = computed(() => {
         :ui="{
             overlay: 'lg:hidden',
             body: 'overflow-x-auto p-0 sm:p-0',
-        }"
-        @update:open="handleOpenChange">
+        }">
         <template #body>
             <div class="relative">
                 <div
