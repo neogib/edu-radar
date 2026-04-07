@@ -1,16 +1,10 @@
 import { useDebounceFn } from "@vueuse/core"
 import type maplibregl from "maplibre-gl"
 import { MAP_CONFIG } from "~/constants/mapConfig"
-import type {
-    SzkolaPublicWithRelations,
-    SzkolaPublicShort,
-} from "~/types/schools"
+import type { SzkolaPublicShort } from "~/types/schools"
 
 export const useMapInteractions = (
-    emit: (
-        event: "point-clicked",
-        school: SzkolaPublicWithRelations | null,
-    ) => void,
+    emit: (event: "point-clicked", schoolId: number | null) => void,
     popupCoordinates: Ref<[number, number] | undefined>,
 ) => {
     type SchoolVectorTileProperties = Omit<
@@ -26,12 +20,13 @@ export const useMapInteractions = (
 
     let currentFeatureCoordinates: string | undefined = undefined
     const hoveredSchool: Ref<SchoolVectorTileProperties | null> = ref(null)
-    const { $api } = useNuxtApp()
     const route = useRoute()
+    const activeMap = shallowRef<maplibregl.Map | null>(null)
 
     // Track hovered feature IDs for feature-state
     let hoveredClusterId: number | null = null
     let selectedSchoolId: number | null = null
+    let pendingSelectedSchoolId: number | null = null
 
     const [minLon, minLat, maxLon, maxLat] = MAP_CONFIG.polandBounds
 
@@ -42,9 +37,9 @@ export const useMapInteractions = (
         map: maplibregl.Map,
         id: number,
         state: { hover?: boolean; clicked?: boolean },
-    ) => {
-        if (!map.isStyleLoaded()) return
-        if (!map.getSource(MAP_CONFIG.sourceId)) return
+    ): boolean => {
+        if (!map.isStyleLoaded()) return false
+        if (!map.getSource(MAP_CONFIG.sourceId)) return false
 
         map.setFeatureState(
             {
@@ -54,9 +49,34 @@ export const useMapInteractions = (
             },
             state,
         )
+
+        return true
+    }
+
+    const syncSelectedSchoolState = (map: maplibregl.Map) => {
+        if (pendingSelectedSchoolId === null) {
+            if (selectedSchoolId !== null) {
+                setFeatureStateSafe(map, selectedSchoolId, { clicked: false })
+            }
+            selectedSchoolId = null
+            return
+        }
+
+        if (
+            selectedSchoolId !== null &&
+            selectedSchoolId !== pendingSelectedSchoolId
+        ) {
+            setFeatureStateSafe(map, selectedSchoolId, { clicked: false })
+        }
+
+        if (setFeatureStateSafe(map, pendingSelectedSchoolId, { clicked: true })) {
+            selectedSchoolId = pendingSelectedSchoolId
+        }
     }
 
     const setupMapEventHandlers = (map: maplibregl.Map) => {
+        activeMap.value = map
+
         // Map move end to update URL
         map.on("moveend", () => handleMoveEnd(map))
 
@@ -94,6 +114,16 @@ export const useMapInteractions = (
         map.on("mouseenter", "clusters", () => {
             map.getCanvas().style.cursor = "pointer"
         })
+
+        // Keep route-driven selection in sync across style/source readiness changes.
+        map.on("styledata", () => syncSelectedSchoolState(map))
+        map.on("sourcedata", (e) => {
+            if (e.sourceId === MAP_CONFIG.sourceId && e.isSourceLoaded) {
+                syncSelectedSchoolState(map)
+            }
+        })
+
+        syncSelectedSchoolState(map)
     }
 
     const handleMoveEnd = (map: maplibregl.Map) => {
@@ -162,15 +192,7 @@ export const useMapInteractions = (
         }
         selectedSchoolId = clickedSchoolId
         setFeatureStateSafe(map, selectedSchoolId, { clicked: true })
-
-        // Fetch full school details and emit event
-        const schoolFullDetails = await $api<SzkolaPublicWithRelations>(
-            `/schools/${clickedSchoolId}`,
-        )
-
-        if (schoolFullDetails) {
-            emit("point-clicked", schoolFullDetails)
-        }
+        emit("point-clicked", clickedSchoolId)
     }
 
     const handleClusterClick = async (
@@ -207,7 +229,7 @@ export const useMapInteractions = (
             }
             // only handle naviagtion to map page
             // sometimes debounced function is called after leaving the page
-            if (window.location.pathname !== "/map") return
+            if (!window.location.pathname.startsWith("/map")) return
             await navigateTo(
                 {
                     query: {
@@ -221,6 +243,25 @@ export const useMapInteractions = (
             )
         },
         300,
+    )
+
+    watch(
+        [() => route.params.id, activeMap],
+        ([paramSchoolId, map]) => {
+            const schoolId = Number.parseInt(String(paramSchoolId), 10)
+            const hasValidSchoolId = Number.isInteger(schoolId) && schoolId > 0
+
+            if (!hasValidSchoolId) {
+                pendingSelectedSchoolId = null
+                if (map) syncSelectedSchoolState(map)
+                return
+            }
+
+            pendingSelectedSchoolId = schoolId
+            if (!map) return
+            syncSelectedSchoolState(map)
+        },
+        { immediate: true },
     )
 
     return {

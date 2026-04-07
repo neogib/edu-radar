@@ -2,8 +2,8 @@
 import { MAP_CONFIG } from "~/constants/mapConfig"
 
 export default defineNuxtRouteMiddleware((to) => {
-    // run only on entering /map
-    if (to.path !== "/map" && to.path !== "/map/") return
+    // run only on entering map routes
+    if (!to.path.startsWith("/map")) return
 
     const x = Number(to.query.x)
     const y = Number(to.query.y)
@@ -20,7 +20,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
     return navigateTo(
         {
-            path: "/map",
+            path: to.path,
             query: {
                 ...to.query, // preserve filters if any
                 x: validX ? x : MAP_CONFIG.defaultCenter[0],

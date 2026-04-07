@@ -6,7 +6,6 @@ import type {
     StyleSpecification,
 } from "maplibre-gl"
 import { MAP_CONFIG, ICONS } from "~/constants/mapConfig"
-import type { SzkolaPublicWithRelations } from "~/types/schools"
 
 useHistoryState()
 const route = useRoute()
@@ -17,7 +16,7 @@ const [x, y, z] = [
     Number(route.query.z),
 ]
 const emit = defineEmits<{
-    "point-clicked": [school: SzkolaPublicWithRelations | null]
+    "point-clicked": [schoolId: number | null]
 }>()
 const isWebglSupported = ref<boolean | null>(null)
 

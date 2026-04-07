@@ -12,7 +12,7 @@ export const useHistoryState = () => {
 
     const handleHistoryNavigation = async () => {
         // only handle naviagtion to map page
-        if (window.location.pathname !== "/map") return
+        if (!window.location.pathname.startsWith("/map")) return
 
         // map needs to be loaded
         if (!mapInstance.isLoaded) return
