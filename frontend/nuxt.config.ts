@@ -39,6 +39,9 @@ export default defineNuxtConfig({
     ogImage: {
         enabled: false,
     },
+    image: {
+        provider: isCapacitor ? "none" : "ipx",
+    },
     // Runtime environment configuration
     runtimeConfig: {
         proxyURL: "http://localhost:8000/api/v1",
