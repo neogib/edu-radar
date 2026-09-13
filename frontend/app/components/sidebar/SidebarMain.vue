@@ -18,7 +18,7 @@ const isDismissedBySwipe = ref(false)
 
 const swipe = usePointerSwipe(swipeTarget, {
     threshold: 10,
-    pointerTypes: ["touch", "pen", "mouse"],
+    pointerTypes: ["touch", "pen"],
     onSwipeEnd(_: PointerEvent, direction: UseSwipeDirection) {
         const dragX = Math.max(0, swipe.distanceX.value)
         if (direction === "left" && dragX >= 100)
