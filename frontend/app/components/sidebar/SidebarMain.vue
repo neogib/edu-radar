@@ -17,7 +17,8 @@ const swipeTarget = shallowRef<HTMLElement | null>(null)
 const isDismissedBySwipe = ref(false)
 
 const swipe = usePointerSwipe(swipeTarget, {
-    pointerTypes: ["touch", "pen"],
+    threshold: 10,
+    pointerTypes: ["touch", "pen", "mouse"],
     onSwipeEnd(_: PointerEvent, direction: UseSwipeDirection) {
         const dragX = Math.max(0, swipe.distanceX.value)
         if (direction === "left" && dragX >= 100)
@@ -40,12 +41,18 @@ const contentProps = computed<NonNullable<SlideoverProps["content"]>>(
             ref: (el: Element | null) => {
                 swipeTarget.value = el as HTMLElement | null
             },
-            class: swipe.isSwiping.value
-                ? ""
-                : "transition-transform duration-200 ease-linear",
+            class: [
+                "touch-pan-y",
+                swipe.isSwiping.value
+                    ? "select-none"
+                    : "transition-transform duration-200 ease-linear",
+            ]
+                .filter(Boolean)
+                .join(" "),
             onTransitionend: handleContentTransitionEnd,
             style: {
                 transform: transform.value,
+                touchAction: "pan-y",
             },
         }) as unknown as NonNullable<SlideoverProps["content"]>,
 )
@@ -93,11 +100,11 @@ const scoreColor = computed(() => {
         :content="contentProps"
         :ui="{
             overlay: 'lg:hidden',
-            body: 'overflow-x-auto p-0 sm:p-0',
+            body: 'overflow-x-hidden overflow-y-auto touch-pan-y p-0 sm:p-0',
         }"
         @update:open="handleOpenChange">
         <template #body>
-            <div class="relative">
+            <div class="relative touch-pan-y">
                 <div
                     class="p-4 border-b border-default bg-linear-to-br from-blue-50 via-indigo-50 to-violet-50 dark:from-blue-950/75 dark:via-indigo-950/70 dark:to-violet-950/65">
                     <h3 class="text-xl font-bold text-highlighted mb-3">
