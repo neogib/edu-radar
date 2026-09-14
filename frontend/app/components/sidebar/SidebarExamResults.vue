@@ -90,18 +90,20 @@ watch(examSections, scrollToRight)
                 Brak kompletnych danych mediany do obliczenia trendu.
             </p>
 
-            <div ref="tableContainers" class="overflow-x-auto">
-                <table class="w-full text-sm">
+            <div
+                ref="tableContainers"
+                class="overflow-x-auto overflow-y-auto max-h-[60vh]">
+                <table class="w-full border-separate border-spacing-0 text-sm">
                     <thead>
-                        <tr class="border-b border-default">
+                        <tr>
                             <th
-                                class="sticky left-0 z-10 bg-default text-left py-2 px-1 font-semibold text-default max-w-30 w-30">
+                                class="sticky left-0 top-0 z-30 border-b-2 border-default bg-default px-1 py-2 text-left font-semibold text-default max-w-30 w-30 shadow-[4px_0_6px_rgba(0,0,0,0.14)]">
                                 Przedmiot
                             </th>
                             <th
                                 v-for="year in section.years"
                                 :key="`year-${section.key}-${year}`"
-                                class="text-center py-2 px-1 font-semibold text-default">
+                                class="sticky top-0 z-20 border-b-2 border-default bg-default px-1 py-2 text-center font-semibold text-default shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                                 {{ year }}
                             </th>
                         </tr>
@@ -112,10 +114,9 @@ watch(examSections, scrollToRight)
                                 subject,
                                 subjectData,
                             ] in getOrderedExamSubjects(section)"
-                            :key="`${section.key}-${subject}`"
-                            class="border-b border-default">
+                            :key="`${section.key}-${subject}`">
                             <td
-                                class="sticky left-0 z-10 bg-default py-3 px-1 text-highlighted">
+                                class="sticky left-0 z-10 border-b border-default bg-default py-3 px-1 text-highlighted shadow-[4px_0_6px_rgba(0,0,0,0.14)]">
                                 <div
                                     class="inline-flex items-center gap-1 font-medium"
                                     :title="subject">
@@ -142,7 +143,7 @@ watch(examSections, scrollToRight)
                             <td
                                 v-for="year in section.years"
                                 :key="`${section.key}-${subject}-${year}`"
-                                class="align-top text-center py-3 px-1">
+                                class="align-top border-b border-default text-center py-3 px-1">
                                 <template v-if="subjectData.years[year]">
                                     <UPopover
                                         :content="{
